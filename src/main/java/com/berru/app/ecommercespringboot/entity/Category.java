@@ -18,9 +18,6 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name = "\"description\"")
-    private String description;
-
     @ManyToOne
     @JoinColumn(name = "category_parent_id")
     private Category categoryParent;
@@ -29,7 +26,6 @@ public class Category {
     {
         if (category.getCategoryParent()!= null) this.categoryParent= category.getCategoryParent();
         if (category.getName() != null ) this.name = category.getName();
-        if (category.getDescription() != null) this.description = category.getDescription();
     }
 
 
