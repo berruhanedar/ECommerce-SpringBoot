@@ -1,4 +1,5 @@
 package com.berru.app.ecommercespringboot.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;

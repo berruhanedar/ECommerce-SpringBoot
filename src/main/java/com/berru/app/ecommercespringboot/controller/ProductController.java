@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.controller;
 
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.service.ProductService;
 import jakarta.validation.Valid;
@@ -27,22 +28,22 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Integer id) {
-             return ResponseEntity.ok(new Product());
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Integer id) {
+        return productService.getProductById(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-               return ResponseEntity.ok(List.of(new Product()));
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+        return productService.getAllProducts();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Integer id, @RequestBody Product productDetails) {
-            return ResponseEntity.ok(productDetails);
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Integer id, @RequestBody @Valid UpdateProductRequestDTO updateProductRequestDTO) {
+        return productService.updateProduct(id, updateProductRequestDTO);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
-            return ResponseEntity.noContent().build();
+        return productService.deleteProduct(id);
     }
 }
