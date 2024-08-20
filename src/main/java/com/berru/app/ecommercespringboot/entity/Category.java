@@ -2,31 +2,47 @@ package com.berru.app.ecommercespringboot.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter
+@Entity
+@Table(name = "category")
+@Builder
 public class Category {
-
     @Id
-    @Column(nullable = false, updatable = false)
+    @Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long categoryId;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(name = "category_name")
+    private String categoryName;
 
-    @ManyToOne
-    @JoinColumn(name = "category_parent_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
     private Category categoryParent;
 
-    public void compare(Category category)
-    {
-        if (category.getCategoryParent()!= null) this.categoryParent= category.getCategoryParent();
-        if (category.getName() != null ) this.name = category.getName();
+    @OneToMany(mappedBy = "categoryParent")
+    private List<Category> categoryChildren = new ArrayList<>();
+
+    @Builder(builderMethodName = "create")
+    public Category(String categoryName, Category categoryParent) {
+        this.categoryName = categoryName;
+        this.categoryParent = categoryParent;
     }
 
+    @Builder
+    public Category(Long categoryId, String categoryName, Category categoryParent,
+                    List<Category> categoryChildren) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.categoryParent = categoryParent;
+        this.categoryChildren = categoryChildren;
+    }
 
+    public void updateCategory(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }
