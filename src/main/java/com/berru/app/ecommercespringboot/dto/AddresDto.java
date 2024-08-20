@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Entity
-public class adresDto {
+public class AddresDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

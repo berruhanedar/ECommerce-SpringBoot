@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AdressDTO {
+public class AddressDTO {
     private int addressId;
     private String addressName;
     private String street;
