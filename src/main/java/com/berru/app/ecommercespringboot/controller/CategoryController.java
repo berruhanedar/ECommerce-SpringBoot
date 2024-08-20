@@ -1,42 +1,31 @@
 package com.berru.app.ecommercespringboot.controller;
 
-import com.berru.app.ecommercespringboot.entity.Category;
+import com.berru.app.ecommercespringboot.dto.CategoryDTO;
+import com.berru.app.ecommercespringboot.dto.NewCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 public class CategoryController {
 
-    // Tüm kategorileri getir
-    @GetMapping
-    public List<Category> getAllCategories() {
-        return null;
+    private final CategoryService categoryService;
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
-    // ID'ye göre bir kategori getir
-    @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-        return null;
-    }
-
-    // Yeni bir kategori oluştur
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return null;
+    public ResponseEntity<CategoryDTO> createCategory(@RequestBody NewCategoryRequestDTO newCategoryRequestDTO) {
+        return categoryService.create(newCategoryRequestDTO);
     }
 
-    // Mevcut bir kategoriyi güncelle
-    @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
-        return null;
-    }
 
-    // Bir kategoriyi sil
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        return null;
+    @GetMapping
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+        return categoryService.getAllCategories();
     }
 }

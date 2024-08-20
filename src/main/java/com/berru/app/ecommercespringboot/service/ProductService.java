@@ -22,16 +22,8 @@ public class ProductService {
     }
 
     public ResponseEntity<ProductDTO> create(NewProductRequestDTO newProductRequestDTO) {
-        // DTO'dan Entity'ye dönüşüm
         Product product = productMapper.toEntity(newProductRequestDTO);
-
-        // Kategori ID'sini ayarla (Opsiyonel: Eğer `Category` nesnesi kullanmak istiyorsanız)
-        // product.setCategory(categoryRepository.findById(newProductRequestDTO.getCategoryId()).orElse(null));
-
-        // Veritabanına kaydetme
         Product savedProduct = productRepository.save(product);
-
-        // Entity'den DTO'ya dönüşüm
         ProductDTO productDTO = productMapper.toDto(savedProduct);
 
         return ResponseEntity.ok(productDTO);

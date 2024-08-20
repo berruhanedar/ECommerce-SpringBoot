@@ -1,5 +1,4 @@
 package com.berru.app.ecommercespringboot.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -10,11 +9,10 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "category")
-@Builder
 public class Category {
     @Id
-    @Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "category_id")
     private Integer id;
 
     @Column(name = "category_name")
@@ -22,29 +20,14 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private Category categoryParent;
+    private Category parentCategory;
 
-    @OneToMany(mappedBy = "categoryParent")
-    private List<Category> categoryChildren = new ArrayList<>();
-
-    // Constructor for creating a new Category with parent
-    @Builder
-    public Category(String name, Category categoryParent) {
-        this.name = name;
-        this.categoryParent = categoryParent;
-    }
-
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> children = new ArrayList<>();
 
     @Builder
-    public Category(Integer id, String name, Category categoryParent, List<Category> categoryChildren) {
-        this.id = id;
+    public Category(String name, Category parentCategory) {
         this.name = name;
-        this.categoryParent = categoryParent;
-        this.categoryChildren = categoryChildren;
-    }
-
-
-    public void updateCategory(String name) {
-        this.name = name;
+        this.parentCategory = parentCategory;
     }
 }
