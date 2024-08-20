@@ -5,17 +5,22 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+
+@Getter
+@Setter
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer productId;
+    private Integer id;
 
     @NotNull
     @Size(min = 3, max = 30, message = "Product name size should be between 3-30")
-    private String productName;
+    private String name;
 
     @NotNull
     @DecimalMin(value = "0.00")
@@ -32,8 +37,6 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
-
 
 
 }
