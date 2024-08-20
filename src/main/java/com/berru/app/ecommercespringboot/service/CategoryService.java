@@ -9,13 +9,17 @@ import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+
 
 @Service
 public class CategoryService {
@@ -57,12 +61,6 @@ public class CategoryService {
         return ResponseEntity.ok(categoryTree);
     }
 
-    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(Integer categoryId) {
-        List<Product> products = productRepository.findByCategoryId(categoryId);
-        List<ProductDTO> productDTOs = productMapper.toDtoList(products); // productMapper içinde toDtoList metodunu oluştur
-        return ResponseEntity.ok(productDTOs);
-    }
-
 
     public ResponseEntity<CategoryDTO> getCategoryById(Integer id) {
         Optional<Category> categoryOptional = categoryRepository.findById(id);
@@ -89,20 +87,53 @@ public class CategoryService {
         }
     }
 
+    private List<Integer> getAllCategoryIds(Integer categoryId) {
+        List<Integer> categoryIds = new ArrayList<>();
+        categoryIds.add(categoryId);
+
+        List<Category> childCategories = categoryRepository.findByParentCategoryId(categoryId);
+
+        for (Category child : childCategories) {
+            categoryIds.addAll(getAllCategoryIds(child.getId()));
+        }
+
+        return categoryIds;
+    }
+
+    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(Integer categoryId) {
+        List<Integer> categoryIds = getAllCategoryIds(categoryId);
+        List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
+        List<ProductDTO> productDTOs = productMapper.toDtoList(products);
+        return ResponseEntity.ok(productDTOs);
+    }
+
     public ResponseEntity<DeleteCategoryResponseDTO> deleteCategory(Integer id) {
         if (categoryRepository.existsById(id)) {
+            // Kategoriye bağlı ürünleri kontrol et
+            List<Product> associatedProducts = productRepository.findByCategoryIdIn(List.of(id));
+            if (!associatedProducts.isEmpty()) {
+                // Eğer bağlı ürünler varsa hata mesajı döndür
+                DeleteCategoryResponseDTO response = new DeleteCategoryResponseDTO();
+                response.setMessage("Category cannot be deleted as it is associated with other records.");
+                response.setId(id);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Silme işlemi
             categoryRepository.deleteById(id);
+
             // Başarılı yanıt için DeleteCategoryResponseDTO oluşturuluyor
             DeleteCategoryResponseDTO response = new DeleteCategoryResponseDTO();
             response.setMessage("Category deleted successfully");
             response.setId(id); // Kategori ID'si döndürülebilir
-//
-            return ResponseEntity.ok(response);
-        } else {
 
+            return ResponseEntity.ok(response);
+
+        } else {
             throw new NotFoundException("Category not found");
         }
     }
+
 
 
     private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories) {

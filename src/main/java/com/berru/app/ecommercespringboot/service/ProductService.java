@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,20 +81,24 @@ public class ProductService {
     }
 
     public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(Integer categoryId) {
-        List<Product> products = productRepository.findByCategoryId(categoryId);
-
-        // Üst kategoriler için ürünleri bulmak
-        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
-        if (categoryOptional.isPresent()) {
-            Category category = categoryOptional.get();
-            while (category.getParentCategory() != null) {
-                category = category.getParentCategory();
-                products.addAll(productRepository.findByCategoryId(category.getId()));
-            }
-        }
-
+        // Retrieve the category and its child categories recursively
+        List<Integer> categoryIds = getAllCategoryIds(categoryId);
+        List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
         List<ProductDTO> productDTOs = productMapper.toDtoList(products);
         return ResponseEntity.ok(productDTOs);
+    }
+
+    private List<Integer> getAllCategoryIds(Integer categoryId) {
+        // Recursively collect category IDs including the parent and its children
+        List<Integer> categoryIds = new ArrayList<>();
+        categoryIds.add(categoryId);
+
+        List<Category> childCategories = categoryRepository.findByParentCategoryId(categoryId);
+        for (Category child : childCategories) {
+            categoryIds.addAll(getAllCategoryIds(child.getId()));
+        }
+
+        return categoryIds;
     }
 
 
