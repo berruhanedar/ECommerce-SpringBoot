@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CustomerDTO {
+public class customerDto {
 
     @NotNull
     @Pattern(regexp = "[6789][0-9]{9}", message = "Enter valid mobile number")
