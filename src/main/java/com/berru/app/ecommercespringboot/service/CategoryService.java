@@ -3,9 +3,12 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.dto.DeleteCategoryResponseDTO;
 import com.berru.app.ecommercespringboot.entity.Category;
+import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
+import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
+import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,10 +21,14 @@ import java.util.stream.Collectors;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ProductRepository productRepository, ProductMapper productMapper) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
+        this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     public ResponseEntity<CategoryDTO> create(NewCategoryRequestDTO newCategoryRequestDTO) {
@@ -49,6 +56,13 @@ public class CategoryService {
 
         return ResponseEntity.ok(categoryTree);
     }
+
+    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(Integer categoryId) {
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+        List<ProductDTO> productDTOs = productMapper.toDtoList(products); // productMapper içinde toDtoList metodunu oluştur
+        return ResponseEntity.ok(productDTOs);
+    }
+
 
     public ResponseEntity<CategoryDTO> getCategoryById(Integer id) {
         Optional<Category> categoryOptional = categoryRepository.findById(id);
@@ -114,4 +128,5 @@ public class CategoryService {
 
         parent.setChildren(children);
     }
+
 }

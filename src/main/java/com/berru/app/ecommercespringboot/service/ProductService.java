@@ -3,8 +3,10 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
+import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,17 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
+        this.categoryRepository=categoryRepository;
+
     }
 
     public ResponseEntity<ProductDTO> create(NewProductRequestDTO newProductRequestDTO) {
@@ -72,4 +78,24 @@ public class ProductService {
             return ResponseEntity.notFound().build();
         }
     }
+
+    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(Integer categoryId) {
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+
+        // Üst kategoriler için ürünleri bulmak
+        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
+        if (categoryOptional.isPresent()) {
+            Category category = categoryOptional.get();
+            while (category.getParentCategory() != null) {
+                category = category.getParentCategory();
+                products.addAll(productRepository.findByCategoryId(category.getId()));
+            }
+        }
+
+        List<ProductDTO> productDTOs = productMapper.toDtoList(products);
+        return ResponseEntity.ok(productDTOs);
+    }
+
+
+
 }

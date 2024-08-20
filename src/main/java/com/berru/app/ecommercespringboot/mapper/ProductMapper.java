@@ -10,6 +10,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
@@ -21,6 +23,9 @@ public interface ProductMapper {
 
     @Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategory")
     void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
+
+    List<ProductDTO> toDtoList(List<Product> products);
+
 
     @Named("mapCategory")
     default Category mapCategory(Integer categoryId) {
