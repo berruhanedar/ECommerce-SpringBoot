@@ -34,6 +34,9 @@ public class Product {
     @Min(value = 0)
     private Integer quantity;
 
+    @Size(max = 255)
+    private String image;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
