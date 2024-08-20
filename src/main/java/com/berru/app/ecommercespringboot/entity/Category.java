@@ -34,7 +34,7 @@ public class Category {
         this.categoryParent = categoryParent;
     }
 
-    // Constructor for updating Category
+
     @Builder
     public Category(Integer id, String name, Category categoryParent, List<Category> categoryChildren) {
         this.id = id;
@@ -43,7 +43,7 @@ public class Category {
         this.categoryChildren = categoryChildren;
     }
 
-    // Method for updating category name
+
     public void updateCategory(String name) {
         this.name = name;
     }
