@@ -1,12 +1,11 @@
 package com.berru.app.ecommercespringboot.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -16,10 +15,10 @@ public class Category {
     @Id
     @Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long categoryId;
+    private Integer id;
 
     @Column(name = "category_name")
-    private String categoryName;
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -28,22 +27,24 @@ public class Category {
     @OneToMany(mappedBy = "categoryParent")
     private List<Category> categoryChildren = new ArrayList<>();
 
-    @Builder(builderMethodName = "create")
-    public Category(String categoryName, Category categoryParent) {
-        this.categoryName = categoryName;
+    // Constructor for creating a new Category with parent
+    @Builder
+    public Category(String name, Category categoryParent) {
+        this.name = name;
         this.categoryParent = categoryParent;
     }
 
+    // Constructor for updating Category
     @Builder
-    public Category(Long categoryId, String categoryName, Category categoryParent,
-                    List<Category> categoryChildren) {
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
+    public Category(Integer id, String name, Category categoryParent, List<Category> categoryChildren) {
+        this.id = id;
+        this.name = name;
         this.categoryParent = categoryParent;
         this.categoryChildren = categoryChildren;
     }
 
-    public void updateCategory(String categoryName) {
-        this.categoryName = categoryName;
+    // Method for updating category name
+    public void updateCategory(String name) {
+        this.name = name;
     }
 }
