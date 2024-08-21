@@ -2,6 +2,7 @@ package com.berru.app.ecommercespringboot.controller;
 
 
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Product;
@@ -33,8 +34,10 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return productService.listPaginated(pageNo, pageSize);
     }
 
     @PutMapping("/{id}")
