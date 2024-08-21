@@ -32,4 +32,6 @@ public class Address {
 
     @Column(name = "postal_code", nullable = false)
     private Integer postalCode;
+
+
 }

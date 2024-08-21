@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 @Setter
 public class UpdateCustomerRequestDTO {
     private int customerId;
-    private int adressId;
+    private int addressId;
     private String firstName;
     private String lastName;
     private String email;
-    private Integer mobilenumber;
+    private Integer mobileNumber;
     private String password;
     private BigDecimal balance;
 }

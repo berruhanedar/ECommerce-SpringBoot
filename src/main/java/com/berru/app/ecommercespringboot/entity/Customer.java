@@ -38,5 +38,9 @@ public class Customer {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private Address address;
+
 }
 
