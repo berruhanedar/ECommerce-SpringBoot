@@ -13,11 +13,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Entity
 public class AddresDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer addressId;
 
     @Pattern(regexp = "[A-Za-z0-9\\s-]{3,}", message = "Not a valid street no")
