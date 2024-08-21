@@ -24,7 +24,9 @@
         <jacoco.rule.line.coverage>0.80</jacoco.rule.line.coverage>
         <jacoco.rule.line.length>160</jacoco.rule.line.length>
         <jacoco.coverage.destFile>target/coverage-reports/jacoco-unit.exec</jacoco.coverage.destFile>
-        <jacoco.exclude.default>**/dto/**,**/model/**,**/entity/**,**/enums/**,**/mapper/**,**/builders/**,**/controller/**Controller**,**/controller/**/**Controller**,**/controller/migration/**,**/controller/query/**,**/controller/rest/**,**/controller/resource/**,**/controller/capability/**,**/client/**,**/exception/**,**/**Application**,${basedir}/target/**,**/configuration/**,**/configurations/**,**/util/**,**/clients/**,**/lib/**,**/context/**</jacoco.exclude.default>
+        <jacoco.exclude.default>
+            **/dto/**,**/model/**,**/entity/**,**/enums/**,**/mapper/**,**/builders/**,**/controller/**Controller**,**/controller/**/**Controller**,**/controller/migration/**,**/controller/query/**,**/controller/rest/**,**/controller/resource/**,**/controller/capability/**,**/client/**,**/exception/**,**/**Application**,${basedir}/target/**,**/configuration/**,**/configurations/**,**/util/**,**/clients/**,**/lib/**,**/context/**
+        </jacoco.exclude.default>
         <jacoco.excludes>src/test/**</jacoco.excludes>
         <jacoco.exclude.list>${jacoco.exclude.default},${jacoco.excludes}</jacoco.exclude.list>
     </properties>
@@ -227,7 +229,6 @@
                 </executions>
                 <configuration>
                     <configLocation>google_checks.xml</configLocation>
-                    <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                 </configuration>
