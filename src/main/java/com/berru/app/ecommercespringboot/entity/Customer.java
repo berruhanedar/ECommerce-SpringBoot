@@ -17,9 +17,6 @@ public class Customer {
     @Column(name = "customer_id")
     private int customerId;
 
-    @Column(name = "address_id", nullable = false)
-    private int addressId;
-
     @Column(name = "first_name", nullable = false, length = 255)
     private String firstName;
 
