@@ -14,20 +14,19 @@
     <name>springbooth2</name>
     <description>springbooth2</description>
     <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
     <properties>
         <java.version>21</java.version>
+        <jacoco.check.skip>false</jacoco.check.skip>
+        <jacoco.halt.on.failure>false</jacoco.halt.on.failure>
+        <jacoco.rule.element.coverage>CLASS</jacoco.rule.element.coverage>
+        <jacoco.rule.branch.coverage>0.70</jacoco.rule.branch.coverage>
+        <jacoco.rule.line.coverage>0.80</jacoco.rule.line.coverage>
+        <jacoco.rule.line.length>160</jacoco.rule.line.length>
+        <jacoco.coverage.destFile>target/coverage-reports/jacoco-unit.exec</jacoco.coverage.destFile>
+        <jacoco.exclude.default>**/dto/**,**/model/**,**/entity/**,**/enums/**,**/mapper/**,**/builders/**,**/controller/**Controller**,**/controller/**/**Controller**,**/controller/migration/**,**/controller/query/**,**/controller/rest/**,**/controller/resource/**,**/controller/capability/**,**/client/**,**/exception/**,**/**Application**,${basedir}/target/**,**/configuration/**,**/configurations/**,**/util/**,**/clients/**,**/lib/**,**/context/**</jacoco.exclude.default>
+        <jacoco.excludes>src/test/**</jacoco.excludes>
+        <jacoco.exclude.list>${jacoco.exclude.default},${jacoco.excludes}</jacoco.exclude.list>
     </properties>
     <dependencies>
         <dependency>
@@ -63,10 +62,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
         <dependency>
@@ -137,6 +132,7 @@
 
     <build>
         <plugins>
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -149,7 +145,125 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- Jacoco Maven Plugin -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-jacoco-check</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>${jacoco.exclude.list}</excludes>
+                            <skip>${jacoco.check.skip}</skip>
+                            <haltOnFailure>${jacoco.halt.on.failure}</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>${jacoco.rule.element.coverage}</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.rule.line.coverage}</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.rule.branch.coverage}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <rule implementation="org.jacoco.maven.RuleConfiguration">
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit implementation="org.jacoco.report.check.Limit">
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                        <limit implementation="org.jacoco.report.check.Limit">
+                                            <counter>CLASS</counter>
+                                            <value>MISSEDCOUNT</value>
+                                            <maximum>0</maximum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Checkstyle Maven Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
+    <reporting>
+        <plugins>
+            <!-- Jacoco Report -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Checkstyle Report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.4.0</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

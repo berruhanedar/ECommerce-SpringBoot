@@ -1,6 +1,5 @@
 package com.berru.app.ecommercespringboot.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -13,11 +12,18 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
-
+/**
+ * Swagger yapılandırması için konfigürasyon sınıfı.
+ */
 @Configuration
 @EnableWebMvc
 public class SwaggerConfig implements WebMvcConfigurer {
 
+    /**
+     * Swagger için Docket yapılandırmasını döndürür.
+     *
+     * @return Swagger Docket yapılandırması
+     */
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
@@ -26,9 +32,14 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .build().apiInfo(apiInfoMetaData());
     }
 
-
+    /**
+     * API bilgilerini yapılandırır.
+     *
+     * @return API bilgileri
+     */
     private ApiInfo apiInfoMetaData() {
-        return new ApiInfoBuilder().title("Tutorials")
+        return new ApiInfoBuilder()
+                .title("Tutorials")
                 .description("API Endpoint Decoration")
                 .contact(new Contact("Dev-Team", "https://www.dev-team.com/", "dev-team@gmail.com"))
                 .license("Apache 2.0")
