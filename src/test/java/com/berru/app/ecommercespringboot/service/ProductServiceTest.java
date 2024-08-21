@@ -1,8 +1,6 @@
 package com.berru.app.ecommercespringboot.service;
 
-import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
-import com.berru.app.ecommercespringboot.dto.PaginationResponse;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
+import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
@@ -25,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
@@ -150,11 +147,130 @@ class ProductServiceTest {
     }
 
     @Test
-    void updateProduct() {
+    public void whenUpdateCalledWithValidRequest_itShouldReturnUpdatedProductDTO() {
+        int productId = 1;
+        int categoryId = 2;
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+        existingProduct.setName("Old Product Name");
+        existingProduct.setPrice(BigDecimal.valueOf(100.00));
+        existingProduct.setDescription("Old Description");
+        existingProduct.setQuantity(10);
+        existingProduct.setImage("old-image.png");
+
+        Category category = new Category();
+        category.setId(categoryId);
+
+        Product updatedProduct = new Product();
+        updatedProduct.setId(productId);
+        updatedProduct.setName("Updated Product Name");
+        updatedProduct.setPrice(BigDecimal.valueOf(200.00));
+        updatedProduct.setDescription("Updated Description");
+        updatedProduct.setQuantity(20);
+        updatedProduct.setImage("updated-image.png");
+        updatedProduct.setCategory(category);
+
+        UpdateProductRequestDTO updateProductRequestDTO = new UpdateProductRequestDTO();
+        updateProductRequestDTO.setName("Updated Product Name");
+        updateProductRequestDTO.setPrice(BigDecimal.valueOf(200.00));
+        updateProductRequestDTO.setDescription("Updated Description");
+        updateProductRequestDTO.setQuantity(20);
+        updateProductRequestDTO.setImage("updated-image.png");
+        updateProductRequestDTO.setCategoryId(categoryId);
+
+        ProductDTO updatedProductDTO = new ProductDTO();
+        updatedProductDTO.setId(productId);
+        updatedProductDTO.setName("Updated Product Name");
+        updatedProductDTO.setPrice(BigDecimal.valueOf(200.00));
+        updatedProductDTO.setDescription("Updated Description");
+        updatedProductDTO.setQuantity(20);
+        updatedProductDTO.setImage("updated-image.png");
+        updatedProductDTO.setCategoryId(categoryId);
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        when(productRepository.save(existingProduct)).thenReturn(updatedProduct);
+        when(productMapper.toDto(updatedProduct)).thenReturn(updatedProductDTO);
+
+        ResponseEntity<ProductDTO> response = productService.updateProduct(productId, updateProductRequestDTO);
+
+        assertEquals(response.getBody(), updatedProductDTO);
+        assertEquals(response.getBody().getName(), "Updated Product Name");
+        assertEquals(response.getBody().getPrice(), BigDecimal.valueOf(200.00));
+        assertEquals(response.getBody().getDescription(), "Updated Description");
+        assertEquals(response.getBody().getQuantity(), 20);
+        assertEquals(response.getBody().getImage(), "updated-image.png");
+        assertEquals(response.getBody().getCategoryId(), categoryId);
+
+        verify(productRepository).findById(productId);
+        verify(categoryRepository).findById(categoryId);
+        verify(productRepository).save(existingProduct);
+        verify(productMapper).toDto(updatedProduct);
     }
 
     @Test
-    void deleteProduct() {
+    public void whenUpdateCalledWithInvalidProductId_itShouldThrowNotFoundException() {
+        int invalidProductId = 1;
+        UpdateProductRequestDTO updateProductRequestDTO = new UpdateProductRequestDTO();
+
+        when(productRepository.findById(invalidProductId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> productService.updateProduct(invalidProductId, updateProductRequestDTO));
+
+        verify(productRepository).findById(invalidProductId);
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    public void whenUpdateCalledWithInvalidCategoryId_itShouldThrowNotFoundException() {
+        int productId = 1;
+        int invalidCategoryId = 99;
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+
+        UpdateProductRequestDTO updateProductRequestDTO = new UpdateProductRequestDTO();
+        updateProductRequestDTO.setCategoryId(invalidCategoryId);
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
+        when(categoryRepository.findById(invalidCategoryId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> productService.updateProduct(productId, updateProductRequestDTO));
+
+        verify(productRepository).findById(productId);
+        verify(categoryRepository).findById(invalidCategoryId);
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    public void whenDeleteCalledWithValidId_itShouldReturnSuccessMessage() {
+        int productId = 1;
+
+        when(productRepository.existsById(productId)).thenReturn(true);
+
+        ResponseEntity<DeleteProductResponseDTO> response = productService.deleteProduct(productId);
+
+        assertEquals("Product deleted successfully", response.getBody().getMessage());
+        assertEquals(200, response.getStatusCodeValue());
+
+        verify(productRepository).existsById(productId);
+        verify(productRepository).deleteById(productId);
+    }
+
+    @Test
+    public void whenDeleteCalledWithInvalidId_itShouldThrowNotFoundException() {
+
+        int invalidProductId = 1;
+
+        when(productRepository.existsById(invalidProductId)).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> {
+            productService.deleteProduct(invalidProductId);
+        });
+
+        verify(productRepository).existsById(invalidProductId);
+        verify(productRepository, never()).deleteById(invalidProductId);
     }
 
 
