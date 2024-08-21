@@ -1,6 +1,7 @@
 package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,7 +117,36 @@ class ProductServiceTest {
     }
 
     @Test
-    void getProductById() {
+    void whenGetByIdCalledWithValidId_itShouldReturnValidProductDTO() {
+        int validProductId = 1;
+
+        Product product = new Product();
+        product.setId(validProductId);
+        product.setName("Test Product");
+        product.setPrice(BigDecimal.valueOf(100.00));
+        product.setDescription("Test Description");
+        product.setQuantity(10);
+        product.setImage("test-image.png");
+
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(validProductId);
+        productDTO.setName("Test Product");
+        productDTO.setPrice(BigDecimal.valueOf(100.00));
+        productDTO.setDescription("Test Description");
+        productDTO.setQuantity(10);
+        productDTO.setImage("test-image.png");
+
+
+        when(productRepository.findById(validProductId)).thenReturn(Optional.of(product));
+        when(productMapper.toDto(product)).thenReturn(productDTO);
+
+        ResponseEntity<ProductDTO> response = productService.getProductById(validProductId);
+
+        assertEquals(response.getBody(), productDTO);
+        assertEquals(response.getStatusCodeValue(), 200);  // HTTP status code 200 for OK
+
+        Mockito.verify(productRepository).findById(validProductId);
+        Mockito.verify(productMapper).toDto(product);
     }
 
     @Test
@@ -125,7 +157,64 @@ class ProductServiceTest {
     void deleteProduct() {
     }
 
+
+
     @Test
-    void listPaginated() {
+    public void whenListCalledWithValidPageRequest_itShouldReturnPaginateProductDTOs() {
+        int pageNo = 0;
+        int pageSize = 2;
+
+        Product product1 = new Product();
+        product1.setId(1);
+        product1.setName("Product 1");
+        product1.setPrice(BigDecimal.valueOf(100.00));
+        product1.setDescription("Description 1");
+        product1.setQuantity(10);
+        product1.setImage("image1.png");
+
+        Product product2 = new Product();
+        product2.setId(2);
+        product2.setName("Product 2");
+        product2.setPrice(BigDecimal.valueOf(200.00));
+        product2.setDescription("Description 2");
+        product2.setQuantity(20);
+        product2.setImage("image2.png");
+
+        List<Product> productList = Arrays.asList(product1, product2);
+
+        ProductDTO productDTO1 = new ProductDTO();
+        productDTO1.setId(1);
+        productDTO1.setName("Product 1");
+        productDTO1.setPrice(BigDecimal.valueOf(100.00));
+        productDTO1.setDescription("Description 1");
+        productDTO1.setQuantity(10);
+        productDTO1.setImage("image1.png");
+
+        ProductDTO productDTO2 = new ProductDTO();
+        productDTO2.setId(2);
+        productDTO2.setName("Product 2");
+        productDTO2.setPrice(BigDecimal.valueOf(200.00));
+        productDTO2.setDescription("Description 2");
+        productDTO2.setQuantity(20);
+        productDTO2.setImage("image2.png");
+
+        List<ProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
+
+        when(productRepository.findAll()).thenReturn(productList);
+        when(productMapper.toDto(product1)).thenReturn(productDTO1);
+        when(productMapper.toDto(product2)).thenReturn(productDTO2);
+
+        ResponseEntity<PaginationResponse<ProductDTO>> response = productService.listPaginated(pageNo, pageSize);
+
+        assertEquals(response.getBody().getContent(), productDTOList);
+        assertEquals(response.getBody().getPageNo(), pageNo);
+        assertEquals(response.getBody().getPageSize(), pageSize);
+        assertEquals(response.getBody().getTotalElements(), 2);
+        assertEquals(response.getBody().getTotalPages(), 1);
+        assertEquals(response.getBody().isLast(), true);
+
+        Mockito.verify(productRepository).findAll();
+        Mockito.verify(productMapper).toDto(product1);
+        Mockito.verify(productMapper).toDto(product2);
     }
 }
