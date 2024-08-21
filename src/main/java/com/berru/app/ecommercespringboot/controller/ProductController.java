@@ -1,10 +1,7 @@
 package com.berru.app.ecommercespringboot.controller;
 
 
-import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
-import com.berru.app.ecommercespringboot.dto.PaginationResponse;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.service.ProductService;
 import jakarta.validation.Valid;
@@ -46,7 +43,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
+    public ResponseEntity<DeleteProductResponseDTO> deleteProduct(@PathVariable Integer id) {
         return productService.deleteProduct(id);
     }
 }

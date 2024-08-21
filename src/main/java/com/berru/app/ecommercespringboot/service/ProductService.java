@@ -1,9 +1,6 @@
 package com.berru.app.ecommercespringboot.service;
 
-import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
-import com.berru.app.ecommercespringboot.dto.PaginationResponse;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
@@ -82,12 +79,13 @@ public class ProductService {
     }
 
 
-    public ResponseEntity<Void> deleteProduct(Integer id) {
+    public ResponseEntity<DeleteProductResponseDTO> deleteProduct(Integer id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            DeleteProductResponseDTO response = new DeleteProductResponseDTO("Product deleted successfully");
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Product not found");
         }
     }
 
