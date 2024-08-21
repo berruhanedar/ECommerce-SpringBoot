@@ -58,16 +58,26 @@ public class ProductService {
     }
 
     public ResponseEntity<ProductDTO> updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
+        // Ürünü ID ile bulma
         Optional<Product> existingProductOpt = productRepository.findById(id);
 
+        // Ürün bulunamazsa hata fırlatma
         if (existingProductOpt.isEmpty()) {
             throw new NotFoundException("Product not found");
         }
 
         Product existingProduct = existingProductOpt.get();
+
+        if (updateProductRequestDTO.getCategoryId() != null) {
+            Category category = categoryRepository.findById(updateProductRequestDTO.getCategoryId())
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
+            existingProduct.setCategory(category);
+        }
+
         productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
         ProductDTO productDTO = productMapper.toDto(updatedProduct);
+
         return ResponseEntity.ok(productDTO);
     }
 
