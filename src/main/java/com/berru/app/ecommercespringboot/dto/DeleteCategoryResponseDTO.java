@@ -8,12 +8,10 @@ public class DeleteCategoryResponseDTO {
     private String name;
     private String message;
 
-    // Parametresiz yapıcı (Lombok ile otomatik olarak eklenebilir)
     public DeleteCategoryResponseDTO() {
     }
 
-    // Parametreli yapıcılar
-    public DeleteCategoryResponseDTO(String message) {
+      public DeleteCategoryResponseDTO(String message) {
         this.message = message;
     }
 
