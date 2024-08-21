@@ -59,16 +59,18 @@ public class ProductService {
 
     public ResponseEntity<ProductDTO> updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Optional<Product> existingProductOpt = productRepository.findById(id);
-        if (existingProductOpt.isPresent()) {
-            Product existingProduct = existingProductOpt.get();
-            productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
-            Product updatedProduct = productRepository.save(existingProduct);
-            ProductDTO productDTO = productMapper.toDto(updatedProduct);
-            return ResponseEntity.ok(productDTO);
-        } else {
-            return ResponseEntity.notFound().build();
+
+        if (existingProductOpt.isEmpty()) {
+            throw new NotFoundException("Product not found");
         }
+
+        Product existingProduct = existingProductOpt.get();
+        productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
+        Product updatedProduct = productRepository.save(existingProduct);
+        ProductDTO productDTO = productMapper.toDto(updatedProduct);
+        return ResponseEntity.ok(productDTO);
     }
+
 
     public ResponseEntity<Void> deleteProduct(Integer id) {
         if (productRepository.existsById(id)) {
