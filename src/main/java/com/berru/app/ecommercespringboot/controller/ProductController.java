@@ -1,13 +1,11 @@
 package com.berru.app.ecommercespringboot.controller;
 
-
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/products")
@@ -41,13 +39,13 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Integer id, @RequestBody @Valid UpdateProductRequestDTO updateProductRequestDTO) {
         ProductDTO updatedProduct = productService.updateProduct(id, updateProductRequestDTO);
-        return ResponseEntity.ok(updatedProduct);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
