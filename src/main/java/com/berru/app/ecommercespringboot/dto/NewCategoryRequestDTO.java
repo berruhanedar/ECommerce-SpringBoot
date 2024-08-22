@@ -1,18 +1,15 @@
 package com.berru.app.ecommercespringboot.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class NewCategoryRequestDTO {
 
     @NotBlank
-    @Size(min = 1, max = 50, message = "Category name size should be between 1-50")
+    @Size(min = 3, max = 30, message = "Category name size should be between 3-30")
     private String name;
 
-    private Integer parentCategoryId; // Optional parent category ID
+    private Integer parentCategoryId;
 }
