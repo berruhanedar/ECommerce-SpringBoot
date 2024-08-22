@@ -8,13 +8,10 @@ import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,25 +71,23 @@ public class ProductService {
         }
     }
 
-    /**
-     * düzelt
-     */
     public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
         List<Product> products = productRepository.findAll();
         int start = Math.min(pageNo * pageSize, products.size());
         int end = Math.min(start + pageSize, products.size());
+
         List<ProductDTO> productDTOList = products.subList(start, end).stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
 
-        PaginationResponse<ProductDTO> response = new PaginationResponse<>();
-        response.setContent(productDTOList);
-        response.setPageNo(pageNo);
-        response.setPageSize(pageSize);
-        response.setTotalElements((long) products.size());
-        response.setTotalPages((int) Math.ceil((double) products.size() / pageSize));
-        response.setLast(end == products.size());
-
-        return response;
+        return PaginationResponse.<ProductDTO>builder()
+                .content(productDTOList)
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalElements((long) products.size())
+                .totalPages((int) Math.ceil((double) products.size() / pageSize))
+                .isLast(end == products.size())
+                .build();
     }
 }
+
