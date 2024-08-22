@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 public class ProductController {
     final ProductService productService;
 
@@ -45,9 +45,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteProductResponseDTO> deleteProduct(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
-        DeleteProductResponseDTO response = new DeleteProductResponseDTO("Product deleted successfully");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().build();
     }
+
 }
