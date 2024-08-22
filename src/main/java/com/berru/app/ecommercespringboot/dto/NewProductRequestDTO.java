@@ -2,6 +2,7 @@ package com.berru.app.ecommercespringboot.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import com.berru.app.ecommercespringboot.entity.Product.Status;
 import java.math.BigDecimal;
 
 @Data
@@ -27,4 +28,9 @@ public class NewProductRequestDTO {
     private String image;
 
     private Integer categoryId;
+
+    private Status status;
+
+
+
 }

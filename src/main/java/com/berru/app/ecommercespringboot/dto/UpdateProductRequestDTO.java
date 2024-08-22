@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import com.berru.app.ecommercespringboot.entity.Product.Status;
 
 @Data
 public class UpdateProductRequestDTO {
@@ -29,5 +30,7 @@ public class UpdateProductRequestDTO {
     private String image;
 
     private Integer categoryId;
-    // status ekle
+
+    private Status status;
+
 }
