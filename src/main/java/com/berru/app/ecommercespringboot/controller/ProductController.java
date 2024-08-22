@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -31,8 +33,9 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
             @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize);
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) List<String> status) {
+        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize, status);
         return ResponseEntity.ok(paginationResponse);
     }
 

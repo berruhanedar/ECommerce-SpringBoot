@@ -67,9 +67,19 @@ public class ProductService {
         }
     }
 
-    public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
+    @Transactional(readOnly = true)
+    public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize, List<String> status) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> productPage = productRepository.findAll(pageable);
+
+        Page<Product> productPage = (status != null && !status.isEmpty())
+                ? productRepository.findByStatusIn(
+                status.stream()
+                        .map(Product.Status::valueOf)
+                        .collect(Collectors.toList()),
+                pageable
+        )
+                : productRepository.findAll(pageable);
+
         List<ProductDTO> productDTOList = productPage.getContent().stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
@@ -84,4 +94,3 @@ public class ProductService {
                 .build();
     }
 }
-

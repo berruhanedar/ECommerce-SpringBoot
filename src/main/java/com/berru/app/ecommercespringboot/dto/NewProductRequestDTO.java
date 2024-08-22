@@ -31,6 +31,4 @@ public class NewProductRequestDTO {
 
     private Status status;
 
-
-
 }
