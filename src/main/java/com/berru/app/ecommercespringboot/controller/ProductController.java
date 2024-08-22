@@ -2,13 +2,11 @@ package com.berru.app.ecommercespringboot.controller;
 
 
 import com.berru.app.ecommercespringboot.dto.*;
-import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -22,28 +20,34 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductDTO> create(@RequestBody @Valid NewProductRequestDTO newProductRequestDTO) {
-        return productService.create(newProductRequestDTO);
+        ProductDTO productDTO = productService.create(newProductRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Integer id) {
-        return productService.getProductById(id);
+        ProductDTO productDTO = productService.getProductById(id);
+        return ResponseEntity.ok(productDTO);
     }
 
     @GetMapping
     public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return productService.listPaginated(pageNo, pageSize);
+        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize);
+        return ResponseEntity.ok(paginationResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Integer id, @RequestBody @Valid UpdateProductRequestDTO updateProductRequestDTO) {
-        return productService.updateProduct(id, updateProductRequestDTO);
+        ProductDTO updatedProduct = productService.updateProduct(id, updateProductRequestDTO);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<DeleteProductResponseDTO> deleteProduct(@PathVariable Integer id) {
-        return productService.deleteProduct(id);
+        productService.deleteProduct(id);
+        DeleteProductResponseDTO response = new DeleteProductResponseDTO("Product deleted successfully");
+        return ResponseEntity.ok(response);
     }
 }

@@ -7,12 +7,11 @@ import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
-import com.berru.app.ecommercespringboot.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -27,22 +26,21 @@ import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
-    /**
-     * mock anotasyonu kullan
-     */
-
-    private ProductService productService;
+    @Mock
     private ProductRepository productRepository;
+
+    @Mock
     private CategoryRepository categoryRepository;
-    // mapper mocklamasan daha iyi olur
+
+    @Mock
     private ProductMapper productMapper;
+
+    @InjectMocks
+    private ProductService productService;
 
     @BeforeEach
     void setUp() {
-        productRepository = Mockito.mock(ProductRepository.class);
-        categoryRepository = Mockito.mock(CategoryRepository.class);
-        productMapper = Mockito.mock(ProductMapper.class);
-        productService = new ProductService(productRepository, productMapper, categoryRepository);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -76,18 +74,14 @@ class ProductServiceTest {
         productDTO.setImage("test-image.png");
         productDTO.setCategoryId(1);
 
-
         when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
         when(productMapper.toEntity(requestDTO)).thenReturn(product);
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toDto(product)).thenReturn(productDTO);
 
+        ProductDTO response = productService.create(requestDTO);
 
-        ResponseEntity<ProductDTO> response = productService.create(requestDTO);
-
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(productDTO, response.getBody());
+        assertEquals(productDTO, response);
 
         verify(categoryRepository).findById(1);
         verify(productMapper).toEntity(requestDTO);
@@ -97,25 +91,14 @@ class ProductServiceTest {
 
     @Test
     void whenSaveCalledWithInvalidCategoryId_itShouldThrowNotFoundException() {
-        // Arrange
         NewProductRequestDTO requestDTO = new NewProductRequestDTO();
-        requestDTO.setName("Test Product");
-        requestDTO.setPrice(BigDecimal.valueOf(100.00));
-        requestDTO.setDescription("Test Description");
-        requestDTO.setQuantity(10);
-        requestDTO.setImage("test-image.png");
-        requestDTO.setCategoryId(999);  // Invalid category ID
+        requestDTO.setCategoryId(999);
 
-        // Mocking: Category repository should return an empty Optional
         when(categoryRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(NotFoundException.class, () -> {
-            productService.create(requestDTO);
-        });
+        assertThrows(NotFoundException.class, () -> productService.create(requestDTO));
 
-        // Verify that findById was called
-        Mockito.verify(categoryRepository).findById(999);
+        verify(categoryRepository).findById(999);
     }
 
     @Test
@@ -138,17 +121,14 @@ class ProductServiceTest {
         productDTO.setQuantity(10);
         productDTO.setImage("test-image.png");
 
-
         when(productRepository.findById(validProductId)).thenReturn(Optional.of(product));
         when(productMapper.toDto(product)).thenReturn(productDTO);
 
-        ResponseEntity<ProductDTO> response = productService.getProductById(validProductId);
+        ProductDTO response = productService.getProductById(validProductId);
 
-        assertEquals(response.getBody(), productDTO);
-        assertEquals(response.getStatusCodeValue(), 200);  // HTTP status code 200 for OK
-
-        Mockito.verify(productRepository).findById(validProductId);
-        Mockito.verify(productMapper).toDto(product);
+        assertEquals(productDTO, response);
+        verify(productRepository).findById(validProductId);
+        verify(productMapper).toDto(product);
     }
 
     @Test
@@ -198,16 +178,9 @@ class ProductServiceTest {
         when(productRepository.save(existingProduct)).thenReturn(updatedProduct);
         when(productMapper.toDto(updatedProduct)).thenReturn(updatedProductDTO);
 
-        ResponseEntity<ProductDTO> response = productService.updateProduct(productId, updateProductRequestDTO);
+        ProductDTO response = productService.updateProduct(productId, updateProductRequestDTO);
 
-        assertEquals(response.getBody(), updatedProductDTO);
-        assertEquals(response.getBody().getName(), "Updated Product Name");
-        assertEquals(response.getBody().getPrice(), BigDecimal.valueOf(200.00));
-        assertEquals(response.getBody().getDescription(), "Updated Description");
-        assertEquals(response.getBody().getQuantity(), 20);
-        assertEquals(response.getBody().getImage(), "updated-image.png");
-        assertEquals(response.getBody().getCategoryId(), categoryId);
-
+        assertEquals(updatedProductDTO, response);
         verify(productRepository).findById(productId);
         verify(categoryRepository).findById(categoryId);
         verify(productRepository).save(existingProduct);
@@ -228,7 +201,7 @@ class ProductServiceTest {
     }
 
     @Test
-    public void whenUpdateCalledWithInvalidCategoryId_itShouldThrowNotFoundException() {
+    void whenUpdateCalledWithInvalidCategoryId_itShouldThrowNotFoundException() {
         int productId = 1;
         int invalidCategoryId = 99;
 
@@ -249,39 +222,31 @@ class ProductServiceTest {
     }
 
     @Test
-    public void whenDeleteCalledWithValidId_itShouldReturnSuccessMessage() {
+    void whenDeleteCalledWithValidId_itShouldReturnSuccessMessage() {
         int productId = 1;
 
         when(productRepository.existsById(productId)).thenReturn(true);
 
-        ResponseEntity<DeleteProductResponseDTO> response = productService.deleteProduct(productId);
-
-        assertEquals("Product deleted successfully", response.getBody().getMessage());
-        assertEquals(200, response.getStatusCodeValue());
+        productService.deleteProduct(productId);
 
         verify(productRepository).existsById(productId);
         verify(productRepository).deleteById(productId);
     }
 
     @Test
-    public void whenDeleteCalledWithInvalidId_itShouldThrowNotFoundException() {
-
+    void whenDeleteCalledWithInvalidId_itShouldThrowNotFoundException() {
         int invalidProductId = 1;
 
         when(productRepository.existsById(invalidProductId)).thenReturn(false);
 
-        assertThrows(NotFoundException.class, () -> {
-            productService.deleteProduct(invalidProductId);
-        });
+        assertThrows(NotFoundException.class, () -> productService.deleteProduct(invalidProductId));
 
         verify(productRepository).existsById(invalidProductId);
         verify(productRepository, never()).deleteById(invalidProductId);
     }
 
-
-
     @Test
-    public void whenListCalledWithValidPageRequest_itShouldReturnPaginateProductDTOs() {
+    void whenListCalledWithValidPageRequest_itShouldReturnPaginatedProductDTOs() {
         int pageNo = 0;
         int pageSize = 2;
 
@@ -325,17 +290,17 @@ class ProductServiceTest {
         when(productMapper.toDto(product1)).thenReturn(productDTO1);
         when(productMapper.toDto(product2)).thenReturn(productDTO2);
 
-        ResponseEntity<PaginationResponse<ProductDTO>> response = productService.listPaginated(pageNo, pageSize);
+        PaginationResponse<ProductDTO> response = productService.listPaginated(pageNo, pageSize);
 
-        assertEquals(response.getBody().getContent(), productDTOList);
-        assertEquals(response.getBody().getPageNo(), pageNo);
-        assertEquals(response.getBody().getPageSize(), pageSize);
-        assertEquals(response.getBody().getTotalElements(), 2);
-        assertEquals(response.getBody().getTotalPages(), 1);
-        assertEquals(response.getBody().isLast(), true);
+        assertEquals(productDTOList, response.getContent());
+        assertEquals(pageNo, response.getPageNo());
+        assertEquals(pageSize, response.getPageSize());
+        assertEquals(2, response.getTotalElements());
+        assertEquals(1, response.getTotalPages());
+        assertEquals(true, response.isLast());
 
-        Mockito.verify(productRepository).findAll();
-        Mockito.verify(productMapper).toDto(product1);
-        Mockito.verify(productMapper).toDto(product2);
+        verify(productRepository).findAll();
+        verify(productMapper).toDto(product1);
+        verify(productMapper).toDto(product2);
     }
 }

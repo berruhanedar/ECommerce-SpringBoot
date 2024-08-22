@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -31,43 +30,28 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    public ResponseEntity<ProductDTO> create(NewProductRequestDTO newProductRequestDTO) {
+    @Transactional
+    public ProductDTO create(NewProductRequestDTO newProductRequestDTO) {
         Product product = productMapper.toEntity(newProductRequestDTO);
         Category category = categoryRepository.findById(newProductRequestDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         product.setCategory(category);
         Product savedProduct = productRepository.save(product);
-        ProductDTO productDTO = productMapper.toDto(savedProduct);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
+        return productMapper.toDto(savedProduct);
     }
 
 
-    public ResponseEntity<ProductDTO> getProductById(Integer id) {
-        Optional<Product> productOptional = productRepository.findById(id);
-
-        /**
-         * lambda ile yaz
-         */
-        if (productOptional.isEmpty()) {
-            throw new NotFoundException("Product not found");
-        }
-
-        Product product = productOptional.get();
-        return ResponseEntity.ok(productMapper.toDto(product));
+    @Transactional(readOnly = true)
+    public ProductDTO getProductById(Integer id) {
+        return productRepository.findById(id)
+                .map(productMapper::toDto)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
     }
 
-    public ResponseEntity<ProductDTO> updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
-        Optional<Product> existingProductOpt = productRepository.findById(id);
-
-        /**
-         * lambda ile yaz
-         */
-        if (existingProductOpt.isEmpty()) {
-            throw new NotFoundException("Product not found");
-        }
-
-        Product existingProduct = existingProductOpt.get();
+    @Transactional
+    public ProductDTO updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
 
         if (updateProductRequestDTO.getCategoryId() != null) {
             Category category = categoryRepository.findById(updateProductRequestDTO.getCategoryId())
@@ -77,20 +61,14 @@ public class ProductService {
 
         productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
-        ProductDTO productDTO = productMapper.toDto(updatedProduct);
-
-        return ResponseEntity.ok(productDTO);
+        return productMapper.toDto(updatedProduct);
     }
 
 
-    /**
-     * düzelt
-     */
-    public ResponseEntity<DeleteProductResponseDTO> deleteProduct(Integer id) {
+    @Transactional
+    public void deleteProduct(Integer id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
-            DeleteProductResponseDTO response = new DeleteProductResponseDTO("Product deleted successfully");
-            return ResponseEntity.ok(response);
         } else {
             throw new NotFoundException("Product not found");
         }
@@ -99,26 +77,22 @@ public class ProductService {
     /**
      * düzelt
      */
-    public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(int pageNo, int pageSize) {
-
+    public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
         List<Product> products = productRepository.findAll();
-
         int start = Math.min(pageNo * pageSize, products.size());
         int end = Math.min(start + pageSize, products.size());
-        List<Product> pagedProducts = products.subList(start, end);
-
-        List<ProductDTO> productDTOList = pagedProducts.stream()
+        List<ProductDTO> productDTOList = products.subList(start, end).stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
 
-        PaginationResponse<ProductDTO> productPaginationResponse = new PaginationResponse<>();
-        productPaginationResponse.setContent(productDTOList);
-        productPaginationResponse.setPageNo(pageNo);
-        productPaginationResponse.setPageSize(pageSize);
-        productPaginationResponse.setTotalElements((long) products.size());
-        productPaginationResponse.setTotalPages((int) Math.ceil((double) products.size() / pageSize));
-        productPaginationResponse.setLast(end == products.size());
+        PaginationResponse<ProductDTO> response = new PaginationResponse<>();
+        response.setContent(productDTOList);
+        response.setPageNo(pageNo);
+        response.setPageSize(pageSize);
+        response.setTotalElements((long) products.size());
+        response.setTotalPages((int) Math.ceil((double) products.size() / pageSize));
+        response.setLast(end == products.size());
 
-        return ResponseEntity.ok(productPaginationResponse);
+        return response;
     }
 }
