@@ -9,8 +9,6 @@ import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -62,16 +60,6 @@ public class CategoryService {
     }
 
 
-    public ResponseEntity<CategoryDTO> getCategoryById(Integer id) {
-        Optional<Category> categoryOptional = categoryRepository.findById(id);
-        if (categoryOptional.isPresent()) {
-            CategoryDTO categoryDTO = categoryMapper.toCategoryDTO(categoryOptional.get());
-            return ResponseEntity.ok(categoryDTO);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     public ResponseEntity<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         Optional<Category> categoryOptional = categoryRepository.findById(id);
         if (categoryOptional.isPresent()) {
@@ -109,23 +97,17 @@ public class CategoryService {
 
     public ResponseEntity<DeleteCategoryResponseDTO> deleteCategory(Integer id) {
         if (categoryRepository.existsById(id)) {
-            // Kategoriye bağlı ürünleri kontrol et
             List<Product> associatedProducts = productRepository.findByCategoryIdIn(List.of(id));
             if (!associatedProducts.isEmpty()) {
-                // Eğer bağlı ürünler varsa hata mesajı döndür
                 DeleteCategoryResponseDTO response = new DeleteCategoryResponseDTO();
                 response.setMessage("Category cannot be deleted as it is associated with other records.");
-                response.setId(id);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Silme işlemi
-            categoryRepository.deleteById(id);
+             categoryRepository.deleteById(id);
 
-            // Başarılı yanıt için DeleteCategoryResponseDTO oluşturuluyor
             DeleteCategoryResponseDTO response = new DeleteCategoryResponseDTO();
             response.setMessage("Category deleted successfully");
-            response.setId(id); // Kategori ID'si döndürülebilir
 
             return ResponseEntity.ok(response);
 
@@ -133,8 +115,6 @@ public class CategoryService {
             throw new NotFoundException("Category not found");
         }
     }
-
-
 
     private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories) {
         List<CategoryDTO> rootCategories = categories.stream()

@@ -22,10 +22,14 @@ public class CategoryController {
         return categoryService.create(newCategoryRequestDTO);
     }
 
-
     @GetMapping
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         return categoryService.getAllCategories();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(@PathVariable Integer id) {
+        return categoryService.getProductsByCategoryId(id);
     }
 
     @PutMapping("/{id}")
@@ -37,11 +41,4 @@ public class CategoryController {
     public ResponseEntity<DeleteCategoryResponseDTO> deleteCategory(@PathVariable Integer id) {
         return categoryService.deleteCategory(id);
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(@PathVariable Integer id) {
-        return categoryService.getProductsByCategoryId(id);
-    }
-
-
 }

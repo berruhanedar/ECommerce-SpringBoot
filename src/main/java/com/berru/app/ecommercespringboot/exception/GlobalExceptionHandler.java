@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "Bad Request");
 
-        // İlk hata mesajını al
+
         String defaultMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
 
         errorResponse.put("message", defaultMessage);

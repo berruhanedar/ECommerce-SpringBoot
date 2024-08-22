@@ -1,9 +1,7 @@
 package com.berru.app.ecommercespringboot.controller;
 
 
-import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.service.ProductService;
 import jakarta.validation.Valid;
@@ -33,8 +31,10 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return productService.listPaginated(pageNo, pageSize);
     }
 
     @PutMapping("/{id}")
@@ -43,7 +43,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
+    public ResponseEntity<DeleteProductResponseDTO> deleteProduct(@PathVariable Integer id) {
         return productService.deleteProduct(id);
     }
 }
