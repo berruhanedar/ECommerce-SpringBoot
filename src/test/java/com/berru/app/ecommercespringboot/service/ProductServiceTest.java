@@ -27,9 +27,14 @@ import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
+    /**
+     * mock anotasyonu kullan
+     */
+
     private ProductService productService;
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    // mapper mocklamasan daha iyi olur
     private ProductMapper productMapper;
 
     @BeforeEach
@@ -147,7 +152,7 @@ class ProductServiceTest {
     }
 
     @Test
-    public void whenUpdateCalledWithValidRequest_itShouldReturnUpdatedProductDTO() {
+    void whenUpdateCalledWithValidRequest_itShouldReturnUpdatedProductDTO() {
         int productId = 1;
         int categoryId = 2;
 
@@ -210,7 +215,7 @@ class ProductServiceTest {
     }
 
     @Test
-    public void whenUpdateCalledWithInvalidProductId_itShouldThrowNotFoundException() {
+    void whenUpdateCalledWithInvalidProductId_itShouldThrowNotFoundException() {
         int invalidProductId = 1;
         UpdateProductRequestDTO updateProductRequestDTO = new UpdateProductRequestDTO();
 
