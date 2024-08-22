@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
-@Getter
-@Setter
 @Entity
+@Data
 @Table(name = "category")
 public class Category {
     @Id
