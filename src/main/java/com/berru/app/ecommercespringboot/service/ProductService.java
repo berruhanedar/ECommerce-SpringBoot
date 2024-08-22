@@ -7,7 +7,7 @@ import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -57,7 +57,6 @@ public class ProductService {
         Product updatedProduct = productRepository.save(existingProduct);
         return productMapper.toDto(updatedProduct);
     }
-
 
     @Transactional
     public void deleteProduct(Integer id) {
