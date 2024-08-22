@@ -4,11 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 
-/**
- * validasyonlar dtoda olmalı
- */
-
-
 @Data
 @Entity
 public class Product {
