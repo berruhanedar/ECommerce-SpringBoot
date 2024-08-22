@@ -33,6 +33,11 @@ public class CategoryService {
         this.productMapper = productMapper;
     }
 
+    /**
+     * CategoryDTO dönsün
+     * @param newCategoryRequestDTO
+     * @return
+     */
     public ResponseEntity<CategoryDTO> create(NewCategoryRequestDTO newCategoryRequestDTO) {
         Category parentCategory = null;
         if (newCategoryRequestDTO.getParentCategoryId() != null) {

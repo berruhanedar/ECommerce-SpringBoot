@@ -9,10 +9,14 @@ import java.math.BigDecimal;
 @Setter
 public class UpdateProductRequestDTO {
 
+    /**
+     * validation ekle
+     */
     private String name;
     private BigDecimal price;
     private String description;
     private Integer quantity;
     private String image;
     private Integer categoryId;
+    // status ekle
 }

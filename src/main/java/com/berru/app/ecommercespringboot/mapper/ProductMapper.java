@@ -18,22 +18,22 @@ public interface ProductMapper {
     @Mapping(target = "categoryId", source = "category.id")
     ProductDTO toDto(Product product);
 
-    @Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategory")
+    //@Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategory")
     Product toEntity(NewProductRequestDTO dto);
 
-    @Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategory")
+    //@Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategory")
     void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
 
     List<ProductDTO> toDtoList(List<Product> products);
 
 
-    @Named("mapCategory")
-    default Category mapCategory(Integer categoryId) {
-        if (categoryId == null) {
-            return null;
-        }
-        Category category = new Category();
-        category.setId(categoryId);  // Set id directly
-        return category;
-    }
+//    @Named("mapCategory")
+//    default Category mapCategory(Integer categoryId) {
+//        if (categoryId == null) {
+//            return null;
+//        }
+//        Category category = new Category();
+//        category.setId(categoryId);  // Set id directly
+//        return category;
+//    }
 }

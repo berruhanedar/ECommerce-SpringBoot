@@ -9,6 +9,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
 
+    /**
+     * rewuest ve response dto ları ayrı class olacak
+     * @param customer
+     * @return
+     */
     @Mapping(source = "customerId", target = "id")
     CustomerDTO toDTO(Customer customer);
     @Mapping(source = "id", target = "customerId")

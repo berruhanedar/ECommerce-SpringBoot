@@ -10,6 +10,11 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+/**
+ * validasyonlar dtoda olmalı
+ */
+
+
 @Getter
 @Setter
 @Entity

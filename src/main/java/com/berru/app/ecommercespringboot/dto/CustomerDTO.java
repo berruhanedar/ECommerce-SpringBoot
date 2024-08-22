@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class CustomerDTO {
+
     private Integer id;
 
     @NotNull

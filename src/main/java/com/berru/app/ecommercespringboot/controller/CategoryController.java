@@ -13,6 +13,10 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    /**
+     * lombok anotasyonu kullan
+     * @param categoryService
+     */
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }

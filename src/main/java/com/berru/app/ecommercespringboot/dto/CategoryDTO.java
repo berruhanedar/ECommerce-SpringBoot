@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryDTO {
+
     private Integer id;
     private String name;
     private Integer parentId;

@@ -46,6 +46,9 @@ public class ProductService {
     public ResponseEntity<ProductDTO> getProductById(Integer id) {
         Optional<Product> productOptional = productRepository.findById(id);
 
+        /**
+         * lambda ile yaz
+         */
         if (productOptional.isEmpty()) {
             throw new NotFoundException("Product not found");
         }
@@ -55,10 +58,11 @@ public class ProductService {
     }
 
     public ResponseEntity<ProductDTO> updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
-        // Ürünü ID ile bulma
         Optional<Product> existingProductOpt = productRepository.findById(id);
 
-        // Ürün bulunamazsa hata fırlatma
+        /**
+         * lambda ile yaz
+         */
         if (existingProductOpt.isEmpty()) {
             throw new NotFoundException("Product not found");
         }
@@ -79,6 +83,9 @@ public class ProductService {
     }
 
 
+    /**
+     * düzelt
+     */
     public ResponseEntity<DeleteProductResponseDTO> deleteProduct(Integer id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
@@ -89,6 +96,9 @@ public class ProductService {
         }
     }
 
+    /**
+     * düzelt
+     */
     public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(int pageNo, int pageSize) {
 
         List<Product> products = productRepository.findAll();
