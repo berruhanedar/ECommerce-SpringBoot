@@ -35,7 +35,6 @@ public class ProductService {
         return productMapper.toDto(savedProduct);
     }
 
-
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Integer id) {
         return productRepository.findById(id)

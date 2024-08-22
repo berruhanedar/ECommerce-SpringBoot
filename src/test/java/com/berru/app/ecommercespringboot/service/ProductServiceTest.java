@@ -12,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -249,6 +253,7 @@ class ProductServiceTest {
     void whenListCalledWithValidPageRequest_itShouldReturnPaginatedProductDTOs() {
         int pageNo = 0;
         int pageSize = 2;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         Product product1 = new Product();
         product1.setId(1);
@@ -267,6 +272,7 @@ class ProductServiceTest {
         product2.setImage("image2.png");
 
         List<Product> productList = Arrays.asList(product1, product2);
+        Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
 
         ProductDTO productDTO1 = new ProductDTO();
         productDTO1.setId(1);
@@ -286,7 +292,7 @@ class ProductServiceTest {
 
         List<ProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
 
-        when(productRepository.findAll()).thenReturn(productList);
+        when(productRepository.findAll(pageable)).thenReturn(productPage);
         when(productMapper.toDto(product1)).thenReturn(productDTO1);
         when(productMapper.toDto(product2)).thenReturn(productDTO2);
 
@@ -299,8 +305,9 @@ class ProductServiceTest {
         assertEquals(1, response.getTotalPages());
         assertEquals(true, response.isLast());
 
-        verify(productRepository).findAll();
+        verify(productRepository).findAll(pageable);
         verify(productMapper).toDto(product1);
         verify(productMapper).toDto(product2);
     }
+
 }
