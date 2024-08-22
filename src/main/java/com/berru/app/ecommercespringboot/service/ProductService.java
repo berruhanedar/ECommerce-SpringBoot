@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -31,6 +32,10 @@ public class ProductService {
         Category category = categoryRepository.findById(newProductRequestDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         product.setCategory(category);
+
+        Optional.ofNullable(newProductRequestDTO.getStatus())
+                .ifPresent(product::setStatus);
+
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }
@@ -38,6 +43,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Integer id) {
         return productRepository.findById(id)
+                /* bu olmalı mı ? sadece aktif ürünleri mi listelemek istiyoruz ?
+                .filter(product -> product.getStatus() == Product.Status.ACTIVE)
+                 */
                 .map(productMapper::toDto)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
     }
@@ -47,11 +55,15 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        if (updateProductRequestDTO.getCategoryId() != null) {
-            Category category = categoryRepository.findById(updateProductRequestDTO.getCategoryId())
-                    .orElseThrow(() -> new NotFoundException("Category not found"));
-            existingProduct.setCategory(category);
-        }
+        Optional.ofNullable(updateProductRequestDTO.getCategoryId())
+                .ifPresent(categoryId -> {
+                    Category category = categoryRepository.findById(categoryId)
+                            .orElseThrow(() -> new NotFoundException("Category not found"));
+                    existingProduct.setCategory(category);
+                });
+
+        Optional.ofNullable(updateProductRequestDTO.getStatus())
+                .ifPresent(existingProduct::setStatus);
 
         productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
@@ -71,14 +83,14 @@ public class ProductService {
     public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize, List<String> status) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        Page<Product> productPage = (status != null && !status.isEmpty())
-                ? productRepository.findByStatusIn(
+        Page<Product> productPage = status == null || status.isEmpty()
+                ? productRepository.findAll(pageable)
+                : productRepository.findByStatusIn(
                 status.stream()
                         .map(Product.Status::valueOf)
                         .collect(Collectors.toList()),
                 pageable
-        )
-                : productRepository.findAll(pageable);
+        );
 
         List<ProductDTO> productDTOList = productPage.getContent().stream()
                 .map(productMapper::toDto)
@@ -93,4 +105,5 @@ public class ProductService {
                 .isLast(productPage.isLast())
                 .build();
     }
+
 }
