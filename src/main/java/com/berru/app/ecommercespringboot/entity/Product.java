@@ -20,4 +20,11 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;  // Yeni status alanı
+
+    public enum Status {
+        ACTIVE, PASSIVE
+    }
 }
