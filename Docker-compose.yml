@@ -1,17 +1,18 @@
-version: '28.1'
+version : '3.1'
 
 services:
+
   db:
-    image: postgres:14
-    container_name: postgres-db
-    environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+    image : postgres
+    restart : always
+    environment :
+      POSTGRES_PASSWORD : password
+      POSTGRES_DATABASE: postgres
     ports:
       - "5432:5432"
 
-volumes:
-  postgres-data:
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 5432:5432
