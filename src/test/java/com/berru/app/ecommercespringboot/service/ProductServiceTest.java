@@ -1,4 +1,4 @@
-/*package com.berru.app.ecommercespringboot.service;
+package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Category;
@@ -7,11 +7,11 @@ import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -26,9 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
+
+    @InjectMocks
+    private ProductService productService;
 
     @Mock
     private ProductRepository productRepository;
@@ -38,14 +44,6 @@ class ProductServiceTest {
 
     @Mock
     private ProductMapper productMapper;
-
-    @InjectMocks
-    private ProductService productService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void whenCreateCalledWithValidRequest_itShouldReturnValidProductDTO() {
@@ -249,7 +247,6 @@ class ProductServiceTest {
         verify(productRepository, never()).deleteById(invalidProductId);
     }
 
-    /*
     @Test
     void whenListCalledWithValidPageRequest_itShouldReturnPaginatedProductDTOs() {
         int pageNo = 0;
@@ -311,4 +308,3 @@ class ProductServiceTest {
         verify(productMapper).toDto(product2);
     }
 }
-*/

@@ -10,6 +10,8 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class NewAddressRequestDTO {
+
+    // silinecek
     private Integer addressId;
 
     @Pattern(regexp = "[A-Za-z0-9\\s-]{3,}", message = "Not a valid address name")

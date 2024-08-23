@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 
 @Data
 public class UpdateCustomerRequestDTO {
+
+    // silinecek
     private Integer customerId;
 
     @NotNull

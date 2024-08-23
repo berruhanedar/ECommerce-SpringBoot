@@ -9,9 +9,6 @@ import lombok.Setter;
 @Data
 @Entity
 public class Address {
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +32,9 @@ public class Address {
 
     @Column(name = "postal_code")
     private Integer postalCode;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
 }

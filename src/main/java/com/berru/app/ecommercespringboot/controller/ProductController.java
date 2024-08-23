@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/products")
-
 public class ProductController {
-    final ProductService productService;
+
+    private final ProductService productService;
 
     @PostMapping
     public ResponseEntity<ProductDTO> create(@RequestBody @Valid NewProductRequestDTO newProductRequestDTO) {

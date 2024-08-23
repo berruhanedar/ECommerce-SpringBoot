@@ -14,6 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
+
+    // constructor injection yapılacak
     @Autowired
     private CustomerService customerService;
 
@@ -34,6 +36,7 @@ public class CustomerController {
         return ResponseEntity.ok(createdCustomer);
     }
 
+    // id kullanılacak
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable int id, @RequestBody UpdateCustomerRequestDTO dto) {
         CustomerDTO updatedCustomer = customerService.updateCustomer(dto);
