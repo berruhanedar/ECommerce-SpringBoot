@@ -37,7 +37,6 @@ public class ProductService {
         return productMapper.toDto(savedProduct);
     }
 
-
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Integer id) {
         return productRepository.findById(id)
@@ -62,14 +61,14 @@ public class ProductService {
         return productMapper.toDto(updatedProduct);
     }
 
-
     @Transactional
     public void deleteProduct(Integer id) {
-        if (productRepository.existsById(id)) {
-            productRepository.deleteById(id);
-        } else {
-            throw new NotFoundException("Product not found");
-        }
+        Optional.of(id)
+                .filter(productRepository::existsById)
+                .ifPresentOrElse(
+                        existingId -> productRepository.deleteById(existingId),
+                        () -> { throw new NotFoundException("Product not found"); }
+                );
     }
 
     @Transactional(readOnly = true)
