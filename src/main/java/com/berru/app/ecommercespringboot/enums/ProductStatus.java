@@ -1,5 +1,5 @@
 package com.berru.app.ecommercespringboot.enums;
 
-public enum Status {
+public enum ProductStatus {
     ACTIVE, PASSIVE
 }

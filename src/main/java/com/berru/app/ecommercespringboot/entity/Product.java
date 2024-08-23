@@ -1,6 +1,6 @@
 package com.berru.app.ecommercespringboot.entity;
 
-import com.berru.app.ecommercespringboot.enums.Status;
+import com.berru.app.ecommercespringboot.enums.ProductStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -31,5 +31,5 @@ public class Product {
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ProductStatus status;
 }
