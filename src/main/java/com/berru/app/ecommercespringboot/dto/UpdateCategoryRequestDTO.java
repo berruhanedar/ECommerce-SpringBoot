@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 public class UpdateCategoryRequestDTO {
 
-    private Integer id;
-
     @NotBlank
     @Size(min = 3, max = 30, message = "Category name size should be between 3-30")
     private String name;
