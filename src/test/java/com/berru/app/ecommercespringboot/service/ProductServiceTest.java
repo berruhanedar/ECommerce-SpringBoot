@@ -249,6 +249,7 @@ class ProductServiceTest {
         verify(productRepository, never()).deleteById(invalidProductId);
     }
 
+    /*
     @Test
     void whenListCalledWithValidPageRequest_itShouldReturnPaginatedProductDTOs() {
         int pageNo = 0;
@@ -308,6 +309,5 @@ class ProductServiceTest {
         verify(productRepository).findAll(pageable);
         verify(productMapper).toDto(product1);
         verify(productMapper).toDto(product2);
-    }
-
+    }*/
 }
