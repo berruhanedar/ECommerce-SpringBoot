@@ -1,5 +1,6 @@
 package com.berru.app.ecommercespringboot.entity;
 
+import com.berru.app.ecommercespringboot.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -22,9 +23,5 @@ public class Product {
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    private Status status;  // Yeni status alanı
-
-    public enum Status {
-        ACTIVE, PASSIVE
-    }
+    private Status status;
 }

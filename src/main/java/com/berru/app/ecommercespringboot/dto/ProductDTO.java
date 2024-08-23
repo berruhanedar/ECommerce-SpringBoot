@@ -1,9 +1,8 @@
 package com.berru.app.ecommercespringboot.dto;
 
-import jakarta.validation.constraints.*;
+import com.berru.app.ecommercespringboot.enums.Status;
 import lombok.Data;
 import java.math.BigDecimal;
-import com.berru.app.ecommercespringboot.entity.Product.Status;
 
 @Data
 public class ProductDTO {
