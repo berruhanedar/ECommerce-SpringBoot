@@ -23,10 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * The ProductService class contains business logic related to products.
- * It provides operations for adding, deleting, updating, and listing products.
- */
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -34,13 +30,6 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
 
-    /**
-     * Creates and saves a new product.
-     *
-     * @param newProductRequestDTO DTO containing the details of the new product.
-     * @return DTO of the created product.
-     * @throws NotFoundException If the category is not found.
-     */
     @Transactional
     public ProductDTO create(NewProductRequestDTO newProductRequestDTO) {
         Product product = productMapper.toEntity(newProductRequestDTO);
@@ -51,13 +40,6 @@ public class ProductService {
         return productMapper.toDto(savedProduct);
     }
 
-    /**
-     * Retrieves a product by its ID.
-     *
-     * @param id The ID of the product.
-     * @return DTO of the product.
-     * @throws NotFoundException If the product is not found.
-     */
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Integer id) {
         return productRepository.findById(id)
@@ -65,14 +47,6 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found"));
     }
 
-    /**
-     * Updates an existing product with new information.
-     *
-     * @param id The ID of the product to update.
-     * @param updateProductRequestDTO DTO containing the updated product information.
-     * @return DTO of the updated product.
-     * @throws NotFoundException If the product or category is not found.
-     */
     @Transactional
     public ProductDTO updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product existingProduct = productRepository.findById(id)
@@ -90,12 +64,6 @@ public class ProductService {
         return productMapper.toDto(updatedProduct);
     }
 
-    /**
-     * Deletes a product by its ID.
-     *
-     * @param id The ID of the product to delete.
-     * @throws NotFoundException If the product is not found.
-     */
     @Transactional
     public void deleteProduct(Integer id) {
         Optional.of(id)
@@ -108,13 +76,6 @@ public class ProductService {
                 );
     }
 
-    /**
-     * Retrieves a paginated list of products.
-     *
-     * @param pageNo   The page number to retrieve.
-     * @param pageSize The number of products per page.
-     * @return A pagination response containing the list of product DTOs and pagination details.
-     */
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);

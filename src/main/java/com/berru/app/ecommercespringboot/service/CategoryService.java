@@ -31,12 +31,6 @@ public class CategoryService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    /**
-     * Creates a new category.
-     *
-     * @param newCategoryRequestDTO Data Transfer Object containing the category details.
-     * @return CategoryDTO containing the details of the created category.
-     */
     @Transactional
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
         Category parentCategory = Optional.ofNullable(newCategoryRequestDTO.getParentCategoryId())
@@ -52,11 +46,6 @@ public class CategoryService {
         return categoryMapper.toCategoryDTO(savedCategory);
     }
 
-    /**
-     * Retrieves all categories.
-     *
-     * @return List of CategoryDTO representing all categories.
-     */
     @Transactional
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
@@ -64,12 +53,6 @@ public class CategoryService {
         return buildCategoryTree(categoryDTOs);
     }
 
-    /**
-     * Retrieves products by category ID.
-     *
-     * @param categoryId The ID of the category.
-     * @return List of ProductDTO representing the products in the category.
-     */
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
         List<Integer> categoryIds = getAllCategoryIds(categoryId);
@@ -77,12 +60,6 @@ public class CategoryService {
         return productMapper.toDtoList(products);
     }
 
-    /**
-     * Retrieves all category IDs, including subcategories.
-     *
-     * @param categoryId The ID of the category to retrieve.
-     * @return List of Integer representing the category IDs.
-     */
     private List<Integer> getAllCategoryIds(Integer categoryId) {
         List<Integer> categoryIds = new ArrayList<>();
         categoryIds.add(categoryId);
@@ -95,13 +72,6 @@ public class CategoryService {
         return categoryIds;
     }
 
-    /**
-     * Updates a category by its ID.
-     *
-     * @param id The ID of the category to update.
-     * @param updateCategoryRequestDTO Data Transfer Object containing the updated category details.
-     * @return Optional containing the updated CategoryDTO, or empty if the category was not found.
-     */
     @Transactional
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryRepository.findById(id).map(category -> {
@@ -114,12 +84,6 @@ public class CategoryService {
         });
     }
 
-    /**
-     * Deletes a category by its ID.
-     *
-     * @param id The ID of the category to delete.
-     * @throws NotFoundException if the category is not found.
-     */
     @Transactional
     public void deleteCategory(Integer id) {
         categoryRepository.findById(id)
@@ -130,13 +94,6 @@ public class CategoryService {
                 );
     }
 
-
-    /**
-     * Builds a category tree structure.
-     *
-     * @param categories List of CategoryDTO representing all categories.
-     * @return List of CategoryDTO representing the root categories with their children.
-     */
     private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories) {
         return categories.stream()
                 .filter(category -> category.getParentId() == null)
@@ -144,12 +101,6 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Populates the children of a parent category.
-     *
-     * @param parent The parent category.
-     * @param categories List of CategoryDTO representing all categories.
-     */
     private void populateChildren(CategoryDTO parent, List<CategoryDTO> categories) {
         List<CategoryDTO> children = categories.stream()
                 .filter(category -> parent.getId().equals(category.getParentId()))
