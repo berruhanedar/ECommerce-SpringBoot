@@ -68,7 +68,7 @@ public class ProductService {
     /**
      * Updates an existing product with new information.
      *
-     * @param id                      The ID of the product to update.
+     * @param id The ID of the product to update.
      * @param updateProductRequestDTO DTO containing the updated product information.
      * @return DTO of the updated product.
      * @throws NotFoundException If the product or category is not found.
@@ -101,7 +101,7 @@ public class ProductService {
         Optional.of(id)
                 .filter(productRepository::existsById)
                 .ifPresentOrElse(
-                        existingId -> productRepository.deleteById(existingId),
+                        productRepository::deleteById,
                         () -> {
                             throw new NotFoundException("Product not found");
                         }
