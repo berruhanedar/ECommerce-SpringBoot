@@ -17,6 +17,27 @@
 
     <properties>
         <java.version>21</java.version>
+
+        <maven.plugin.checkstyle.version>3.4.0</maven.plugin.checkstyle.version>
+        <maven.checkstyle.puppycrawl.version>10.17.0</maven.checkstyle.puppycrawl.version>
+
+        <!-- Checkstyle Rules -->
+        <checkstyle.check.skip>false</checkstyle.check.skip>
+        <checkstyle.failsOnError>true</checkstyle.failsOnError>
+        <checkstyle.failOnValidation>false</checkstyle.failOnValidation>
+        <checkstyle.violationSeverity>warning</checkstyle.violationSeverity>
+        <checkstyle.logViolationsToConsole>true</checkstyle.logViolationsToConsole>
+        <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+        <checkstyle.maxAllowedViolations>0</checkstyle.maxAllowedViolations>
+
+        <maven.plugin.spotbugs.version>4.8.6.2</maven.plugin.spotbugs.version>
+
+        <!-- Spotbugs Rules -->
+        <spotbugs.check.skip>false</spotbugs.check.skip>
+        <spotbugs.fail.on.error>false</spotbugs.fail.on.error>
+        <spotbugs.effort>Max</spotbugs.effort>
+        <spotbugs.threshold>Low</spotbugs.threshold>
+
         <jacoco.check.skip>false</jacoco.check.skip>
         <jacoco.halt.on.failure>false</jacoco.halt.on.failure>
         <jacoco.rule.element.coverage>CLASS</jacoco.rule.element.coverage>
@@ -214,25 +235,67 @@
                 </executions>
             </plugin>
 
-            <!-- Checkstyle Maven Plugin -->
+            <!-- Checkstyle: Ensures similar code structure -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>${maven.plugin.checkstyle.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${maven.checkstyle.puppycrawl.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>
+                        ${project.basedir}/checkstyle.xml
+                    </configLocation>
+                    <failsOnError>${checkstyle.failsOnError}</failsOnError>
+                    <failOnViolation>${checkstyle.failOnValidation}</failOnViolation>
+                    <maxAllowedViolations>${checkstyle.maxAllowedViolations}</maxAllowedViolations>
+                    <violationSeverity>${checkstyle.violationSeverity}</violationSeverity>
+                    <logViolationsToConsole>${checkstyle.logViolationsToConsole}</logViolationsToConsole>
+                    <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
+                    <skip>${checkstyle.check.skip}</skip>
+                    <propertyExpansion>lineLength=${jacoco.rule.line.length}</propertyExpansion>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>checkstyle</id>
-                        <phase>validate</phase>
+                        <id>validate</id>
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Spotbugs: Ensures well-know bugs never appear -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${maven.plugin.spotbugs.version}</version>
                 <configuration>
-                    <configLocation>google_checks.xml</configLocation>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
+                    <xmlOutput>true</xmlOutput>
+                    <xmlOutputDirectory>target/site</xmlOutputDirectory>
+                    <skip>${spotbugs.check.skip}</skip>
+                    <failOnError>${spotbugs.fail.on.error}</failOnError>
+                    <effort>${spotbugs.effort}</effort>
+                    <threshold>${spotbugs.threshold}</threshold>
+                    <excludeFilterFile>
+                        ${project.basedir}/spotbugs-exclude.xml
+                    </excludeFilterFile>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
