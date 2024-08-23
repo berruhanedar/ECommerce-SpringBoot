@@ -1,13 +1,17 @@
 package com.berru.app.ecommercespringboot.service;
 
-import com.berru.app.ecommercespringboot.dto.*;
+import com.berru.app.ecommercespringboot.dto.CategoryDTO;
+import com.berru.app.ecommercespringboot.dto.NewCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
+import com.berru.app.ecommercespringboot.dto.ProductDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateCategoryRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
-import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
+import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,35 +37,33 @@ public class CategoryService {
 
     @Transactional
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
-        Category parentCategory = Optional.ofNullable(newCategoryRequestDTO.getParentCategoryId())
-                .flatMap(categoryRepository::findById)
-                .orElse(null);
+        // Ebeveyn kategoriyi bulur, yoksa null döner
+        Category parentCategory = newCategoryRequestDTO.getParentCategoryId() != null
+                ? categoryRepository.findById(newCategoryRequestDTO.getParentCategoryId()).orElse(null)
+                : null;
 
-        Category category = Category.builder()
-                .name(newCategoryRequestDTO.getName())
-                .parentCategory(parentCategory)
-                .build();
+        // Category nesnesini DTO'dan dönüştür ve parentCategory'yi ayarla
+        Category category = categoryMapper.toCategoryEntity(newCategoryRequestDTO);
+        category.setParentCategory(parentCategory);
 
+        // Kategori kaydet ve DTO'ya dönüştürerek döndür
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDTO(savedCategory);
     }
+
 
     @Transactional(readOnly = true)
     public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        // Kategorileri sayfalı olarak al
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
 
-        // Kategorileri DTO'ya dönüştür
         List<CategoryDTO> categoryDTOList = categoryPage.getContent().stream()
                 .map(categoryMapper::toCategoryDTO)
                 .collect(Collectors.toList());
 
-        // Kategori ağaç yapısını oluştur
         List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
 
-        // Sayfalama yanıtını oluştur
         return PaginationResponse.<CategoryDTO>builder()
                 .content(categoryTree)
                 .pageNo(categoryPage.getNumber())
@@ -71,7 +73,6 @@ public class CategoryService {
                 .isLast(categoryPage.isLast())
                 .build();
     }
-
 
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
@@ -95,10 +96,7 @@ public class CategoryService {
     @Transactional
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryRepository.findById(id).map(category -> {
-            category.setName(updateCategoryRequestDTO.getName());
-            Category parentCategory = categoryRepository.findById(updateCategoryRequestDTO.getParentCategoryId())
-                    .orElse(null);
-            category.setParentCategory(parentCategory);
+            categoryMapper.updateCategoryFromDTO(updateCategoryRequestDTO, category);
             Category updatedCategory = categoryRepository.save(category);
             return categoryMapper.toCategoryDTO(updatedCategory);
         });
@@ -110,7 +108,8 @@ public class CategoryService {
                 .ifPresentOrElse(
                         categoryRepository::delete,
                         () -> {
-                            throw new NotFoundException("Category not found"); }
+                            throw new NotFoundException("Category not found");
+                        }
                 );
     }
 

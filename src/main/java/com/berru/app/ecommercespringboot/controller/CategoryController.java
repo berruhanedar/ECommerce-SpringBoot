@@ -1,19 +1,30 @@
 package com.berru.app.ecommercespringboot.controller;
 
-import com.berru.app.ecommercespringboot.dto.*;
+import com.berru.app.ecommercespringboot.dto.CategoryDTO;
+import com.berru.app.ecommercespringboot.dto.NewCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
+import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.service.CategoryService;
 
-import lombok.AllArgsConstructor;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -43,7 +54,7 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryService.updateCategory(id, updateCategoryRequestDTO)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")

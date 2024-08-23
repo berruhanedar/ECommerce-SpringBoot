@@ -22,5 +22,4 @@ public interface ProductMapper {
     void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
 
     List<ProductDTO> toDtoList(List<Product> products);
-
 }
