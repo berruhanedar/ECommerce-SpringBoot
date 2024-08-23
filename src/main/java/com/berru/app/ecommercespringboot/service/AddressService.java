@@ -1,24 +1,27 @@
 package com.berru.app.ecommercespringboot.service;
 
 
-import com.berru.app.ecommercespringboot.dto.AddressDTO;
-import com.berru.app.ecommercespringboot.dto.NewAddressRequestDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateAddressRequestDTO;
+import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Address;
 import com.berru.app.ecommercespringboot.mapper.AddressMapper;
+import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
 import com.berru.app.ecommercespringboot.repository.AddressRepository;
+import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class AddressService {
 
-    @Autowired
-    private AddressRepository addressRepository;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
+    private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
     @Transactional
     public AddressDTO createAddress(NewAddressRequestDTO newAddressRequestDTO) {
@@ -51,6 +54,7 @@ public class AddressService {
         Address updatedAddress = addressRepository.save(address);
         return AddressMapper.INSTANCE.toAddressDTO(updatedAddress);
     }
+
 
     @Transactional
     public void deleteAddress(Integer id) {

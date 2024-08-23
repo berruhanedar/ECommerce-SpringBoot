@@ -1,10 +1,7 @@
 package com.berru.app.ecommercespringboot.dto;
 
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import com.berru.app.ecommercespringboot.enums.Status;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +19,6 @@ public class CustomerDTO {
     private Integer mobileNumber;
     private String password;
     private BigDecimal balance;
+    private Status status;
 
 }

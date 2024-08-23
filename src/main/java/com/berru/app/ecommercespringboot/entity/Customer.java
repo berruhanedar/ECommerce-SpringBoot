@@ -16,6 +16,7 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "customer_id")
     private Integer customerId;
 
@@ -37,10 +38,16 @@ public class Customer {
     @Column(name = "balance")
     private BigDecimal balance;
 
+    @Column(name = "id")
+    private Integer addressId;
+
     /**
      * one to many ilişkisi ekle
      */
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private List<Address> addresses;
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
 }
 

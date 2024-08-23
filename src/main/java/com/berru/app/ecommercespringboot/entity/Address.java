@@ -5,13 +5,12 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Data
 @Entity
 public class Address {
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +34,9 @@ public class Address {
 
     @Column(name = "postal_code")
     private Integer postalCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
 }
