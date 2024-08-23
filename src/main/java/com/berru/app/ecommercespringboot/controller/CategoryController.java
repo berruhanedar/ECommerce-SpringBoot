@@ -37,8 +37,8 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryService.updateCategory(id, updateCategoryRequestDTO)
-                .map(ResponseEntity::ok) // If categoryDTO is present, return 200 OK with categoryDTO
-                .orElseGet(() -> ResponseEntity.notFound().build()); // If not present, return 404 Not Found
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
