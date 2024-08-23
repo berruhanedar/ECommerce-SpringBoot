@@ -2,6 +2,7 @@ package com.berru.app.ecommercespringboot.mapper;
 
 import com.berru.app.ecommercespringboot.dto.CategoryDTO;
 import com.berru.app.ecommercespringboot.entity.Category;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

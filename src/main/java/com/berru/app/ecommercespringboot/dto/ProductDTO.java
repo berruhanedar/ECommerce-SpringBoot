@@ -1,7 +1,9 @@
 package com.berru.app.ecommercespringboot.dto;
 
 import com.berru.app.ecommercespringboot.enums.ProductStatus;
+
 import lombok.Data;
+
 import java.math.BigDecimal;
 
 @Data
