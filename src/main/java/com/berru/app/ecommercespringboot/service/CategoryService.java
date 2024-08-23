@@ -3,13 +3,14 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
+import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,29 +19,25 @@ import java.util.ArrayList;
 
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ProductRepository productRepository, ProductMapper productMapper) {
-        this.categoryRepository = categoryRepository;
-        this.categoryMapper = categoryMapper;
-        this.productRepository = productRepository;
-        this.productMapper = productMapper;
-    }
-
     /**
      * CategoryDTO dönsün
      * @param newCategoryRequestDTO
      * @return
      */
-    public ResponseEntity<CategoryDTO> create(NewCategoryRequestDTO newCategoryRequestDTO) {
-        Category parentCategory = null;
-        if (newCategoryRequestDTO.getParentCategoryId() != null) {
-            parentCategory = categoryRepository.findById(newCategoryRequestDTO.getParentCategoryId()).orElse(null);
-        }
+
+
+    @Transactional
+    public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
+        Category parentCategory = Optional.ofNullable(newCategoryRequestDTO.getParentCategoryId())
+                .flatMap(categoryRepository::findById)
+                .orElse(null);
 
         Category category = Category.builder()
                 .name(newCategoryRequestDTO.getName())
@@ -48,63 +45,55 @@ public class CategoryService {
                 .build();
 
         Category savedCategory = categoryRepository.save(category);
-        CategoryDTO categoryDTO = categoryMapper.toCategoryDTO(savedCategory);
-
-        return ResponseEntity.status(201).body(categoryDTO);
+        return categoryMapper.toCategoryDTO(savedCategory);
     }
 
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+
+    @Transactional
+    public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         List<CategoryDTO> categoryDTOs = categoryMapper.toCategoryDTOList(categories);
-
-        List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOs);
-
-        return ResponseEntity.ok(categoryTree);
+        return buildCategoryTree(categoryDTOs);
     }
 
-
-    public ResponseEntity<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
-        Optional<Category> categoryOptional = categoryRepository.findById(id);
-        if (categoryOptional.isPresent()) {
-            Category category = categoryOptional.get();
-            category.setName(updateCategoryRequestDTO.getName());
-            Category parentCategory = categoryRepository.findById(updateCategoryRequestDTO.getParentCategoryId()).orElse(null);
-            category.setParentCategory(parentCategory);
-            Category updatedCategory = categoryRepository.save(category);
-            CategoryDTO categoryDTO = categoryMapper.toCategoryDTO(updatedCategory);
-            return ResponseEntity.ok(categoryDTO);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
+        List<Integer> categoryIds = getAllCategoryIds(categoryId);
+        List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
+        return productMapper.toDtoList(products);
     }
+
 
     private List<Integer> getAllCategoryIds(Integer categoryId) {
         List<Integer> categoryIds = new ArrayList<>();
         categoryIds.add(categoryId);
 
-        List<Category> childCategories = categoryRepository.findByParentCategoryId(categoryId);
-
-        for (Category child : childCategories) {
-            categoryIds.addAll(getAllCategoryIds(child.getId()));
-        }
+        categoryRepository.findByParentCategoryId(categoryId).stream()
+                .map(Category::getId)
+                .map(this::getAllCategoryIds)
+                .forEach(categoryIds::addAll);
 
         return categoryIds;
     }
 
-    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(Integer categoryId) {
-        List<Integer> categoryIds = getAllCategoryIds(categoryId);
-        List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
-        List<ProductDTO> productDTOs = productMapper.toDtoList(products);
-        return ResponseEntity.ok(productDTOs);
+    @Transactional
+    public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
+        return categoryRepository.findById(id).map(category -> {
+            category.setName(updateCategoryRequestDTO.getName());
+            Category parentCategory = categoryRepository.findById(updateCategoryRequestDTO.getParentCategoryId())
+                    .orElse(null);
+            category.setParentCategory(parentCategory);
+            Category updatedCategory = categoryRepository.save(category);
+            return categoryMapper.toCategoryDTO(updatedCategory);
+        });
     }
 
-
-    public ResponseEntity<Void> deleteCategory(Integer id) {
-        return categoryRepository.existsById(id)
-                ? (productRepository.findByCategoryIdIn(List.of(id)).isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build())
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @Transactional
+    public void deleteCategory(Integer id) {
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+        } else {
+            throw new NotFoundException("Product not found");
+        }
     }
 
 
