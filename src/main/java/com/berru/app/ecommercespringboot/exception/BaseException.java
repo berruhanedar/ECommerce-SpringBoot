@@ -3,7 +3,6 @@ package com.berru.app.ecommercespringboot.exception;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
 import java.io.Serial;
 import java.util.ArrayList;
