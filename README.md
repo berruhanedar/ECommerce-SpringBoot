@@ -2,7 +2,7 @@
 We have developed a robust REST API for an e-commerce platform, designed to handle all essential CRUD operations. This API ensures comprehensive user validation throughout the entire process, delivering a secure and seamless experience for managing products, users, and orders.
 
 ## ER Diagram for the application
-![E-commerce (1)](https://github.com/user-attachments/assets/48c4479f-2ad5-4155-b1e2-9aca1b532472)
+![E-commerce (3)](https://github.com/user-attachments/assets/1c8420d8-98fa-456c-8a32-7c98984af05a)
 
 
 ## Tech Stack
