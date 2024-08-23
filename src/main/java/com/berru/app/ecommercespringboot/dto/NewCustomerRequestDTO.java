@@ -5,14 +5,16 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Data
 public class NewCustomerRequestDTO {
+
+    private int customerId;
 
     @NotNull
     @Size(min = 2, max = 50, message = "First name size be between 2-50")

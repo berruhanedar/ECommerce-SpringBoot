@@ -1,46 +1,46 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-@Getter
-@Setter
+@Data
 @Entity
-@Table(name = "customers")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-    private int customerId;
+    private Integer customerId;
 
-    @Column(name = "first_name", nullable = false, length = 255)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 255)
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email", nullable = false, unique = true, length = 255)
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "mobile_number", nullable = false)
+    @Column(name = "mobile_number")
     private Integer mobileNumber;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "balance", nullable = false)
+    @Column(name = "balance")
     private BigDecimal balance;
 
     /**
      * one to many ilişkisi ekle
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private Address address;
-
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addresses = new ArrayList<>();
 }
 
