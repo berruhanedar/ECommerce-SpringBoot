@@ -8,8 +8,6 @@ import com.berru.app.ecommercespringboot.entity.Product.Status;
 @Data
 public class UpdateProductRequestDTO {
 
-    private Integer id;
-
     @NotBlank
     @Size(min = 3, max = 30, message = "Product name size should be between 3-30")
     private String name;

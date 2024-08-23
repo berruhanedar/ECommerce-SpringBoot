@@ -33,13 +33,10 @@ public class ProductService {
         Category category = categoryRepository.findById(newProductRequestDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         product.setCategory(category);
-
-        Optional.ofNullable(newProductRequestDTO.getStatus())
-                .ifPresent(product::setStatus);
-
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }
+
 
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Integer id) {
@@ -60,13 +57,11 @@ public class ProductService {
                     existingProduct.setCategory(category);
                 });
 
-        Optional.ofNullable(updateProductRequestDTO.getStatus())
-                .ifPresent(existingProduct::setStatus);
-
         productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
         return productMapper.toDto(updatedProduct);
     }
+
 
     @Transactional
     public void deleteProduct(Integer id) {
@@ -78,17 +73,10 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize, List<String> status) {
+    public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        Page<Product> productPage = status == null || status.isEmpty()
-                ? productRepository.findAll(pageable)
-                : productRepository.findByStatusIn(
-                status.stream()
-                        .map(Product.Status::valueOf)
-                        .collect(Collectors.toList()),
-                pageable
-        );
+        Page<Product> productPage = productRepository.findAll(pageable);
 
         List<ProductDTO> productDTOList = productPage.getContent().stream()
                 .map(productMapper::toDto)
@@ -103,5 +91,6 @@ public class ProductService {
                 .isLast(productPage.isLast())
                 .build();
     }
+
 
 }
