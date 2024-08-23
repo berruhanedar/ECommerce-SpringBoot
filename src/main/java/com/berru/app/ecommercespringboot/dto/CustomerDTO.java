@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 @Data
 public class CustomerDTO {
 
-    private int customerId;
-    private int addressId;
+    private Integer customerId;
+    private Integer addressId;
     private String firstName;
     private String lastName;
     private String email;
