@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Data
 public class NewCustomerRequestDTO {
 
-    private int customerId;
+    private Integer customerId;
 
     @NotNull
     @Size(min = 2, max = 50, message = "First name size be between 2-50")
