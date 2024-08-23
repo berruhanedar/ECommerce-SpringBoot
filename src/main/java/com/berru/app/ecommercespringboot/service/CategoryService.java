@@ -1,10 +1,8 @@
 package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.*;
-import com.berru.app.ecommercespringboot.dto.DeleteCategoryResponseDTO;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
-import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
@@ -100,26 +98,15 @@ public class CategoryService {
         return ResponseEntity.ok(productDTOs);
     }
 
-    public ResponseEntity<DeleteCategoryResponseDTO> deleteCategory(Integer id) {
-        if (categoryRepository.existsById(id)) {
-            List<Product> associatedProducts = productRepository.findByCategoryIdIn(List.of(id));
-            if (!associatedProducts.isEmpty()) {
-                DeleteCategoryResponseDTO response = new DeleteCategoryResponseDTO();
-                response.setMessage("Category cannot be deleted as it is associated with other records.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
 
-             categoryRepository.deleteById(id);
-
-            DeleteCategoryResponseDTO response = new DeleteCategoryResponseDTO();
-            response.setMessage("Category deleted successfully");
-
-            return ResponseEntity.ok(response);
-
-        } else {
-            throw new NotFoundException("Category not found");
-        }
+    public ResponseEntity<Void> deleteCategory(Integer id) {
+        return categoryRepository.existsById(id)
+                ? (productRepository.findByCategoryIdIn(List.of(id)).isEmpty()
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build())
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
 
     private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories) {
         List<CategoryDTO> rootCategories = categories.stream()
