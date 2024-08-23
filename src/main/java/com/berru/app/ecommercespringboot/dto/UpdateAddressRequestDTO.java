@@ -1,17 +1,44 @@
 package com.berru.app.ecommercespringboot.dto;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import com.berru.app.ecommercespringboot.entity.Customer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class UpdateAddressRequestDTO {
-        private int addressId;
+
+        @Pattern(regexp = "[A-Za-z0-9\\s-]{3,}")
         private String addressName;
-        private String streetNo;
+
+        @Pattern(regexp = "[A-Za-z0-9\\s-]{3,}")
+        private String street;
+
+        @Pattern(regexp = "[A-Za-z0-9\\s-]{3,}")
         private String buildingName;
+
+        @NotNull(message = "City name cannot be null")
+        @Pattern(regexp = "[A-Za-z\\s]{2,}")
         private String city;
+
+        @NotNull(message = "Country name cannot be null")
+        @Pattern(regexp = "[A-Za-z\\s]{2,}")
         private String country;
-        private int postalCode;
+
+        @NotNull(message = "Postal code cannot be null")
+        @Pattern(regexp = "[0-9]{6}")
+        private String postalCode;
+
+
+        @ManyToOne(cascade = CascadeType.ALL)
+        @JsonIgnore
+        private Customer customer;
+
 }

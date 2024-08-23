@@ -1,45 +1,39 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * entity ve tablo anotasyonunu kontrol et
- */
 
-@Getter
-@Setter
+@Data
 @Entity
-@Table(name = "addresses")
 public class Address {
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
-    /**
-     * nullable = false, length = 255 gerek olmaması lazım
-     * address_id yerine id kullan
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
+    @Column(name = "id")
     private Integer addressId;
 
-    @Column(name = "address_name", nullable = false, length = 255)
+    @Column(name = "address_name")
     private String addressName;
 
-    @Column(name = "street", nullable = false, length = 255)
+    @Column(name = "street")
     private String street;
 
-    @Column(name = "building_name", length = 255)
+    @Column(name = "building_name")
     private String buildingName;
 
-    @Column(name = "city", nullable = false, length = 255)
+    @Column(name = "city")
     private String city;
 
-    @Column(name = "country", nullable = false, length = 255)
+    @Column(name = "country")
     private String country;
 
-    @Column(name = "postal_code", nullable = false)
+    @Column(name = "postal_code")
     private Integer postalCode;
-
 
 }
