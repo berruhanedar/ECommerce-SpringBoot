@@ -11,11 +11,11 @@ import lombok.*;
 @Data
 public class AddressDTO {
 
-    private int addressId;
+    private Integer addressId;
     private String addressName;
     private String street;
     private String buildingName;
     private String city;
     private String country;
-    private int postalCode;
+    private Integer postalCode;
 }
