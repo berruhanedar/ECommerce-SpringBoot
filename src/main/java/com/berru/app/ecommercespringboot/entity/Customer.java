@@ -38,7 +38,7 @@ public class Customer {
     @Column(name = "balance")
     private BigDecimal balance;
 
-    @Column(name = "id")
+    @Column(name = "address_id")
     private Integer addressId;
 
     /**
