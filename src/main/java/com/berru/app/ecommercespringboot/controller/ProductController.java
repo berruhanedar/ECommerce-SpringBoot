@@ -3,20 +3,17 @@ package com.berru.app.ecommercespringboot.controller;
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.service.ProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/products")
+
 public class ProductController {
     final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     @PostMapping
     public ResponseEntity<ProductDTO> create(@RequestBody @Valid NewProductRequestDTO newProductRequestDTO) {
@@ -33,9 +30,8 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
             @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) List<String> status) {
-        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize, status);
+            @RequestParam(defaultValue = "10") int pageSize) {
+        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize);
         return ResponseEntity.ok(paginationResponse);
     }
 
