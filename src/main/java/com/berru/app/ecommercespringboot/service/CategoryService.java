@@ -1,9 +1,6 @@
 package com.berru.app.ecommercespringboot.service;
 
-import com.berru.app.ecommercespringboot.dto.CategoryDTO;
-import com.berru.app.ecommercespringboot.dto.NewCategoryRequestDTO;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
@@ -14,6 +11,9 @@ import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,12 +46,32 @@ public class CategoryService {
         return categoryMapper.toCategoryDTO(savedCategory);
     }
 
-    @Transactional
-    public List<CategoryDTO> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
-        List<CategoryDTO> categoryDTOs = categoryMapper.toCategoryDTOList(categories);
-        return buildCategoryTree(categoryDTOs);
+    @Transactional(readOnly = true)
+    public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        // Kategorileri sayfalı olarak al
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+
+        // Kategorileri DTO'ya dönüştür
+        List<CategoryDTO> categoryDTOList = categoryPage.getContent().stream()
+                .map(categoryMapper::toCategoryDTO)
+                .collect(Collectors.toList());
+
+        // Kategori ağaç yapısını oluştur
+        List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
+
+        // Sayfalama yanıtını oluştur
+        return PaginationResponse.<CategoryDTO>builder()
+                .content(categoryTree)
+                .pageNo(categoryPage.getNumber())
+                .pageSize(categoryPage.getSize())
+                .totalElements(categoryPage.getTotalElements())
+                .totalPages(categoryPage.getTotalPages())
+                .isLast(categoryPage.isLast())
+                .build();
     }
+
 
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
