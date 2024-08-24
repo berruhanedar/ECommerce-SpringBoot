@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
+import com.berru.app.ecommercespringboot.enums.ProductStatus;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
@@ -54,6 +55,7 @@ class ProductServiceTest {
         requestDTO.setQuantity(10);
         requestDTO.setImage("test-image.png");
         requestDTO.setCategoryId(1);
+        requestDTO.setStatus(ProductStatus.ACTIVE);
 
         Category category = new Category();
         category.setId(1);
@@ -65,6 +67,7 @@ class ProductServiceTest {
         product.setDescription("Test Description");
         product.setQuantity(10);
         product.setImage("test-image.png");
+        product.setStatus(ProductStatus.ACTIVE);
         product.setCategory(category);
 
         ProductDTO productDTO = new ProductDTO();
@@ -75,6 +78,7 @@ class ProductServiceTest {
         productDTO.setQuantity(10);
         productDTO.setImage("test-image.png");
         productDTO.setCategoryId(1);
+        productDTO.setStatus(ProductStatus.ACTIVE);
 
         when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
         when(productMapper.toEntity(requestDTO)).thenReturn(product);
