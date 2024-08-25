@@ -42,6 +42,7 @@ public class AddressService {
                 .toList();
     }
 
+    // mapper kullanılabilir
     @Transactional
     public AddressDTO updateAddress(Integer id, UpdateAddressRequestDTO updateAddressRequestDTO) {
         Address address = addressRepository.findById(id)

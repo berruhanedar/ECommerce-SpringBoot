@@ -1,9 +1,21 @@
 package com.berru.app.ecommercespringboot.entity;
 
-import com.berru.app.ecommercespringboot.enums.Status;
-import jakarta.persistence.*;
-import lombok.Data;
+import com.berru.app.ecommercespringboot.enums.ProductStatus;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+
 import java.math.BigDecimal;
+
+import lombok.Data;
+
 
 @Data
 @Entity
@@ -23,5 +35,5 @@ public class Product {
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ProductStatus status;
 }

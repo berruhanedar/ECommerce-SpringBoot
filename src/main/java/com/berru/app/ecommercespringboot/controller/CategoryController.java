@@ -1,17 +1,30 @@
 package com.berru.app.ecommercespringboot.controller;
 
-import com.berru.app.ecommercespringboot.dto.*;
+import com.berru.app.ecommercespringboot.dto.CategoryDTO;
+import com.berru.app.ecommercespringboot.dto.NewCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateCategoryRequestDTO;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
+import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.service.CategoryService;
-import lombok.AllArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -23,9 +36,12 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-        List<CategoryDTO> categoryTree = categoryService.getAllCategories();
-        return ResponseEntity.ok(categoryTree);
+    public ResponseEntity<PaginationResponse<CategoryDTO>> getAllCategoriesPaginated(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
+        PaginationResponse<CategoryDTO> response = categoryService.getAllCategoriesPaginated(pageNo, pageSize);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
@@ -37,8 +53,8 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryService.updateCategory(id, updateCategoryRequestDTO)
-                .map(ResponseEntity::ok) // If categoryDTO is present, return 200 OK with categoryDTO
-                .orElseGet(() -> ResponseEntity.notFound().build()); // If not present, return 404 Not Found
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")

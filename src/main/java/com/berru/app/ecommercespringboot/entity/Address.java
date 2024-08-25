@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 
 @Data
 @Entity
@@ -14,7 +12,7 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
+    @Column(name = "id")
     private Integer addressId;
 
     @Column(name = "address_name")
@@ -35,7 +33,7 @@ public class Address {
     @Column(name = "postal_code")
     private Integer postalCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
 

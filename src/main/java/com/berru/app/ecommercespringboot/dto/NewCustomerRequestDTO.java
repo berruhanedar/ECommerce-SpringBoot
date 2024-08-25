@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @Data
 public class NewCustomerRequestDTO {
 
+    // silinecek
     private Integer customerId;
 
     @NotNull

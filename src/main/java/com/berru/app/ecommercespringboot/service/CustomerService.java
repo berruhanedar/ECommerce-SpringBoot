@@ -29,6 +29,8 @@ public class CustomerService {
     private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
 
+    // INSTANCE gerek yok
+
     public List<CustomerDTO> getAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
@@ -44,8 +46,8 @@ public class CustomerService {
 
     public CustomerDTO createCustomer(NewCustomerRequestDTO dto) {
         Customer customer = CustomerMapper.INSTANCE.toEntity(dto);
-        customerRepository.save(customer);
-        return CustomerMapper.INSTANCE.toDTO(customer);
+        Customer savedCustomer = customerRepository.save(customer);
+        return CustomerMapper.INSTANCE.toDTO(savedCustomer);
     }
 
     public CustomerDTO updateCustomer(UpdateCustomerRequestDTO dto) {
@@ -55,6 +57,13 @@ public class CustomerService {
         updatedCustomer.setCustomerId(existingCustomer.getCustomerId());
         customerRepository.save(updatedCustomer);
         return CustomerMapper.INSTANCE.toDTO(updatedCustomer);
+
+        /**
+         * Ilk database'den id ile mevcut existingCustomer'ı cekiyoruz.
+         * Sonra gelen dto ile existingCustomer'ı update ediyoruz.
+         * Sonra updatedCustomer'ı save ediyoruz.
+         * Sonra updatedCustomer'ı DTO'ya cevirip return ediyoruz.
+         */
     }
 
     public void deleteCustomer(int id) {
