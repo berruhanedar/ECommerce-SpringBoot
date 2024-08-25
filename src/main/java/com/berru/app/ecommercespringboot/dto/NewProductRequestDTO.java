@@ -1,6 +1,6 @@
 package com.berru.app.ecommercespringboot.dto;
 
-import com.berru.app.ecommercespringboot.enums.Status;
+import com.berru.app.ecommercespringboot.enums.ProductStatus;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -29,5 +29,5 @@ public class NewProductRequestDTO {
 
     private Integer categoryId;
 
-    private Status status;
+    private ProductStatus status;
 }
