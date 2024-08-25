@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,16 +36,13 @@ public class CategoryService {
 
     @Transactional
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
-        // Ebeveyn kategoriyi bulur, yoksa null döner
         Category parentCategory = newCategoryRequestDTO.getParentCategoryId() != null
                 ? categoryRepository.findById(newCategoryRequestDTO.getParentCategoryId()).orElse(null)
                 : null;
 
-        // Category nesnesini DTO'dan dönüştür ve parentCategory'yi ayarla
         Category category = categoryMapper.toCategoryEntity(newCategoryRequestDTO);
         category.setParentCategory(parentCategory);
 
-        // Kategori kaydet ve DTO'ya dönüştürerek döndür
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDTO(savedCategory);
     }
@@ -76,22 +72,13 @@ public class CategoryService {
 
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
-        List<Integer> categoryIds = getAllCategoryIds(categoryId);
+        // Recursive sorgu ile tüm alt kategorileri bul ve ürünleri getir
+        List<Category> categoryTree = categoryRepository.findCategoryTreeById(categoryId);
+        List<Integer> categoryIds = categoryTree.stream().map(Category::getId).collect(Collectors.toList());
         List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
         return productMapper.toDtoList(products);
     }
 
-    private List<Integer> getAllCategoryIds(Integer categoryId) {
-        List<Integer> categoryIds = new ArrayList<>();
-        categoryIds.add(categoryId);
-
-        categoryRepository.findByParentCategoryId(categoryId).stream()
-                .map(Category::getId)
-                .map(this::getAllCategoryIds)
-                .forEach(categoryIds::addAll);
-
-        return categoryIds;
-    }
 
     @Transactional
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
