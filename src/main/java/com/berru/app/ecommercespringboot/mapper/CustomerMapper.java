@@ -15,9 +15,7 @@ public interface CustomerMapper {
 
     CustomerDTO toDTO(Customer customer);
 
-    // Yeni müşteri oluşturma için kullanılan DTO
     Customer toEntity(NewCustomerRequestDTO dto);
 
-    // Mevcut müşteri güncellemesi için kullanılan DTO
     Customer toEntity(UpdateCustomerRequestDTO dto);
 }
