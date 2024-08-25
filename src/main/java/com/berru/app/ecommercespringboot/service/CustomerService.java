@@ -37,7 +37,7 @@ public class CustomerService {
                 .toList();
     }
 
-    public CustomerDTO getCustomerById(int id) {
+    public CustomerDTO getCustomerById(Integer id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
         return customerMapper.toDTO(customer);
@@ -65,7 +65,7 @@ public class CustomerService {
          */
     }
 
-    public void deleteCustomer(int id) {
+    public void deleteCustomer(Integer id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
         customerRepository.delete(customer);
