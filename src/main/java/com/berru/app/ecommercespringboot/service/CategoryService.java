@@ -45,25 +45,6 @@ public class CategoryService {
         return categoryMapper.toCategoryDTO(savedCategory);
     }
 
-    @Transactional(readOnly = true)
-    public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Category> categoryPage = categoryRepository.findAll(pageable);
-        List<CategoryDTO> categoryDTOList = categoryPage.getContent().stream()
-                .map(categoryMapper::toCategoryDTO)
-                .collect(Collectors.toList());
-
-        List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
-        return PaginationResponse.<CategoryDTO>builder()
-                .content(categoryTree)
-                .pageNo(categoryPage.getNumber())
-                .pageSize(categoryPage.getSize())
-                .totalElements(categoryPage.getTotalElements())
-                .totalPages(categoryPage.getTotalPages())
-                .isLast(categoryPage.isLast())
-                .build();
-    }
-
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
         List<Category> categoryTree = categoryRepository.findCategoryTreeById(categoryId);
@@ -93,6 +74,25 @@ public class CategoryService {
                             throw new NotFoundException("Category not found");
                         }
                 );
+    }
+
+    @Transactional(readOnly = true)
+    public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+        List<CategoryDTO> categoryDTOList = categoryPage.getContent().stream()
+                .map(categoryMapper::toCategoryDTO)
+                .collect(Collectors.toList());
+
+        List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
+        return PaginationResponse.<CategoryDTO>builder()
+                .content(categoryTree)
+                .pageNo(categoryPage.getNumber())
+                .pageSize(categoryPage.getSize())
+                .totalElements(categoryPage.getTotalElements())
+                .totalPages(categoryPage.getTotalPages())
+                .isLast(categoryPage.isLast())
+                .build();
     }
 
     private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories) {
