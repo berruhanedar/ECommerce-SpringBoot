@@ -41,15 +41,7 @@ public class ProductController {
         return ResponseEntity.ok(productDTO);
     }
 
-    @GetMapping
-    public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
-            @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize);
-        return ResponseEntity.ok(paginationResponse);
-    }
-
-    @PutMapping("/{id}")
+        @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Integer id, @RequestBody @Valid UpdateProductRequestDTO updateProductRequestDTO) {
         ProductDTO updatedProduct = productService.updateProduct(id, updateProductRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
@@ -59,5 +51,13 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<PaginationResponse<ProductDTO>> listPaginated(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        PaginationResponse<ProductDTO> paginationResponse = productService.listPaginated(pageNo, pageSize);
+        return ResponseEntity.ok(paginationResponse);
     }
 }

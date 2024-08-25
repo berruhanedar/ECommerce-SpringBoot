@@ -39,27 +39,20 @@ public class CategoryService {
         Category parentCategory = newCategoryRequestDTO.getParentCategoryId() != null
                 ? categoryRepository.findById(newCategoryRequestDTO.getParentCategoryId()).orElse(null)
                 : null;
-
         Category category = categoryMapper.toCategoryEntity(newCategoryRequestDTO);
         category.setParentCategory(parentCategory);
-
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDTO(savedCategory);
     }
 
-
     @Transactional(readOnly = true)
     public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
-
         List<CategoryDTO> categoryDTOList = categoryPage.getContent().stream()
                 .map(categoryMapper::toCategoryDTO)
                 .collect(Collectors.toList());
-
         List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
-
         return PaginationResponse.<CategoryDTO>builder()
                 .content(categoryTree)
                 .pageNo(categoryPage.getNumber())
@@ -72,13 +65,11 @@ public class CategoryService {
 
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
-        // Recursive sorgu ile tüm alt kategorileri bul ve ürünleri getir
         List<Category> categoryTree = categoryRepository.findCategoryTreeById(categoryId);
         List<Integer> categoryIds = categoryTree.stream().map(Category::getId).collect(Collectors.toList());
         List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
         return productMapper.toDtoList(products);
     }
-
 
     @Transactional
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
@@ -112,8 +103,6 @@ public class CategoryService {
                 .filter(category -> parent.getId().equals(category.getParentId()))
                 .peek(child -> populateChildren(child, categories))
                 .collect(Collectors.toList());
-
         parent.setChildren(children);
     }
-
 }
