@@ -1,7 +1,6 @@
 package com.berru.app.ecommercespringboot.repository;
 
 import com.berru.app.ecommercespringboot.entity.Category;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,10 +10,6 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-
-    @EntityGraph(attributePaths = "children")
-    @Query("SELECT c FROM Category c WHERE c.parentCategory.id = :parentCategoryId")
-    List<Category> findByParentCategoryId(@Param("parentCategoryId") Integer parentCategoryId);
 
     @Query(value = "WITH RECURSIVE category_tree AS ("
             + "SELECT c.category_id, c.category_name, c.parent_id "
