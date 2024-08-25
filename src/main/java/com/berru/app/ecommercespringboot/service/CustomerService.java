@@ -52,10 +52,10 @@ public class CustomerService {
     public CustomerDTO updateCustomer(UpdateCustomerRequestDTO dto) {
         Customer existingCustomer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + dto.getCustomerId()));
-        Customer updatedCustomer = customerMapper.toEntity(dto);
-        updatedCustomer.setCustomerId(existingCustomer.getCustomerId());
-        customerRepository.save(updatedCustomer);
-        return customerMapper.toDTO(updatedCustomer);
+        Customer updatedexistingCustomer = customerMapper.toEntity(dto);
+        updatedexistingCustomer.setCustomerId(existingCustomer.getCustomerId());
+        customerRepository.save(updatedexistingCustomer);
+        return customerMapper.toDTO(updatedexistingCustomer);
 
         /**
          * Ilk database'den id ile mevcut existingCustomer'ı cekiyoruz.
