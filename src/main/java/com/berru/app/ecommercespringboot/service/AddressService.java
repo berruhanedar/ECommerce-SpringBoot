@@ -3,7 +3,6 @@ package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.*;
 import com.berru.app.ecommercespringboot.entity.Address;
-import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.mapper.AddressMapper;
 import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
 import com.berru.app.ecommercespringboot.repository.AddressRepository;

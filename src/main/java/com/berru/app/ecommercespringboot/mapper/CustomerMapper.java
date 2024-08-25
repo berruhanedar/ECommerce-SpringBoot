@@ -6,8 +6,6 @@ import com.berru.app.ecommercespringboot.dto.NewCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;

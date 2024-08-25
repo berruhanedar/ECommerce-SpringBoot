@@ -3,8 +3,6 @@ package com.berru.app.ecommercespringboot.dto;
 
 import com.berru.app.ecommercespringboot.enums.Status;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
