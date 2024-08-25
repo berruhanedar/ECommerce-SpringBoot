@@ -6,16 +6,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 
 @Data
 public class NewCustomerRequestDTO {
-
-    // silinecek
-    private Integer customerId;
 
     @NotNull
     @Size(min = 2, max = 50, message = "First name size be between 2-50")
@@ -39,7 +33,7 @@ public class NewCustomerRequestDTO {
     private String password;
 
     @NotNull(message = "Balance cannot be null")
-    @Digits(integer = 10, fraction = 2, message = "Balance must be a numeric value with up to 10 digits in the integer part and 2 digits in the fractional part")
+    @Digits(integer = 10, fraction = 2)
     private BigDecimal balance;
 
     @NotNull

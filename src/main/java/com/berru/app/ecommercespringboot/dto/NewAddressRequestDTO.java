@@ -2,7 +2,10 @@ package com.berru.app.ecommercespringboot.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @Data
@@ -11,8 +14,6 @@ import lombok.*;
 @ToString
 public class NewAddressRequestDTO {
 
-    // silinecek
-    private Integer addressId;
 
     @Pattern(regexp = "[A-Za-z0-9\\s-]{3,}", message = "Not a valid address name")
     private String addressName;

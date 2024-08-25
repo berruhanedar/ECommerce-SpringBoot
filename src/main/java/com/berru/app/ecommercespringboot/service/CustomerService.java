@@ -29,34 +29,33 @@ public class CustomerService {
     private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
 
-    // INSTANCE gerek yok
 
     public List<CustomerDTO> getAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
-                .map(CustomerMapper.INSTANCE::toDTO)
+                .map(customerMapper::toDTO)
                 .toList();
     }
 
     public CustomerDTO getCustomerById(int id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
-        return CustomerMapper.INSTANCE.toDTO(customer);
+        return customerMapper.toDTO(customer);
     }
 
     public CustomerDTO createCustomer(NewCustomerRequestDTO dto) {
-        Customer customer = CustomerMapper.INSTANCE.toEntity(dto);
+        Customer customer = customerMapper.toEntity(dto);
         Customer savedCustomer = customerRepository.save(customer);
-        return CustomerMapper.INSTANCE.toDTO(savedCustomer);
+        return customerMapper.toDTO(savedCustomer);
     }
 
     public CustomerDTO updateCustomer(UpdateCustomerRequestDTO dto) {
         Customer existingCustomer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + dto.getCustomerId()));
-        Customer updatedCustomer = CustomerMapper.INSTANCE.toEntity(dto);
+        Customer updatedCustomer = customerMapper.toEntity(dto);
         updatedCustomer.setCustomerId(existingCustomer.getCustomerId());
         customerRepository.save(updatedCustomer);
-        return CustomerMapper.INSTANCE.toDTO(updatedCustomer);
+        return customerMapper.toDTO(updatedCustomer);
 
         /**
          * Ilk database'den id ile mevcut existingCustomer'ı cekiyoruz.

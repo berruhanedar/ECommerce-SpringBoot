@@ -1,10 +1,14 @@
 package com.berru.app.ecommercespringboot.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.GenerationType;
 
+import lombok.Data;
 
 @Data
 @Entity
@@ -36,5 +40,4 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
-
 }

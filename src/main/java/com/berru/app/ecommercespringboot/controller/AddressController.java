@@ -5,18 +5,24 @@ import com.berru.app.ecommercespringboot.dto.AddressDTO;
 import com.berru.app.ecommercespringboot.dto.NewAddressRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateAddressRequestDTO;
 import com.berru.app.ecommercespringboot.service.AddressService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/addresses")
 public class AddressController {
-
-    @Autowired
-    private AddressService addressService;
+    final AddressService addressService;
 
     @PostMapping
     public ResponseEntity<AddressDTO> createAddress(@RequestBody NewAddressRequestDTO newAddressRequestDTO) {

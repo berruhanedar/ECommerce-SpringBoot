@@ -1,13 +1,15 @@
 package com.berru.app.ecommercespringboot.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -40,12 +42,6 @@ public class Customer {
 
     @Column(name = "address_id")
     private Integer addressId;
-
-    /**
-     * one to many ilişkisi ekle
-     */
-    //@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<Address> addresses;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();

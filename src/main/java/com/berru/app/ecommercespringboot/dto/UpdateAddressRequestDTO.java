@@ -7,7 +7,10 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -40,5 +43,4 @@ public class UpdateAddressRequestDTO {
         @ManyToOne(cascade = CascadeType.ALL)
         @JsonIgnore
         private Customer customer;
-
 }

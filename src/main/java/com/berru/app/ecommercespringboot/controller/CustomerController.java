@@ -1,16 +1,25 @@
 package com.berru.app.ecommercespringboot.controller;
 
 
-import com.berru.app.ecommercespringboot.dto.*;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
+import com.berru.app.ecommercespringboot.dto.CustomerDTO;
+import com.berru.app.ecommercespringboot.dto.NewCustomerRequestDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.boot.model.source.internal.hbm.SizeSourceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController

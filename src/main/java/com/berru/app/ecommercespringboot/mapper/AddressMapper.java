@@ -15,13 +15,13 @@ public interface AddressMapper {
 
     AddressDTO toAddressDTO(Address address);
 
+    AddressDTO toAddressDTO(NewAddressRequestDTO newAddressRequestDTO);
+
+    AddressDTO toAddressDTO(UpdateAddressRequestDTO updateAddressRequestDTO);
+
     Address toAddress(AddressDTO addressDTO);
 
     Address toAddress(NewAddressRequestDTO newAddressRequestDTO);
 
-    AddressDTO toAddressDTO(NewAddressRequestDTO newAddressRequestDTO);
-
     Address toAddress(UpdateAddressRequestDTO updateAddressRequestDTO);
-
-    AddressDTO toAddressDTO(UpdateAddressRequestDTO updateAddressRequestDTO);
 }
