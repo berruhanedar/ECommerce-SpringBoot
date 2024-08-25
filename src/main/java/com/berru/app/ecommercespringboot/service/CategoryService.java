@@ -52,6 +52,7 @@ public class CategoryService {
         List<CategoryDTO> categoryDTOList = categoryPage.getContent().stream()
                 .map(categoryMapper::toCategoryDTO)
                 .collect(Collectors.toList());
+
         List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
         return PaginationResponse.<CategoryDTO>builder()
                 .content(categoryTree)
@@ -66,10 +67,13 @@ public class CategoryService {
     @Transactional
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
         List<Category> categoryTree = categoryRepository.findCategoryTreeById(categoryId);
-        List<Integer> categoryIds = categoryTree.stream().map(Category::getId).collect(Collectors.toList());
+        List<Integer> categoryIds = categoryTree.stream()
+                .map(Category::getId)
+                .collect(Collectors.toList());
         List<Product> products = productRepository.findByCategoryIdIn(categoryIds);
         return productMapper.toDtoList(products);
     }
+
 
     @Transactional
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
