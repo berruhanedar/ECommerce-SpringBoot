@@ -118,6 +118,7 @@ class ProductServiceTest {
         product.setDescription("Test Description");
         product.setQuantity(10);
         product.setImage("test-image.png");
+        product.setStatus(ProductStatus.ACTIVE);
 
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(validProductId);
@@ -126,6 +127,7 @@ class ProductServiceTest {
         productDTO.setDescription("Test Description");
         productDTO.setQuantity(10);
         productDTO.setImage("test-image.png");
+        productDTO.setStatus(ProductStatus.ACTIVE);
 
         when(productRepository.findById(validProductId)).thenReturn(Optional.of(product));
         when(productMapper.toDto(product)).thenReturn(productDTO);
@@ -149,6 +151,7 @@ class ProductServiceTest {
         existingProduct.setDescription("Old Description");
         existingProduct.setQuantity(10);
         existingProduct.setImage("old-image.png");
+        existingProduct.setStatus(ProductStatus.ACTIVE);
 
         Category category = new Category();
         category.setId(categoryId);
@@ -161,6 +164,7 @@ class ProductServiceTest {
         updatedProduct.setQuantity(20);
         updatedProduct.setImage("updated-image.png");
         updatedProduct.setCategory(category);
+        updatedProduct.setStatus(ProductStatus.ACTIVE);
 
         UpdateProductRequestDTO updateProductRequestDTO = new UpdateProductRequestDTO();
         updateProductRequestDTO.setName("Updated Product Name");
@@ -169,6 +173,7 @@ class ProductServiceTest {
         updateProductRequestDTO.setQuantity(20);
         updateProductRequestDTO.setImage("updated-image.png");
         updateProductRequestDTO.setCategoryId(categoryId);
+        updateProductRequestDTO.setStatus(ProductStatus.ACTIVE);
 
         ProductDTO updatedProductDTO = new ProductDTO();
         updatedProductDTO.setId(productId);
@@ -178,6 +183,7 @@ class ProductServiceTest {
         updatedProductDTO.setQuantity(20);
         updatedProductDTO.setImage("updated-image.png");
         updatedProductDTO.setCategoryId(categoryId);
+        updatedProductDTO.setStatus(ProductStatus.ACTIVE);
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
@@ -264,6 +270,7 @@ class ProductServiceTest {
         product1.setDescription("Description 1");
         product1.setQuantity(10);
         product1.setImage("image1.png");
+        product1.setStatus(ProductStatus.ACTIVE);
 
         Product product2 = new Product();
         product2.setId(2);
@@ -272,6 +279,7 @@ class ProductServiceTest {
         product2.setDescription("Description 2");
         product2.setQuantity(20);
         product2.setImage("image2.png");
+        product2.setStatus(ProductStatus.ACTIVE);
 
         List<Product> productList = Arrays.asList(product1, product2);
         Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
@@ -283,6 +291,7 @@ class ProductServiceTest {
         productDTO1.setDescription("Description 1");
         productDTO1.setQuantity(10);
         productDTO1.setImage("image1.png");
+        productDTO1.setStatus(ProductStatus.ACTIVE);
 
         ProductDTO productDTO2 = new ProductDTO();
         productDTO2.setId(2);
@@ -291,6 +300,7 @@ class ProductServiceTest {
         productDTO2.setDescription("Description 2");
         productDTO2.setQuantity(20);
         productDTO2.setImage("image2.png");
+        productDTO2.setStatus(ProductStatus.ACTIVE);
 
         List<ProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
 
