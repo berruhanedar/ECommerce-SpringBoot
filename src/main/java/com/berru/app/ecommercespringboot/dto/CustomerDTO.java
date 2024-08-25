@@ -1,7 +1,7 @@
 package com.berru.app.ecommercespringboot.dto;
 
 
-import com.berru.app.ecommercespringboot.enums.Status;
+import com.berru.app.ecommercespringboot.enums.CustomerStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,6 +17,5 @@ public class CustomerDTO {
     private Integer mobileNumber;
     private String password;
     private BigDecimal balance;
-    private Status status;
-
+    private CustomerStatus status;
 }
