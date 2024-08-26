@@ -5,6 +5,7 @@ import com.berru.app.ecommercespringboot.enums.ProductStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class ProductDTO {
@@ -17,4 +18,7 @@ public class ProductDTO {
     private String image;
     private Integer categoryId;
     private ProductStatus status;
+    private List<CategoryDTO> categoryTree;
+
+
 }
