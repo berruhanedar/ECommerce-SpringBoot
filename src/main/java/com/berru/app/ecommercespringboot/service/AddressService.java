@@ -20,8 +20,6 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
-    private final CustomerRepository customerRepository;
-    private final CustomerMapper customerMapper;
 
     @Transactional
     public AddressDTO createAddress(NewAddressRequestDTO newAddressRequestDTO) {
