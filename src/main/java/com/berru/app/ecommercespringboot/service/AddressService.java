@@ -26,21 +26,23 @@ public class AddressService {
 
     @Transactional
     public AddressDTO createAddress(NewAddressRequestDTO newAddressRequestDTO) {
-        Address address = AddressMapper.INSTANCE.toAddress(newAddressRequestDTO);
+        Address address = addressMapper.toAddress(newAddressRequestDTO);
         Address savedAddress = addressRepository.save(address);
-        return AddressMapper.INSTANCE.toAddressDTO(savedAddress);
+        return addressMapper.toAddressDTO(savedAddress);
     }
 
     public AddressDTO getAddressById(Integer id) {
-        Optional<Address> address = addressRepository.findById(id);
-        return address.map(AddressMapper.INSTANCE::toAddressDTO).orElse(null);
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Address not found"));
+        return addressMapper.toAddressDTO(address);
     }
 
     public List<AddressDTO> getAllAddresses() {
         return addressRepository.findAll().stream()
-                .map(AddressMapper.INSTANCE::toAddressDTO)
+                .map(addressMapper::toAddressDTO)
                 .toList();
     }
+
 
     @Transactional
     public AddressDTO updateAddress(Integer id, UpdateAddressRequestDTO updateAddressRequestDTO) {
@@ -52,7 +54,7 @@ public class AddressService {
         address.setCity(updateAddressRequestDTO.getCity());
         address.setCountry(updateAddressRequestDTO.getCountry());
         Address updatedAddress = addressRepository.save(address);
-        return AddressMapper.INSTANCE.toAddressDTO(updatedAddress);
+        return addressMapper.toAddressDTO(updatedAddress);
     }
 
 
