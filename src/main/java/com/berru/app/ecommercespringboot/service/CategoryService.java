@@ -77,6 +77,15 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
+    public List<CategoryDTO> getCategoryTree(Integer categoryId) {
+        List<Category> categoryTree = categoryRepository.findCategoryTreeById(categoryId);
+        List<CategoryDTO> categoryDTOList = categoryTree.stream()
+                .map(categoryMapper::toCategoryDTO)
+                .collect(Collectors.toList());
+        return buildCategoryTree(categoryDTOList);
+    }
+
+    @Transactional(readOnly = true)
     public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
