@@ -27,7 +27,6 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
-    private final AddressRepository addressRepository;
 
 
     public CustomerDTO getCustomerById(Integer id) {
