@@ -35,7 +35,7 @@ public class Address {
     private String country;
 
     @Column(name = "postal_code")
-    private Integer postalCode;
+    private String postalCode;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
