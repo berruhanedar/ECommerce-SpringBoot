@@ -1,6 +1,5 @@
 package com.berru.app.ecommercespringboot.dto;
 
-
 import lombok.Data;
 import java.math.BigDecimal;
 

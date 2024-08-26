@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -45,5 +46,8 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
+
+    @OneToOne(mappedBy = "customer")
+    private List<ShoppingCart> shoppingCarts;
 }
 

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -23,4 +25,8 @@ public class ShoppingCart {
 
     @Column(name = "total price")
     private BigDecimal totalPrice;
+
+    @OneToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 }
