@@ -1,5 +1,6 @@
 package com.berru.app.ecommercespringboot.dto;
 
+import com.berru.app.ecommercespringboot.enums.CustomerStatus;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,9 @@ public class UpdateCustomerRequestDTO {
     @NotNull
     @Digits(integer = 10, fraction = 2)
     private BigDecimal balance;
+
+    @NotNull(message = "Status cannot be null")
+    private CustomerStatus status;
 
     @NotNull
     private Integer addressId;
