@@ -45,14 +45,10 @@ public class AddressService {
 
     @Transactional
     public AddressDTO updateAddress(Integer id, UpdateAddressRequestDTO updateAddressRequestDTO) {
-        Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Address not found"));
-        address.setAddressName(updateAddressRequestDTO.getAddressName());
-        address.setStreet(updateAddressRequestDTO.getStreet());
-        address.setBuildingName(updateAddressRequestDTO.getBuildingName());
-        address.setCity(updateAddressRequestDTO.getCity());
-        address.setCountry(updateAddressRequestDTO.getCountry());
-        Address updatedAddress = addressRepository.save(address);
+        Address existingAddress = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Address not found with id: " + id));
+        addressMapper.updateAddressFromDTO(updateAddressRequestDTO, existingAddress);
+        Address updatedAddress = addressRepository.save(existingAddress);
         return addressMapper.toAddressDTO(updatedAddress);
     }
 
