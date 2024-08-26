@@ -42,7 +42,6 @@ public class CustomerService {
         return customerMapper.toDTO(savedCustomer);
     }
 
-    @Transactional
     public CustomerDTO updateCustomer(Integer id, UpdateCustomerRequestDTO updateCustomerRequestDTO) {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
