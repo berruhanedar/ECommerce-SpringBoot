@@ -6,16 +6,15 @@ import com.berru.app.ecommercespringboot.dto.NewCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
-
-    CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
 
     CustomerDTO toDTO(Customer customer);
 
     Customer toEntity(NewCustomerRequestDTO dto);
 
-    Customer toEntity(UpdateCustomerRequestDTO dto);
+    void updateCustomerFromDTO(UpdateCustomerRequestDTO updateCustomerRequestDTO, @MappingTarget Customer customer);
+
 }

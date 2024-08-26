@@ -25,7 +25,6 @@ public class UpdateCustomerRequestDTO {
     private String email;
 
     @NotNull
-    @Size(min = 10, max = 10)
     private Integer mobileNumber;
 
     @NotNull

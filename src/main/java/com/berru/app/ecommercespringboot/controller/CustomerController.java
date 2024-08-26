@@ -49,7 +49,7 @@ public class CustomerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Integer id, @RequestBody @Valid UpdateCustomerRequestDTO updateCustomerRequestDTO) {
-        CustomerDTO updatedCustomer = customerService.updateCustomer( updateCustomerRequestDTO);
+        CustomerDTO updatedCustomer = customerService.updateCustomer(id, updateCustomerRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(updatedCustomer);
     }
 
@@ -59,3 +59,10 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
+
+
+
+
+
+
+

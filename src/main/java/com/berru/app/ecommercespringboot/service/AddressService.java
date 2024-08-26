@@ -42,12 +42,10 @@ public class AddressService {
                 .toList();
     }
 
-    // mapper kullanılabilir
     @Transactional
     public AddressDTO updateAddress(Integer id, UpdateAddressRequestDTO updateAddressRequestDTO) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found"));
-        // Update fields
         address.setAddressName(updateAddressRequestDTO.getAddressName());
         address.setStreet(updateAddressRequestDTO.getStreet());
         address.setBuildingName(updateAddressRequestDTO.getBuildingName());

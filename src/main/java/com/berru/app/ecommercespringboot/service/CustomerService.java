@@ -30,13 +30,6 @@ public class CustomerService {
     private final AddressRepository addressRepository;
 
 
-    public List<CustomerDTO> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
-        return customers.stream()
-                .map(customerMapper::toDTO)
-                .toList();
-    }
-
     public CustomerDTO getCustomerById(Integer id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
@@ -49,20 +42,15 @@ public class CustomerService {
         return customerMapper.toDTO(savedCustomer);
     }
 
-    public CustomerDTO updateCustomer(UpdateCustomerRequestDTO dto) {
-        Customer existingCustomer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + dto.getCustomerId()));
-        Customer updatedexistingCustomer = customerMapper.toEntity(dto);
-        updatedexistingCustomer.setCustomerId(existingCustomer.getCustomerId());
-        customerRepository.save(updatedexistingCustomer);
-        return customerMapper.toDTO(updatedexistingCustomer);
+    @Transactional
+    public CustomerDTO updateCustomer(Integer id, UpdateCustomerRequestDTO updateCustomerRequestDTO) {
+        Customer existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
 
-        /**
-         * Ilk database'den id ile mevcut existingCustomer'ı cekiyoruz.
-         * Sonra gelen dto ile existingCustomer'ı update ediyoruz.
-         * Sonra updatedCustomer'ı save ediyoruz.
-         * Sonra updatedCustomer'ı DTO'ya cevirip return ediyoruz.
-         */
+        customerMapper.updateCustomerFromDTO(updateCustomerRequestDTO, existingCustomer);
+        Customer updatedCustomer = customerRepository.save(existingCustomer);
+
+        return customerMapper.toDTO(updatedCustomer);
     }
 
     public void deleteCustomer(Integer id) {
@@ -90,3 +78,12 @@ public class CustomerService {
                 .build();
     }
 }
+
+
+
+
+
+
+
+
+

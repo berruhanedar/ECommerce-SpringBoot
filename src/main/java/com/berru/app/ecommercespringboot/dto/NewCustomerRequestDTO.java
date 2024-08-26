@@ -25,7 +25,6 @@ public class NewCustomerRequestDTO {
     private String email;
 
     @NotNull
-    @Size(min = 10, max = 10, message = "Mobile number must be 10 digits")
     private Integer mobileNumber;
 
     @NotNull
@@ -38,5 +37,4 @@ public class NewCustomerRequestDTO {
 
     @NotNull
     private Integer addressId;
-
 }
