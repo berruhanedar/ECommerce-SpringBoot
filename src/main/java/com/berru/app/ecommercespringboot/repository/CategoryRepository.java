@@ -22,5 +22,17 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             + ") "
             + "SELECT * FROM category_tree", nativeQuery = true)
     List<Category> findCategoryTreeById(@Param("categoryId") Integer categoryId);
+
+    @Query(value = "WITH RECURSIVE category_path AS ("
+            + "SELECT c.category_id, c.category_name, c.parent_id "
+            + "FROM category c "
+            + "WHERE c.category_id = :categoryId "
+            + "UNION ALL "
+            + "SELECT c.category_id, c.category_name, c.parent_id "
+            + "FROM category c "
+            + "JOIN category_path cp ON c.category_id = cp.parent_id "
+            + ") "
+            + "SELECT * FROM category_path ORDER BY category_id ASC", nativeQuery = true)
+    List<Category> findCategoryPath(@Param("categoryId") Integer categoryId);
 }
 

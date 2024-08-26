@@ -1,5 +1,6 @@
 package com.berru.app.ecommercespringboot.service;
 
+import com.berru.app.ecommercespringboot.dto.CategoryDTO;
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
@@ -7,10 +8,12 @@ import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
+import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +32,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     @Transactional
     public ProductDTO create(NewProductRequestDTO newProductRequestDTO) {
@@ -42,9 +46,12 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Integer id) {
-        return productRepository.findById(id)
+        ProductDTO productDTO = productRepository.findById(id)
                 .map(productMapper::toDto)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
+        List<CategoryDTO> categoryTree = getCategoryTreeForProduct(productDTO.getCategoryId());
+        productDTO.setCategoryTree(categoryTree);
+        return productDTO;
     }
 
     @Transactional
@@ -79,11 +86,15 @@ public class ProductService {
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-
         Page<Product> productPage = productRepository.findAll(pageable);
 
         List<ProductDTO> productDTOList = productPage.getContent().stream()
-                .map(productMapper::toDto)
+                .map(product -> {
+                    ProductDTO productDTO = productMapper.toDto(product);
+                    List<CategoryDTO> categoryTree = getCategoryTreeForProduct(product.getCategory().getId());
+                    productDTO.setCategoryTree(categoryTree);
+                    return productDTO;
+                })
                 .collect(Collectors.toList());
 
         return PaginationResponse.<ProductDTO>builder()
@@ -95,4 +106,19 @@ public class ProductService {
                 .isLast(productPage.isLast())
                 .build();
     }
+
+    private List<CategoryDTO> getCategoryTreeForProduct(Integer categoryId) {
+        List<Category> categoryPath = categoryRepository.findCategoryPath(categoryId);
+        List<CategoryDTO> categoryTree = categoryMapper.toCategoryDTOList(categoryPath);
+        if (!categoryTree.isEmpty()) {
+            for (int i = 0; i < categoryTree.size() - 1; i++) {
+                CategoryDTO parent = categoryTree.get(i);
+                CategoryDTO child = categoryTree.get(i + 1);
+                parent.setChildren(Collections.singletonList(child));
+            }
+            return Collections.singletonList(categoryTree.get(0));
+        }
+        return Collections.emptyList();
+    }
 }
+
