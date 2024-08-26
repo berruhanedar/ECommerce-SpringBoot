@@ -50,6 +50,12 @@ public class CategoryController {
         return ResponseEntity.ok(productDTOs);
     }
 
+    @GetMapping("/{id}/tree")
+    public ResponseEntity<List<CategoryDTO>> getCategoryTree(@PathVariable Integer id) {
+        List<CategoryDTO> categoryTree = categoryService.getCategoryTree(id);
+        return ResponseEntity.ok(categoryTree);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryService.updateCategory(id, updateCategoryRequestDTO)

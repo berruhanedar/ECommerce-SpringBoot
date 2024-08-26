@@ -23,3 +23,4 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             + "SELECT * FROM category_tree", nativeQuery = true)
     List<Category> findCategoryTreeById(@Param("categoryId") Integer categoryId);
 }
+
