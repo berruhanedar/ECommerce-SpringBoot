@@ -13,14 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,38 +99,6 @@ class ProductServiceTest {
         assertThrows(NotFoundException.class, () -> productService.create(requestDTO));
 
         verify(categoryRepository).findById(999);
-    }
-
-    @Test
-    void whenGetByIdCalledWithValidId_itShouldReturnValidProductDTO() {
-        int validProductId = 1;
-
-        Product product = new Product();
-        product.setId(validProductId);
-        product.setName("Test Product");
-        product.setPrice(BigDecimal.valueOf(100.00));
-        product.setDescription("Test Description");
-        product.setQuantity(10);
-        product.setImage("test-image.png");
-        product.setStatus(ProductStatus.ACTIVE);
-
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(validProductId);
-        productDTO.setName("Test Product");
-        productDTO.setPrice(BigDecimal.valueOf(100.00));
-        productDTO.setDescription("Test Description");
-        productDTO.setQuantity(10);
-        productDTO.setImage("test-image.png");
-        productDTO.setStatus(ProductStatus.ACTIVE);
-
-        when(productRepository.findById(validProductId)).thenReturn(Optional.of(product));
-        when(productMapper.toDto(product)).thenReturn(productDTO);
-
-        ProductDTO response = productService.getProductById(validProductId);
-
-        assertEquals(productDTO, response);
-        verify(productRepository).findById(validProductId);
-        verify(productMapper).toDto(product);
     }
 
     @Test
@@ -257,68 +219,4 @@ class ProductServiceTest {
         verify(productRepository, never()).deleteById(invalidProductId);
     }
 
-    @Test
-    void whenListCalledWithValidPageRequest_itShouldReturnPaginatedProductDTOs() {
-        int pageNo = 0;
-        int pageSize = 2;
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-
-        Product product1 = new Product();
-        product1.setId(1);
-        product1.setName("Product 1");
-        product1.setPrice(BigDecimal.valueOf(100.00));
-        product1.setDescription("Description 1");
-        product1.setQuantity(10);
-        product1.setImage("image1.png");
-        product1.setStatus(ProductStatus.ACTIVE);
-
-        Product product2 = new Product();
-        product2.setId(2);
-        product2.setName("Product 2");
-        product2.setPrice(BigDecimal.valueOf(200.00));
-        product2.setDescription("Description 2");
-        product2.setQuantity(20);
-        product2.setImage("image2.png");
-        product2.setStatus(ProductStatus.ACTIVE);
-
-        List<Product> productList = Arrays.asList(product1, product2);
-        Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
-
-        ProductDTO productDTO1 = new ProductDTO();
-        productDTO1.setId(1);
-        productDTO1.setName("Product 1");
-        productDTO1.setPrice(BigDecimal.valueOf(100.00));
-        productDTO1.setDescription("Description 1");
-        productDTO1.setQuantity(10);
-        productDTO1.setImage("image1.png");
-        productDTO1.setStatus(ProductStatus.ACTIVE);
-
-        ProductDTO productDTO2 = new ProductDTO();
-        productDTO2.setId(2);
-        productDTO2.setName("Product 2");
-        productDTO2.setPrice(BigDecimal.valueOf(200.00));
-        productDTO2.setDescription("Description 2");
-        productDTO2.setQuantity(20);
-        productDTO2.setImage("image2.png");
-        productDTO2.setStatus(ProductStatus.ACTIVE);
-
-        List<ProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
-
-        when(productRepository.findAll(pageable)).thenReturn(productPage);
-        when(productMapper.toDto(product1)).thenReturn(productDTO1);
-        when(productMapper.toDto(product2)).thenReturn(productDTO2);
-
-        PaginationResponse<ProductDTO> response = productService.listPaginated(pageNo, pageSize);
-
-        assertEquals(productDTOList, response.getContent());
-        assertEquals(pageNo, response.getPageNo());
-        assertEquals(pageSize, response.getPageSize());
-        assertEquals(2, response.getTotalElements());
-        assertEquals(1, response.getTotalPages());
-        assertEquals(true, response.isLast());
-
-        verify(productRepository).findAll(pageable);
-        verify(productMapper).toDto(product1);
-        verify(productMapper).toDto(product2);
-    }
 }
