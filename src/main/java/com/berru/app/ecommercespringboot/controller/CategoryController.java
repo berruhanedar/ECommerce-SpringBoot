@@ -44,13 +44,13 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/products")
     public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(@PathVariable Integer id) {
         List<ProductDTO> productDTOs = categoryService.getProductsByCategoryId(id);
         return ResponseEntity.ok(productDTOs);
     }
 
-    @GetMapping("/{id}/tree")
+    @GetMapping("/{id}")
     public ResponseEntity<List<CategoryDTO>> getCategoryTree(@PathVariable Integer id) {
         List<CategoryDTO> categoryTree = categoryService.getCategoryTree(id);
         return ResponseEntity.ok(categoryTree);

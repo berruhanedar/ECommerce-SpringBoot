@@ -82,8 +82,9 @@ public class CategoryService {
         List<CategoryDTO> categoryDTOList = categoryTree.stream()
                 .map(categoryMapper::toCategoryDTO)
                 .collect(Collectors.toList());
-        return buildCategoryTree(categoryDTOList);
+        return buildCategoryTree(categoryDTOList, categoryId);
     }
+
 
     @Transactional(readOnly = true)
     public PaginationResponse<CategoryDTO> getAllCategoriesPaginated(int pageNo, int pageSize) {
@@ -93,7 +94,7 @@ public class CategoryService {
                 .map(categoryMapper::toCategoryDTO)
                 .collect(Collectors.toList());
 
-        List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList);
+        List<CategoryDTO> categoryTree = buildCategoryTree(categoryDTOList, null);
         return PaginationResponse.<CategoryDTO>builder()
                 .content(categoryTree)
                 .pageNo(categoryPage.getNumber())
@@ -104,18 +105,26 @@ public class CategoryService {
                 .build();
     }
 
-    private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories) {
-        return categories.stream()
-                .filter(category -> category.getParentId() == null)
-                .peek(rootCategory -> populateChildren(rootCategory, categories))
-                .collect(Collectors.toList());
+    private List<CategoryDTO> buildCategoryTree(List<CategoryDTO> categories, Integer rootCategoryId) {
+        return Optional.ofNullable(rootCategoryId)
+                .map(id -> categories.stream()
+                        .filter(category -> category.getId().equals(id))
+                        .findFirst()
+                        .orElseThrow(() -> new NotFoundException("Kategori bulunamadı")))
+                .map(rootCategory -> {
+                    populateChildren(rootCategory, categories);
+                    return List.of(rootCategory);
+                })
+                .orElseGet(() -> categories.stream()
+                        .filter(category -> category.getParentId() == null)
+                        .peek(category -> populateChildren(category, categories))
+                        .collect(Collectors.toList()));
     }
 
     private void populateChildren(CategoryDTO parent, List<CategoryDTO> categories) {
-        List<CategoryDTO> children = categories.stream()
+        parent.setChildren(categories.stream()
                 .filter(category -> parent.getId().equals(category.getParentId()))
-                .peek(child -> populateChildren(child, categories))
-                .collect(Collectors.toList());
-        parent.setChildren(children);
+                .peek(child -> populateChildren(child, categories)) // Recursive call with lambda
+                .collect(Collectors.toList()));
     }
 }
