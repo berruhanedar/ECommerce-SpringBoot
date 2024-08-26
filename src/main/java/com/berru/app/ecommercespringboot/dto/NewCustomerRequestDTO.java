@@ -26,7 +26,8 @@ public class NewCustomerRequestDTO {
     private String email;
 
     @NotNull
-    private Integer mobileNumber;
+    @Size(min = 10, max = 10, message = "Mobile number must be 10 digits")
+    private String mobileNumber;
 
     @NotNull
     @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")

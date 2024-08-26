@@ -46,14 +46,6 @@ public class CustomerService {
     public CustomerDTO updateCustomer(Integer id, UpdateCustomerRequestDTO updateCustomerRequestDTO) {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
-        existingCustomer.setFirstName(updateCustomerRequestDTO.getFirstName());
-        existingCustomer.setLastName(updateCustomerRequestDTO.getLastName());
-        existingCustomer.setEmail(updateCustomerRequestDTO.getEmail());
-        existingCustomer.setMobileNumber(updateCustomerRequestDTO.getMobileNumber());
-        existingCustomer.setPassword(updateCustomerRequestDTO.getPassword());
-        existingCustomer.setBalance(updateCustomerRequestDTO.getBalance());
-        existingCustomer.setAddressId(updateCustomerRequestDTO.getAddressId());
-
         customerMapper.updateCustomerFromDTO(updateCustomerRequestDTO, existingCustomer);
         Customer updatedCustomer = customerRepository.save(existingCustomer);
         return customerMapper.toDTO(updatedCustomer);

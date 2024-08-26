@@ -14,7 +14,7 @@ public class CustomerDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private Integer mobileNumber;
+    private String mobileNumber;
     private String password;
     private BigDecimal balance;
     private CustomerStatus status;
