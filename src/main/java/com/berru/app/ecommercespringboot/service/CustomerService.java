@@ -8,7 +8,6 @@ import com.berru.app.ecommercespringboot.dto.UpdateCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
-import com.berru.app.ecommercespringboot.repository.AddressRepository;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
