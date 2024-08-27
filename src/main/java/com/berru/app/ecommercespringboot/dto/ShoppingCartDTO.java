@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 @Data
 public class ShoppingCartDTO {
-    private Integer shoppingCartId;
-    private Integer userId;
+    private Integer Id;
+    private Integer customerId;
     private BigDecimal totalPrice;
 }

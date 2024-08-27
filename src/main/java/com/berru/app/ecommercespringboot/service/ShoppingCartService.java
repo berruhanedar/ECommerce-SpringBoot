@@ -4,8 +4,12 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.NewShoppingCartRequestDTO;
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateShoppingCartRequestDTO;
+import com.berru.app.ecommercespringboot.entity.Customer;
+import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
+import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ShoppingCartMapper;
+import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,27 @@ import java.util.List;
 public class ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartMapper shoppingCartMapper;
+    private final ProductRepository productRepository;
+
+    public void addToCart(Integer customerId, Integer productId, int quantity) {
+        ShoppingCart cart = shoppingCartRepository.findByCustomer_CustomerId(customerId.intValue())
+                .orElseGet(() -> createNewCartForCustomer(customerId));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        cart.addItem(product, quantity);
+        shoppingCartRepository.save(cart);
+    }
+
+
+    private ShoppingCart createNewCartForCustomer(Integer customerId) {
+        ShoppingCart cart = new ShoppingCart();
+        Customer customer = new Customer();
+        customer.setCustomerId(customerId);
+        cart.setCustomer(customer);
+        return shoppingCartRepository.save(cart);
+    }
 
     @Transactional
     public ShoppingCartDTO createShoppingCart(NewShoppingCartRequestDTO newShoppingCartRequestDTO) {
