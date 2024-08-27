@@ -16,8 +16,8 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer addressId;
+    @Column(name = "address_id")
+    private Integer id;
 
     @Column(name = "address_name")
     private String addressName;

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 public class CustomerDTO {
 
-    private Integer customerId;
+    private Integer id;
     private Integer addressId;
     private String firstName;
     private String lastName;
