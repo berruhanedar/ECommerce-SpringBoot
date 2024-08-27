@@ -13,11 +13,11 @@ import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import lombok.RequiredArgsConstructor;
 
@@ -113,17 +113,16 @@ public class ProductService {
         List<CategoryDTO> categoryTree = categoryMapper.toCategoryDTOList(categoryPath);
 
         if (!categoryTree.isEmpty()) {
-            IntStream.range(0, categoryTree.size() - 1)
-                    .forEach(i -> {
-                        CategoryDTO parent = categoryTree.get(i);
-                        CategoryDTO child = categoryTree.get(i + 1);
-                        parent.setChildren(Collections.singletonList(child));
-                        if (child.getId().equals(categoryId)) {
-                            child.setChildren(Collections.emptyList());
-                        }
-                    });
-
-            return Collections.singletonList(categoryTree.get(0));
+            List<CategoryDTO> resultTree = new ArrayList<>();
+            categoryTree.stream().reduce((parent, child) -> {
+                parent.setChildren(Collections.singletonList(child));
+                resultTree.add(parent);
+                if (child.getId().equals(categoryId)) {
+                    child.setChildren(Collections.emptyList());
+                }
+                return child;
+            });
+            return Collections.singletonList(resultTree.get(0));
         }
         return Collections.emptyList();
     }
