@@ -30,7 +30,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long orderId;
+    private Integer orderId;
 
     private LocalDateTime orderDate;
 

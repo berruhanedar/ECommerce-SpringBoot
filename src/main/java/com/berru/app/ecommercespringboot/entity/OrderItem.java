@@ -22,7 +22,7 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long orderItemId;
+    private Integer orderItemId;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
