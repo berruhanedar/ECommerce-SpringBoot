@@ -1,9 +1,7 @@
 package com.berru.app.ecommercespringboot.service;
 
 
-import com.berru.app.ecommercespringboot.dto.NewShoppingCartRequestDTO;
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateShoppingCartRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
@@ -15,7 +13,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -24,16 +21,20 @@ public class ShoppingCartService {
     private final ShoppingCartMapper shoppingCartMapper;
     private final ProductRepository productRepository;
 
-    public void addToCart(Integer customerId, Integer productId, int quantity) {
+    public void addToCart(Integer customerId, Integer productId, Integer quantity) {
+        // Sepeti müşteri ID'sine göre bul veya yeni sepet oluştur
         ShoppingCart cart = shoppingCartRepository.findByCustomerId(customerId)
                 .orElseGet(() -> createNewCartForCustomer(customerId));
 
+        // Ürünü ID'sine göre bul
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
+        // Sepete ürünü ekle
         cart.addItem(product, quantity);
         shoppingCartRepository.save(cart);
     }
+
 
 
     private ShoppingCart createNewCartForCustomer(Integer customerId) {
@@ -44,12 +45,6 @@ public class ShoppingCartService {
         return shoppingCartRepository.save(cart);
     }
 
-    @Transactional
-    public ShoppingCartDTO createShoppingCart(NewShoppingCartRequestDTO newShoppingCartRequestDTO) {
-        ShoppingCart shoppingCart = shoppingCartMapper.toEntity(newShoppingCartRequestDTO);
-        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
-        return shoppingCartMapper.toDTO(savedShoppingCart);
-    }
 
     @Transactional
     public ShoppingCartDTO getShoppingCartById(Integer id) {
@@ -58,23 +53,6 @@ public class ShoppingCartService {
         return shoppingCartMapper.toDTO(shoppingCart);
     }
 
-    @Transactional
-    public List<ShoppingCartDTO> getAllShoppingCarts() {
-        return shoppingCartRepository.findAll().stream()
-                .map(shoppingCartMapper::toDTO)
-                .toList();
-    }
-
-    @Transactional
-    public ShoppingCartDTO updateShoppingCart(Integer id, UpdateShoppingCartRequestDTO updateShoppingCartRequestDTO) {
-        ShoppingCart existingShoppingCart = shoppingCartRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ShoppingCart not found with id: " + id));
-
-        shoppingCartMapper.updateShoppingCartFromDTO(updateShoppingCartRequestDTO, existingShoppingCart);
-
-        ShoppingCart updatedShoppingCart = shoppingCartRepository.save(existingShoppingCart);
-        return shoppingCartMapper.toDTO(updatedShoppingCart);
-    }
 
     @Transactional
     public void deleteShoppingCart(Integer id) {
