@@ -36,6 +36,14 @@ public class ShoppingCartController {
     }
 
 
+    @PostMapping("/{id}/checkout")
+    public ResponseEntity<Void> checkoutCart(@PathVariable Integer id) {
+        shoppingCartService.checkoutCart(id);
+        return ResponseEntity.ok().build();
+    }
+
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteShoppingCart(@PathVariable Integer id) {
         shoppingCartService.deleteShoppingCart(id);
