@@ -1,7 +1,14 @@
 package com.berru.app.ecommercespringboot.entity;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,7 +21,7 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     @Column(name = "shopping_cart_id")
-    private Integer Id;
+    private Integer id;
 
     @Column(name = "total price")
     private BigDecimal totalPrice;
