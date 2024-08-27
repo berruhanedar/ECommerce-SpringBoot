@@ -25,7 +25,7 @@ public class ShoppingCartService {
     private final ProductRepository productRepository;
 
     public void addToCart(Integer customerId, Integer productId, int quantity) {
-        ShoppingCart cart = shoppingCartRepository.findByCustomer_CustomerId(customerId.intValue())
+        ShoppingCart cart = shoppingCartRepository.findByCustomerId(customerId)
                 .orElseGet(() -> createNewCartForCustomer(customerId));
 
         Product product = productRepository.findById(productId)
@@ -39,7 +39,7 @@ public class ShoppingCartService {
     private ShoppingCart createNewCartForCustomer(Integer customerId) {
         ShoppingCart cart = new ShoppingCart();
         Customer customer = new Customer();
-        customer.setCustomerId(customerId);
+        customer.setId(customerId);
         cart.setCustomer(customer);
         return shoppingCartRepository.save(cart);
     }
