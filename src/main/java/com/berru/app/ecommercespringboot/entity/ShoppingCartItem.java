@@ -16,7 +16,7 @@ public class ShoppingCartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
+    @Column(name = "id")
     private Integer id;
 
     @ManyToOne
@@ -32,5 +32,15 @@ public class ShoppingCartItem {
 
     @Column(name = "price")
     private BigDecimal price;
+
+    public ShoppingCartItem() {
+
+    }
+
+    public ShoppingCartItem(ShoppingCart shoppingCart, Product product, int quantity) {
+        this.shoppingCart = shoppingCart;
+        this.product = product;
+        this.quantity = quantity;
+    }
 }
 

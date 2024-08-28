@@ -25,7 +25,7 @@ public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    @Column(name = "shopping_cart_id")
+    @Column(name = "id")
     private Integer id;
 
     @Column(name = "total price")
@@ -45,6 +45,14 @@ public class ShoppingCart {
     @Enumerated(EnumType.STRING)
     private ShoppingCartStatus status;
 
+    public ShoppingCart() {
+    }
+
+    public ShoppingCart(Customer customer) {
+        this.customer = customer;
+    }
+
+
     public void addItem(Product product, int quantity) {
         ShoppingCartItem item = new ShoppingCartItem();
         item.setProduct(product);
@@ -53,6 +61,17 @@ public class ShoppingCart {
         item.setShoppingCart(this);
         items.add(item);
         recalculateTotalPrice();
+    }
+
+    public void removeItem(Product product) {
+        items.removeIf(item -> item.getProduct().equals(product));
+        updateTotalPrice();
+    }
+
+    private void updateTotalPrice() {
+        this.totalPrice = items.stream()
+                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public void recalculateTotalPrice() {
@@ -68,17 +87,6 @@ public class ShoppingCart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         this.totalPrice = calculatedTotalPrice;
-
-        if (address != null) {
-            System.out.println("Shipping Address:");
-            System.out.println("Street: " + address.getStreet());
-            System.out.println("Building Name: " + address.getBuildingName());
-            System.out.println("City: " + address.getCity());
-            System.out.println("Country: " + address.getCountry());
-            System.out.println("Postal Code: " + address.getPostalCode());
-        } else {
-            System.out.println("No address information available.");
-        }
 
         this.status = ShoppingCartStatus.CHECKED_OUT;
     }
