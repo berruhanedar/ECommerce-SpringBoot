@@ -5,9 +5,9 @@ import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
-import com.berru.app.ecommercespringboot.enums.ShoppingCartStatus;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ShoppingCartMapper;
+import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
 import jakarta.transaction.Transactional;
@@ -21,10 +21,16 @@ public class ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartMapper shoppingCartMapper;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
+
+    @Transactional
     public void addToCart(Integer customerId, Integer productId, Integer quantity) {
-        ShoppingCart cart = shoppingCartRepository.findByCustomerId(customerId)
-                .orElseGet(() -> createNewCartForCustomer(customerId));
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        ShoppingCart cart = shoppingCartRepository.findById(customerId)
+                .orElseGet(() -> new ShoppingCart(customer));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -33,13 +39,19 @@ public class ShoppingCartService {
         shoppingCartRepository.save(cart);
     }
 
-    private ShoppingCart createNewCartForCustomer(Integer customerId) {
-        ShoppingCart cart = new ShoppingCart();
-        Customer customer = new Customer();
-        customer.setId(customerId);
-        cart.setCustomer(customer);
-        return shoppingCartRepository.save(cart);
+
+    @Transactional
+    public void removeItemFromCart(Integer cartId, Integer productId) {
+        ShoppingCart cart = shoppingCartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("ShoppingCart not found with id: " + cartId));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        cart.removeItem(product);
+        shoppingCartRepository.save(cart);
     }
+
 
     @Transactional
     public ShoppingCartDTO getShoppingCartById(Integer id) {
@@ -60,7 +72,6 @@ public class ShoppingCartService {
         ShoppingCart shoppingCart = shoppingCartRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ShoppingCart not found with id: " + id));
 
-        shoppingCart.setStatus(ShoppingCartStatus.CHECKED_OUT);
         shoppingCart.checkout();
         shoppingCartRepository.save(shoppingCart);
     }
