@@ -28,14 +28,22 @@ public class ShoppingCartService {
     public void addToCart(Integer customerId, Integer productId, Integer quantity) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (product.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Not enough quantity available");
+        }
 
         ShoppingCart cart = shoppingCartRepository.findById(customerId)
                 .orElseGet(() -> new ShoppingCart(customer));
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-
         cart.addItem(product, quantity);
+
+        product.setQuantity(product.getQuantity() - quantity);
+
+        productRepository.save(product);
+
         shoppingCartRepository.save(cart);
     }
 
