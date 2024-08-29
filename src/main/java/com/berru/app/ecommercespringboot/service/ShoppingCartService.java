@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
+import com.berru.app.ecommercespringboot.entity.OrderItem;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
 import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
@@ -14,6 +15,9 @@ import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -82,5 +86,19 @@ public class ShoppingCartService {
 
         shoppingCart.checkout();
         shoppingCartRepository.save(shoppingCart);
+    }
+
+    @Transactional
+    public List<OrderItem> getCartItems(Integer customerId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("ShoppingCart not found for customer id: " + customerId));
+        return shoppingCart.getItems().stream()
+                .map(item -> {
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setProduct(item.getProduct());
+                    orderItem.setQuantity(item.getQuantity());
+                    return orderItem;
+                })
+                .collect(Collectors.toList());
     }
 }
