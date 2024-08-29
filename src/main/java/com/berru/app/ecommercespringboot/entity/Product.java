@@ -16,11 +16,15 @@ import jakarta.persistence.EnumType;
 import java.math.BigDecimal;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
 
     @Id
@@ -42,4 +46,7 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
+    public Product(Integer id) {
+        this.id = id;
+    }
 }

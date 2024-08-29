@@ -2,10 +2,13 @@ package com.berru.app.ecommercespringboot.controller;
 
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
+import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,4 +55,36 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> cancelTheOrderByOrderId(@PathVariable int orderId) {
+        try {
+            orderService.cancelOrder(orderId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/update/{orderId}")
+    public ResponseEntity<OrderDTO> updateOrderByOrderId(
+            @PathVariable int orderId,
+            @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
+        try {
+            OrderDTO updatedOrder = orderService.updateOrder(orderId, updateOrderRequestDTO);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+
 }
