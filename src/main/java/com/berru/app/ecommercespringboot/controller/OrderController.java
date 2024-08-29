@@ -39,10 +39,10 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<OrderDTO>> listOrders(@PathVariable int userId) {
+    @GetMapping("/{customerId}")
+    public ResponseEntity<List<OrderDTO>> listOrders(@PathVariable int customerId) {
         try {
-            List<OrderDTO> orders = orderService.listOrders(userId);
+            List<OrderDTO> orders = orderService.listOrders(customerId);
             return new ResponseEntity<>(orders, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
