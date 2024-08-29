@@ -34,7 +34,6 @@ public class ShoppingCartItem {
     private BigDecimal price;
 
     public ShoppingCartItem() {
-
     }
 
     public ShoppingCartItem(ShoppingCart shoppingCart, Product product, int quantity) {

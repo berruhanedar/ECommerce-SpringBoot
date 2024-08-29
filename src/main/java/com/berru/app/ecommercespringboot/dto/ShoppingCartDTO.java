@@ -8,4 +8,6 @@ public class ShoppingCartDTO {
     private Integer id;
     private Integer customerId;
     private BigDecimal totalPrice;
+    private Integer quantity;
+    private Integer productId;
 }

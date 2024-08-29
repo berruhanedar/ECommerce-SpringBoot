@@ -5,6 +5,7 @@ import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
+import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.ShoppingCartMapper;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class ShoppingCartService {
+
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartMapper shoppingCartMapper;
     private final ProductRepository productRepository;
@@ -32,15 +34,13 @@ public class ShoppingCartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (product.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Not enough quantity available");
+            throw new InsufficientQuantityException("Not enough quantity available");
         }
 
         ShoppingCart cart = shoppingCartRepository.findById(customerId)
                 .orElseGet(() -> new ShoppingCart(customer));
 
         cart.addItem(product, quantity);
-
-        product.setQuantity(product.getQuantity() - quantity);
 
         productRepository.save(product);
 
