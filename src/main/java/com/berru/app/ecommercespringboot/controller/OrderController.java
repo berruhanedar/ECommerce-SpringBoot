@@ -7,6 +7,7 @@ import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.service.OrderService;
+import com.berru.app.ecommercespringboot.service.OrderItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderItemService orderItemService;
 
     @PostMapping
     public ResponseEntity<OrderDTO> placeOrder(@RequestBody PlaceOrderDTO placeOrderDTO) {
@@ -114,8 +116,19 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/items/{orderItemId}")
+    public ResponseEntity<OrderItemDTO> getOrderItemById(@PathVariable Integer orderItemId) {
+        try {
+            OrderItemDTO orderItemDTO = orderService.getOrderItemById(orderItemId);
+            return new ResponseEntity<>(orderItemDTO, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
-
-
-
+    @GetMapping("/items/order/{orderId}")
+    public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
+        List<OrderItemDTO> orderItemDTOs = orderService.getOrderItemsByOrderId(orderId);
+        return new ResponseEntity<>(orderItemDTOs, HttpStatus.OK);
+    }
 }

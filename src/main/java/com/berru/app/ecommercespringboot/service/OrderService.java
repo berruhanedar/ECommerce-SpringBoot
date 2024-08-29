@@ -124,6 +124,15 @@ public class OrderService {
         orderItemService.deleteOrderItem(orderItemId);
     }
 
+    public OrderItemDTO getOrderItemById(Integer orderItemId) {
+        return orderItemService.getOrderItemById(orderItemId);
+    }
+
+    public List<OrderItemDTO> getOrderItemsByOrderId(Integer orderId) {
+        return orderItemService.getOrderItemsByOrderId(orderId);
+    }
+
+
     public OrderItemDTO updateOrderItem(UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
         OrderItem updatedOrderItem = new OrderItem();
         updatedOrderItem.setOrderItemId(updateOrderItemRequestDTO.getOrderItemId());
