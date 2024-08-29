@@ -7,7 +7,6 @@ import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.service.OrderService;
-import com.berru.app.ecommercespringboot.service.OrderItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final OrderItemService orderItemService;
 
     @PostMapping
     public ResponseEntity<OrderDTO> placeOrder(@RequestBody PlaceOrderDTO placeOrderDTO) {
@@ -130,5 +128,17 @@ public class OrderController {
     public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
         List<OrderItemDTO> orderItemDTOs = orderService.getOrderItemsByOrderId(orderId);
         return new ResponseEntity<>(orderItemDTOs, HttpStatus.OK);
+    }
+
+    @PutMapping("/{orderId}/reactivate")
+    public ResponseEntity<OrderDTO> reactivateOrder(@PathVariable("orderId") int orderId) {
+        try {
+            OrderDTO orderDTO = orderService.reactivateOrder(orderId);
+            return new ResponseEntity<>(orderDTO, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

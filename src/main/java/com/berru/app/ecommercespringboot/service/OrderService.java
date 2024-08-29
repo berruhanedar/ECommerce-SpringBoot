@@ -123,6 +123,28 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
+    @Transactional
+    public OrderDTO reactivateOrder(int orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        if (order.getOrderStatus() != OrderStatus.CANCELLED) {
+            throw new IllegalArgumentException("Order is not cancelled, cannot be reactivated.");
+        }
+
+        order.setOrderStatus(OrderStatus.ORDERED);
+        orderRepository.save(order);
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setQuantity(product.getQuantity() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        return orderMapper.toDto(order);
+    }
+
+
     public void deleteOrderItemById(Integer orderItemId) {
         orderItemService.deleteOrderItem(orderItemId);
     }
