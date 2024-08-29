@@ -144,6 +144,25 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
+    @Transactional
+    public OrderDTO markOrderAsDelivered(int orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        if (order.getOrderStatus() == OrderStatus.DELIVERED) {
+            throw new IllegalArgumentException("Order is already marked as delivered.");
+        }
+
+        if (order.getOrderStatus() != OrderStatus.SHIPPED) {
+            throw new IllegalArgumentException("Order must be in SHIPPED status to be marked as DELIVERED.");
+        }
+
+        order.setOrderStatus(OrderStatus.DELIVERED);
+        order = orderRepository.save(order);
+
+        return orderMapper.toDto(order);
+    }
+
 
     public void deleteOrderItemById(Integer orderItemId) {
         orderItemService.deleteOrderItem(orderItemId);

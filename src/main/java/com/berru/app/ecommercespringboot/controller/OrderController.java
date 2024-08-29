@@ -71,6 +71,11 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{orderId}/deliver")
+    public OrderDTO markOrderAsDelivered(@PathVariable int orderId) {
+        return orderService.markOrderAsDelivered(orderId);
+    }
+
     @PostMapping("/update/{orderId}")
     public ResponseEntity<OrderDTO> updateOrderByOrderId(
             @PathVariable int orderId,
@@ -113,6 +118,7 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @GetMapping("/items/{orderItemId}")
     public ResponseEntity<OrderItemDTO> getOrderItemById(@PathVariable Integer orderItemId) {
