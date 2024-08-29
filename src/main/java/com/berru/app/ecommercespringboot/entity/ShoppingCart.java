@@ -31,8 +31,7 @@ public class ShoppingCart {
     @Column(name = "total price")
     private BigDecimal totalPrice;
 
-    @OneToOne
-    @JoinColumn(name = "customer_id")
+    @OneToOne(mappedBy = "shoppingCart")
     private Customer customer;
 
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
