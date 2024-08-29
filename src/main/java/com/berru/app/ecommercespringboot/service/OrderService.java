@@ -3,8 +3,8 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
-import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
+import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Order;
 import com.berru.app.ecommercespringboot.entity.OrderItem;
@@ -16,7 +16,6 @@ import com.berru.app.ecommercespringboot.mapper.OrderMapper;
 import com.berru.app.ecommercespringboot.repository.OrderRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +39,14 @@ public class OrderService {
         Order order = orderMapper.toEntity(placeOrderDTO);
         order.setCustomer(new Customer(placeOrderDTO.getCustomerId()));
         order.setTotalAmount(placeOrderDTO.getTotalAmount());
-        order = orderRepository.save(order);
 
         List<OrderItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
+        for (OrderItem item : cartItems) {
+            checkStockAvailability(item);
+        }
+
+        order = orderRepository.save(order);
+
         for (OrderItem item : cartItems) {
             item.setOrder(order);
             orderItemService.addOrderedProducts(item);
@@ -91,17 +95,13 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        // Update the order status
         if (updateOrderRequestDTO.getOrderStatus() != null) {
             order.setOrderStatus(updateOrderRequestDTO.getOrderStatus());
         }
-
-        // Update the total amount
         if (updateOrderRequestDTO.getTotalAmount() != null) {
             order.setTotalAmount(updateOrderRequestDTO.getTotalAmount());
         }
 
-        // Update order items
         if (updateOrderRequestDTO.getOrderItems() != null && !updateOrderRequestDTO.getOrderItems().isEmpty()) {
             for (UpdateOrderItemRequestDTO itemDTO : updateOrderRequestDTO.getOrderItems()) {
                 OrderItem orderItem = order.getOrderItems().stream()
@@ -111,7 +111,10 @@ public class OrderService {
 
                 orderItem.setQuantity(itemDTO.getQuantity());
                 orderItem.setOrderedProductPrice(itemDTO.getOrderedProductPrice());
-                orderItem.setProduct(new Product(itemDTO.getProductId())); // Assuming you have a way to fetch the product
+
+                Product product = productRepository.findById(itemDTO.getProductId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemDTO.getProductId()));
+                orderItem.setProduct(product);
             }
         }
 
@@ -132,7 +135,6 @@ public class OrderService {
         return orderItemService.getOrderItemsByOrderId(orderId);
     }
 
-
     public OrderItemDTO updateOrderItem(UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
         OrderItem updatedOrderItem = new OrderItem();
         updatedOrderItem.setOrderItemId(updateOrderItemRequestDTO.getOrderItemId());
@@ -143,6 +145,14 @@ public class OrderService {
         return orderItemMapper.toDto(savedOrderItem);
     }
 
+    private void checkStockAvailability(OrderItem orderItem) {
+        Integer productId = orderItem.getProduct().getId();
+        Integer orderedQuantity = orderItem.getQuantity();
+        Integer availableStock = productRepository.findStockByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found or stock is unavailable"));
 
-
+        if (orderedQuantity > availableStock) {
+            throw new IllegalArgumentException("Ordered quantity exceeds available stock.");
+        }
+    }
 }

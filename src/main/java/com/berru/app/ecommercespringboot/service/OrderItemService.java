@@ -5,7 +5,7 @@ import com.berru.app.ecommercespringboot.entity.OrderItem;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.OrderItemMapper;
 import com.berru.app.ecommercespringboot.repository.OrderItemRepository;
-import com.berru.app.ecommercespringboot.repository.OrderRepository;
+import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +20,10 @@ public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final OrderItemMapper orderItemMapper;
+    private final ProductRepository productRepository;
 
     public void addOrderedProducts(OrderItem orderItem) {
+        checkStockAvailability(orderItem);
         orderItemRepository.save(orderItem);
     }
 
@@ -48,10 +50,23 @@ public class OrderItemService {
     public OrderItem updateOrderItem(OrderItem updatedOrderItem) {
         return orderItemRepository.findById(updatedOrderItem.getOrderItemId())
                 .map(orderItem -> {
+                    checkStockAvailability(updatedOrderItem);
                     orderItem.setQuantity(updatedOrderItem.getQuantity());
                     orderItem.setOrderedProductPrice(updatedOrderItem.getOrderedProductPrice());
                     return orderItemRepository.save(orderItem);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with ID: " + updatedOrderItem.getOrderItemId()));
     }
+
+    private void checkStockAvailability(OrderItem orderItem) {
+        Integer productId = orderItem.getProduct().getId();
+        Integer orderedQuantity = orderItem.getQuantity();
+        Integer availableStock = productRepository.findStockByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found or stock is unavailable"));
+
+        if (orderedQuantity > availableStock) {
+            throw new IllegalArgumentException("Ordered quantity exceeds available stock.");
+        }
+    }
+
 }
