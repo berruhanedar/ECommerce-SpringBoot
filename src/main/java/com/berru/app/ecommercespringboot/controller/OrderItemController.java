@@ -20,20 +20,24 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/orderitems")
+@RequestMapping("/orderitems")
 public class OrderItemController {
     private final OrderItemService orderItemService;
 
-    @DeleteMapping("/items/{orderItemId}")
-    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {
-        try {
-            orderItemService.deleteOrderItem(orderItemId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @GetMapping("/{orderItemId}")
+    public ResponseEntity<OrderItemDTO> getOrderItemById(@PathVariable Integer orderItemId) {
+        OrderItemDTO orderItemDTO = orderItemService.getOrderItemById(orderItemId);
+        return new ResponseEntity<>(orderItemDTO, HttpStatus.OK);
+    }
+
+
+
+
+
+    @GetMapping("/items/order/{orderId}")
+    public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
+        List<OrderItemDTO> orderItemDTOs = orderItemService.getOrderItemsByOrderId(orderId);
+        return new ResponseEntity<>(orderItemDTOs, HttpStatus.OK);
     }
 
     @PutMapping("/order-items/{orderItemId}")
@@ -51,19 +55,16 @@ public class OrderItemController {
         }
     }
 
-    @GetMapping("/items/{orderItemId}")
-    public ResponseEntity<OrderItemDTO> getOrderItemById(@PathVariable Integer orderItemId) {
+    @DeleteMapping("/items/{orderItemId}")
+    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {
         try {
-            OrderItemDTO orderItemDTO = orderItemService.getOrderItemById(orderItemId);
-            return new ResponseEntity<>(orderItemDTO, HttpStatus.OK);
+            orderItemService.deleteOrderItem(orderItemId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/items/order/{orderId}")
-    public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
-        List<OrderItemDTO> orderItemDTOs = orderItemService.getOrderItemsByOrderId(orderId);
-        return new ResponseEntity<>(orderItemDTOs, HttpStatus.OK);
-    }
 }

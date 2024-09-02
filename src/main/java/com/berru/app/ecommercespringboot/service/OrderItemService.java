@@ -23,11 +23,13 @@ public class OrderItemService {
     private final OrderItemMapper orderItemMapper;
     private final ProductRepository productRepository;
 
+    @Transactional
     public void addOrderedProducts(OrderItem orderItem) {
         checkStockAvailability(orderItem);
         orderItemRepository.save(orderItem);
     }
 
+    @Transactional
     public void checkStockAvailability(OrderItem orderItem) {
         Integer productId = orderItem.getProduct().getId();
         Integer orderedQuantity = orderItem.getQuantity();
@@ -39,7 +41,21 @@ public class OrderItemService {
         }
     }
 
+    @Transactional
+    public OrderItemDTO getOrderItemById(Integer orderItemId) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with id: " + orderItemId));
+        return orderItemMapper.toDto(orderItem);
+    }
 
+
+
+
+
+
+
+
+    @Transactional
     public void deleteOrderItem(Integer orderItemId) {
         if (!orderItemRepository.existsById(orderItemId)) {
             throw new ResourceNotFoundException("OrderItem not found with id: " + orderItemId);
@@ -47,12 +63,9 @@ public class OrderItemService {
         orderItemRepository.deleteById(orderItemId);
     }
 
-    public OrderItemDTO getOrderItemById(Integer orderItemId) {
-        OrderItem orderItem = orderItemRepository.findById(orderItemId)
-                .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with id: " + orderItemId));
-        return orderItemMapper.toDto(orderItem);
-    }
 
+
+    @Transactional
     public List<OrderItemDTO> getOrderItemsByOrderId(Integer orderId) {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
         return orderItems.stream()
@@ -60,6 +73,7 @@ public class OrderItemService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public OrderItemDTO updateOrderItem(UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
         OrderItem updatedOrderItem = new OrderItem();
         updatedOrderItem.setOrderItemId(updateOrderItemRequestDTO.getOrderItemId());
