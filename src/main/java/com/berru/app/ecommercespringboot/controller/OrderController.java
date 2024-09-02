@@ -1,13 +1,9 @@
 package com.berru.app.ecommercespringboot.controller;
 
-
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
-import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
-import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,9 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
-
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -84,80 +77,9 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @DeleteMapping("/items/{orderItemId}")
-    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {
-        try {
-            orderService.deleteOrderItemById(orderItemId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/order-items/{orderItemId}")
-    public ResponseEntity<OrderItemDTO> updateOrderItem(
-            @PathVariable int orderItemId,
-            @RequestBody UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
-        try {
-            updateOrderItemRequestDTO.setOrderItemId(orderItemId);
-            OrderItemDTO updatedOrderItem = orderService.updateOrderItem(updateOrderItemRequestDTO);
-            return new ResponseEntity<>(updatedOrderItem, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
-    @GetMapping("/items/{orderItemId}")
-    public ResponseEntity<OrderItemDTO> getOrderItemById(@PathVariable Integer orderItemId) {
-        try {
-            OrderItemDTO orderItemDTO = orderService.getOrderItemById(orderItemId);
-            return new ResponseEntity<>(orderItemDTO, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/items/order/{orderId}")
-    public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
-        List<OrderItemDTO> orderItemDTOs = orderService.getOrderItemsByOrderId(orderId);
-        return new ResponseEntity<>(orderItemDTOs, HttpStatus.OK);
-    }
-
     @PutMapping("/{orderId}/reactivate")
-    public ResponseEntity<OrderDTO> reactivateOrder(@PathVariable("orderId") int orderId) {
-        try {
-            OrderDTO orderDTO = orderService.reactivateOrder(orderId);
-            return new ResponseEntity<>(orderDTO, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<OrderDTO> reactivateOrder(@PathVariable int orderId) {
+        OrderDTO updatedOrder = orderService.reactivateOrder(orderId);
+        return ResponseEntity.ok(updatedOrder);
     }
 }
