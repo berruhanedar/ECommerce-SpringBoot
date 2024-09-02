@@ -59,25 +59,22 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable int orderId) {
-        try {
-            OrderDTO orderDTO = orderService.getOrderById(orderId);
-            return new ResponseEntity<>(orderDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        OrderDTO orderDTO = orderService.getOrderById(orderId);
+        return ResponseEntity.ok(orderDTO);
     }
 
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> cancelTheOrderByOrderId(@PathVariable int orderId) {
-        try {
-            orderService.cancelOrder(orderId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        orderService.cancelOrder(orderId);
+        return ResponseEntity.noContent().build();
     }
+
+
+
+
+
+
+
 
     @PutMapping("/{orderId}/deliver")
     public OrderDTO markOrderAsDelivered(@PathVariable int orderId) {
@@ -99,6 +96,9 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
 
     @DeleteMapping("/items/{orderItemId}")
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {

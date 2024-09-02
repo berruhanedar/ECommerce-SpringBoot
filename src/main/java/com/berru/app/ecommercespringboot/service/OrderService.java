@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -115,11 +116,6 @@ public class OrderService {
                 .build();
     }
 
-
-
-
-
-
     @Transactional
     public OrderDTO getOrderById(int orderId) {
         Order order = orderRepository.findById(orderId)
@@ -132,19 +128,26 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
-            throw new IllegalArgumentException("Order is already cancelled");
-        }
+        Optional.of(order)
+                .filter(o -> o.getOrderStatus() != OrderStatus.CANCELLED)
+                .ifPresentOrElse(
+                        o -> {
+                            o.setOrderStatus(OrderStatus.CANCELLED);
+                            orderRepository.save(o);
 
-        order.setOrderStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
-
-        for (OrderItem item : order.getOrderItems()) {
-            Product product = item.getProduct();
-            product.setQuantity(product.getQuantity() + item.getQuantity());
-            productRepository.save(product);
-        }
+                            order.getOrderItems().forEach(item -> {
+                                Product product = item.getProduct();
+                                product.setQuantity(product.getQuantity() + item.getQuantity());
+                                productRepository.save(product);
+                            });
+                        },
+                        () -> {
+                            throw new IllegalArgumentException("Order is already cancelled");
+                        }
+                );
     }
+
+
 
     @Transactional
     public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
