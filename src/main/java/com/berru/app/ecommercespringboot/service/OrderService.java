@@ -56,11 +56,11 @@ public class OrderService {
     }
 
     private void validateAndSaveOrderItems(Order order, List<OrderItem> cartItems) {
-        for (OrderItem item : cartItems) {
+        cartItems.forEach(item -> {
             checkStockAvailability(item);
             item.setOrder(order);
             orderItemService.addOrderedProducts(item);
-        }
+        });
     }
 
     private void checkStockAvailability(OrderItem orderItem) {
