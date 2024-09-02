@@ -1,6 +1,5 @@
 package com.berru.app.ecommercespringboot.service;
 
-
 import com.berru.app.ecommercespringboot.dto.CustomerDTO;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
@@ -42,7 +41,6 @@ public class OrderService {
     private final CustomerService customerService;
     private final CustomerMapper customerMapper;
 
-
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
         CustomerDTO customerDTO = customerService.getCustomerById(placeOrderDTO.getCustomerId());
@@ -52,24 +50,25 @@ public class OrderService {
         order.setCustomer(customer);
         order.setTotalAmount(placeOrderDTO.getTotalAmount());
 
-        order = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
         List<OrderItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
-        validateAndSaveOrderItems(order, cartItems);
+        validateAndSaveOrderItems(savedOrder, cartItems);
 
         shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
 
-        return orderMapper.toDto(order);
+        return orderMapper.toDto(savedOrder);
     }
 
-    private void validateAndSaveOrderItems(Order order, List<OrderItem> cartItems) {
+    private void validateAndSaveOrderItems(Order savedOrder, List<OrderItem> cartItems) {
         cartItems.forEach(item -> {
             orderItemService.checkStockAvailability(item);
-            item.setOrder(order);
+            item.setOrder(savedOrder);
             orderItemService.addOrderedProducts(item);
         });
     }
 
+    @Transactional
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
         List<Order> orders = orderRepository.findAll(pageable).getContent();
