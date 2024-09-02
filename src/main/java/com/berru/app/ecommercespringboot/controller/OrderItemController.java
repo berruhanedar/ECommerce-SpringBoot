@@ -30,15 +30,16 @@ public class OrderItemController {
         return new ResponseEntity<>(orderItemDTO, HttpStatus.OK);
     }
 
-
-
-
-
-    @GetMapping("/items/order/{orderId}")
+    @GetMapping("/order/{orderId}")
     public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
         List<OrderItemDTO> orderItemDTOs = orderItemService.getOrderItemsByOrderId(orderId);
-        return new ResponseEntity<>(orderItemDTOs, HttpStatus.OK);
+        return ResponseEntity.ok(orderItemDTOs);
     }
+
+
+
+
+
 
     @PutMapping("/order-items/{orderItemId}")
     public ResponseEntity<OrderItemDTO> updateOrderItem(

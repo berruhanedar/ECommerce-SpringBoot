@@ -48,6 +48,13 @@ public class OrderItemService {
         return orderItemMapper.toDto(orderItem);
     }
 
+    @Transactional
+    public List<OrderItemDTO> getOrderItemsByOrderId(Integer orderId) {
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
+        return orderItems.stream()
+                .map(orderItemMapper::toDto)
+                .collect(Collectors.toList());
+    }
 
 
 
@@ -65,13 +72,7 @@ public class OrderItemService {
 
 
 
-    @Transactional
-    public List<OrderItemDTO> getOrderItemsByOrderId(Integer orderId) {
-        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
-        return orderItems.stream()
-                .map(orderItemMapper::toDto)
-                .collect(Collectors.toList());
-    }
+
 
     @Transactional
     public OrderItemDTO updateOrderItem(UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
