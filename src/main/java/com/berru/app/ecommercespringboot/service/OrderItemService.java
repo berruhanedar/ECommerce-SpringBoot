@@ -56,24 +56,6 @@ public class OrderItemService {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
-
-
-    @Transactional
-    public void deleteOrderItem(Integer orderItemId) {
-        if (!orderItemRepository.existsById(orderItemId)) {
-            throw new ResourceNotFoundException("OrderItem not found with id: " + orderItemId);
-        }
-        orderItemRepository.deleteById(orderItemId);
-    }
-
-
-
-
-
     @Transactional
     public OrderItemDTO updateOrderItem(UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
         OrderItem updatedOrderItem = new OrderItem();
@@ -92,6 +74,22 @@ public class OrderItemService {
 
         return orderItemMapper.toDto(savedOrderItem);
     }
+
+
+
+
+
+
+
+
+    @Transactional
+    public void deleteOrderItem(Integer orderItemId) {
+        if (!orderItemRepository.existsById(orderItemId)) {
+            throw new ResourceNotFoundException("OrderItem not found with id: " + orderItemId);
+        }
+        orderItemRepository.deleteById(orderItemId);
+    }
+
 
 
 }

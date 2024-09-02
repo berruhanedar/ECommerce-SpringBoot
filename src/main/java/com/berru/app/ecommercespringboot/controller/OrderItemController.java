@@ -36,27 +36,16 @@ public class OrderItemController {
         return ResponseEntity.ok(orderItemDTOs);
     }
 
-
-
-
-
-
-    @PutMapping("/order-items/{orderItemId}")
+    @PutMapping("/{orderItemId}")
     public ResponseEntity<OrderItemDTO> updateOrderItem(
             @PathVariable int orderItemId,
             @RequestBody UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
-        try {
-            updateOrderItemRequestDTO.setOrderItemId(orderItemId);
-            OrderItemDTO updatedOrderItem = orderItemService.updateOrderItem(updateOrderItemRequestDTO);
-            return new ResponseEntity<>(updatedOrderItem, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        updateOrderItemRequestDTO.setOrderItemId(orderItemId);
+        OrderItemDTO updatedOrderItem = orderItemService.updateOrderItem(updateOrderItemRequestDTO);
+        return ResponseEntity.ok(updatedOrderItem);
     }
 
-    @DeleteMapping("/items/{orderItemId}")
+    @DeleteMapping("/{orderItemId}")
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {
         try {
             orderItemService.deleteOrderItem(orderItemId);
