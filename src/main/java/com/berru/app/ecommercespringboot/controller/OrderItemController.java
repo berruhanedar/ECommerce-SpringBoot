@@ -2,7 +2,6 @@ package com.berru.app.ecommercespringboot.controller;
 
 import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
-import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.service.OrderItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,14 +46,7 @@ public class OrderItemController {
 
     @DeleteMapping("/{orderItemId}")
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {
-        try {
-            orderItemService.deleteOrderItem(orderItemId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        orderItemService.deleteOrderItem(orderItemId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }

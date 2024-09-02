@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,21 +76,14 @@ public class OrderItemService {
         return orderItemMapper.toDto(savedOrderItem);
     }
 
-
-
-
-
-
-
-
     @Transactional
     public void deleteOrderItem(Integer orderItemId) {
-        if (!orderItemRepository.existsById(orderItemId)) {
-            throw new ResourceNotFoundException("OrderItem not found with id: " + orderItemId);
-        }
-        orderItemRepository.deleteById(orderItemId);
+        Optional.of(orderItemId)
+                .filter(id -> orderItemRepository.existsById(id))
+                .ifPresentOrElse(
+                        id -> orderItemRepository.deleteById(id),
+                        () -> {
+                            throw new ResourceNotFoundException("OrderItem not found with id: " + orderItemId); }
+                );
     }
-
-
-
 }
