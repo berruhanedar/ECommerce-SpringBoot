@@ -1,6 +1,7 @@
 package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
+import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
@@ -18,6 +19,10 @@ import com.berru.app.ecommercespringboot.mapper.OrderMapper;
 import com.berru.app.ecommercespringboot.repository.OrderRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,19 +79,46 @@ public class OrderService {
         }
     }
 
+    public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+        List<Order> orders = orderRepository.findAll(pageable).getContent();
+        long totalElements = orderRepository.count();
+        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+        boolean isLast = pageNo + 1 >= totalPages;
 
-
-
-
-
+        return PaginationResponse.<OrderDTO>builder()
+                .content(orders.stream()
+                        .map(orderMapper::toDto)
+                        .collect(Collectors.toList()))
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .isLast(isLast)
+                .build();
+    }
 
     @Transactional
-    public List<OrderDTO> listOrders(int customerId) {
-        List<Order> orders = orderRepository.findAllByCustomerIdOrderByOrderDateDesc(customerId);
-        return orders.stream()
-                .map(orderMapper::toDto)
-                .collect(Collectors.toList());
+    public PaginationResponse<OrderDTO> listOrders(int customerId, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "orderDate"));
+        Page<Order> orderPage = orderRepository.findAllByCustomerIdOrderByOrderDateDesc(customerId, pageable);
+
+        return PaginationResponse.<OrderDTO>builder()
+                .content(orderPage.getContent().stream()
+                        .map(orderMapper::toDto)
+                        .collect(Collectors.toList()))
+                .pageNo(orderPage.getNumber())
+                .pageSize(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .isLast(orderPage.isLast())
+                .build();
     }
+
+
+
+
+
 
     @Transactional
     public OrderDTO getOrderById(int orderId) {
