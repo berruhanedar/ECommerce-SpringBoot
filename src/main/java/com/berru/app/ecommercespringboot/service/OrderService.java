@@ -10,6 +10,8 @@ import com.berru.app.ecommercespringboot.entity.Order;
 import com.berru.app.ecommercespringboot.entity.OrderItem;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
+import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
+import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.OrderItemMapper;
 import com.berru.app.ecommercespringboot.mapper.OrderMapper;
@@ -36,27 +38,49 @@ public class OrderService {
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-        Order order = orderMapper.toEntity(placeOrderDTO);
-        order.setCustomer(new Customer(placeOrderDTO.getCustomerId()));
-        order.setTotalAmount(placeOrderDTO.getTotalAmount());
+        Order order = createOrderFromDTO(placeOrderDTO);
 
         List<OrderItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
-        for (OrderItem item : cartItems) {
-            checkStockAvailability(item);
-        }
-
-        order = orderRepository.save(order);
-
-        for (OrderItem item : cartItems) {
-            item.setOrder(order);
-            orderItemService.addOrderedProducts(item);
-        }
+        validateAndSaveOrderItems(order, cartItems);
 
         shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
 
         return orderMapper.toDto(order);
     }
 
+    private Order createOrderFromDTO(PlaceOrderDTO placeOrderDTO) {
+        Order order = orderMapper.toEntity(placeOrderDTO);
+        order.setCustomer(new Customer(placeOrderDTO.getCustomerId()));
+        order.setTotalAmount(placeOrderDTO.getTotalAmount());
+        return orderRepository.save(order);
+    }
+
+    private void validateAndSaveOrderItems(Order order, List<OrderItem> cartItems) {
+        for (OrderItem item : cartItems) {
+            checkStockAvailability(item);
+            item.setOrder(order);
+            orderItemService.addOrderedProducts(item);
+        }
+    }
+
+    private void checkStockAvailability(OrderItem orderItem) {
+        Integer productId = orderItem.getProduct().getId();
+        Integer orderedQuantity = orderItem.getQuantity();
+        Integer availableStock = productRepository.findStockByProductId(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found or stock is unavailable"));
+
+        if (orderedQuantity > availableStock) {
+            throw new InsufficientQuantityException("Ordered quantity exceeds available stock.");
+        }
+    }
+
+
+
+
+
+
+
+    @Transactional
     public List<OrderDTO> listOrders(int customerId) {
         List<Order> orders = orderRepository.findAllByCustomerIdOrderByOrderDateDesc(customerId);
         return orders.stream()
@@ -186,14 +210,5 @@ public class OrderService {
         return orderItemMapper.toDto(savedOrderItem);
     }
 
-    private void checkStockAvailability(OrderItem orderItem) {
-        Integer productId = orderItem.getProduct().getId();
-        Integer orderedQuantity = orderItem.getQuantity();
-        Integer availableStock = productRepository.findStockByProductId(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found or stock is unavailable"));
 
-        if (orderedQuantity > availableStock) {
-            throw new IllegalArgumentException("Ordered quantity exceeds available stock.");
-        }
-    }
 }

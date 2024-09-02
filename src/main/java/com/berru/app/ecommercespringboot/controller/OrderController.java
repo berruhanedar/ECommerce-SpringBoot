@@ -31,13 +31,10 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDTO> placeOrder(@RequestBody PlaceOrderDTO placeOrderDTO) {
-        try {
-            OrderDTO orderDTO = orderService.placeOrder(placeOrderDTO);
-            return new ResponseEntity<>(orderDTO, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        OrderDTO orderDTO = orderService.placeOrder(placeOrderDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderDTO);
     }
+
 
     @GetMapping("/{customerId}")
     public ResponseEntity<List<OrderDTO>> listOrders(@PathVariable int customerId) {
