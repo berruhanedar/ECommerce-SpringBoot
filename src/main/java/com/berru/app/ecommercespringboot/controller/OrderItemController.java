@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.controller;
 import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.service.OrderItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 import java.util.List;
 
@@ -37,6 +37,7 @@ public class OrderItemController {
 
     @PutMapping("/{orderItemId}")
     public ResponseEntity<OrderItemDTO> updateOrderItem(
+            @Valid
             @PathVariable int orderItemId,
             @RequestBody UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
         updateOrderItemRequestDTO.setOrderItemId(orderItemId);

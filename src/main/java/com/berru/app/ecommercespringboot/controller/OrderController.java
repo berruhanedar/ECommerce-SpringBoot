@@ -5,6 +5,7 @@ import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
 import com.berru.app.ecommercespringboot.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> placeOrder(@RequestBody PlaceOrderDTO placeOrderDTO) {
+    public ResponseEntity<OrderDTO> placeOrder(@RequestBody @Valid PlaceOrderDTO placeOrderDTO) {
         OrderDTO orderDTO = orderService.placeOrder(placeOrderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderDTO);
     }
@@ -64,6 +65,7 @@ public class OrderController {
 
     @PutMapping("/{orderId}")
     public ResponseEntity<OrderDTO> updateOrder(
+            @Valid
             @PathVariable int orderId,
             @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
 
@@ -72,13 +74,13 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/deliver")
-    public ResponseEntity<OrderDTO> markOrderAsDelivered(@PathVariable int orderId) {
+    public ResponseEntity<OrderDTO> markOrderAsDelivered(@PathVariable @Valid int orderId) {
         OrderDTO updatedOrder = orderService.markOrderAsDelivered(orderId);
         return ResponseEntity.ok(updatedOrder);
     }
 
     @PutMapping("/{orderId}/reactivate")
-    public ResponseEntity<OrderDTO> reactivateOrder(@PathVariable int orderId) {
+    public ResponseEntity<OrderDTO> reactivateOrder(@PathVariable @Valid int orderId) {
         OrderDTO updatedOrder = orderService.reactivateOrder(orderId);
         return ResponseEntity.ok(updatedOrder);
     }
