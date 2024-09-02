@@ -69,6 +69,18 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{orderId}")
+    public ResponseEntity<OrderDTO> updateOrder(
+            @PathVariable int orderId,
+            @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
+
+        OrderDTO updatedOrder = orderService.updateOrder(orderId, updateOrderRequestDTO);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+
+
+
 
 
 
@@ -81,21 +93,9 @@ public class OrderController {
         return orderService.markOrderAsDelivered(orderId);
     }
 
-    @PostMapping("/update/{orderId}")
-    public ResponseEntity<OrderDTO> updateOrderByOrderId(
-            @PathVariable int orderId,
-            @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
-        try {
-            OrderDTO updatedOrder = orderService.updateOrder(orderId, updateOrderRequestDTO);
-            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
+
+
 
 
 

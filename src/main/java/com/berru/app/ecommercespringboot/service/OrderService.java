@@ -147,8 +147,6 @@ public class OrderService {
                 );
     }
 
-
-
     @Transactional
     public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
         Order order = orderRepository.findById(orderId)
@@ -181,6 +179,15 @@ public class OrderService {
 
         return orderMapper.toDto(order);
     }
+
+
+
+
+
+
+
+
+
 
     @Transactional
     public OrderDTO reactivateOrder(int orderId) {
