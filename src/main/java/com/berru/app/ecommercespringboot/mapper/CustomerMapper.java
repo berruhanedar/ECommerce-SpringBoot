@@ -13,6 +13,8 @@ public interface CustomerMapper {
 
     CustomerDTO toDTO(Customer customer);
 
+    Customer toEntity(CustomerDTO dto);
+
     Customer toEntity(NewCustomerRequestDTO dto);
 
     void updateCustomerFromDTO(UpdateCustomerRequestDTO updateCustomerRequestDTO, @MappingTarget Customer customer);

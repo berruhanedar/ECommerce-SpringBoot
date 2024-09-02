@@ -14,9 +14,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PlaceOrderDTO {
 
-    @NotNull(message = "Order ID cannot be null")
-    private Integer id;
-
     @NotNull(message = "Customer ID cannot be null")
     @Min(value = 1, message = "Customer ID must be at least 1")
     private Integer customerId;

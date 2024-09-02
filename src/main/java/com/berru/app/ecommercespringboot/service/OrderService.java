@@ -1,5 +1,7 @@
 package com.berru.app.ecommercespringboot.service;
 
+
+import com.berru.app.ecommercespringboot.dto.CustomerDTO;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
@@ -11,6 +13,7 @@ import com.berru.app.ecommercespringboot.entity.OrderItem;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
+import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
 import com.berru.app.ecommercespringboot.mapper.OrderMapper;
 import com.berru.app.ecommercespringboot.repository.OrderRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
@@ -36,10 +39,20 @@ public class OrderService {
     private final ShoppingCartService shoppingCartService;
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
+    private final CustomerService customerService;
+    private final CustomerMapper customerMapper;
+
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-        Order order = createOrderFromDTO(placeOrderDTO);
+        CustomerDTO customerDTO = customerService.getCustomerById(placeOrderDTO.getCustomerId());
+        Customer customer = customerMapper.toEntity(customerDTO);
+
+        Order order = orderMapper.toEntity(placeOrderDTO);
+        order.setCustomer(customer);
+        order.setTotalAmount(placeOrderDTO.getTotalAmount());
+
+        order = orderRepository.save(order);
 
         List<OrderItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
         validateAndSaveOrderItems(order, cartItems);
@@ -49,13 +62,6 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
-    private Order createOrderFromDTO(PlaceOrderDTO placeOrderDTO) {
-        Order order = orderMapper.toEntity(placeOrderDTO);
-        order.setCustomer(new Customer(placeOrderDTO.getCustomerId()));
-        order.setTotalAmount(placeOrderDTO.getTotalAmount());
-        return orderRepository.save(order);
-    }
-
     private void validateAndSaveOrderItems(Order order, List<OrderItem> cartItems) {
         cartItems.forEach(item -> {
             orderItemService.checkStockAvailability(item);
@@ -63,7 +69,6 @@ public class OrderService {
             orderItemService.addOrderedProducts(item);
         });
     }
-
 
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
