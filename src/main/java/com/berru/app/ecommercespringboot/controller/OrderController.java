@@ -78,20 +78,25 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-
-
-
-
-
-
-
-
-
-
     @PutMapping("/{orderId}/deliver")
-    public OrderDTO markOrderAsDelivered(@PathVariable int orderId) {
-        return orderService.markOrderAsDelivered(orderId);
+    public ResponseEntity<OrderDTO> markOrderAsDelivered(@PathVariable int orderId) {
+        OrderDTO updatedOrder = orderService.markOrderAsDelivered(orderId);
+        return ResponseEntity.ok(updatedOrder);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
