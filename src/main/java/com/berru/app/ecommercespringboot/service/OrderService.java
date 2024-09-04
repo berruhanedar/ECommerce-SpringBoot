@@ -1,17 +1,21 @@
 package com.berru.app.ecommercespringboot.service;
 
+import com.berru.app.ecommercespringboot.dto.AddressDTO;
 import com.berru.app.ecommercespringboot.dto.CustomerDTO;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
+import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
+import com.berru.app.ecommercespringboot.entity.Address;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Order;
 import com.berru.app.ecommercespringboot.entity.OrderItem;
 import com.berru.app.ecommercespringboot.entity.Product;
+import com.berru.app.ecommercespringboot.entity.ShoppingCartItem;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
+import com.berru.app.ecommercespringboot.mapper.AddressMapper;
 import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
 import com.berru.app.ecommercespringboot.mapper.OrderMapper;
 import com.berru.app.ecommercespringboot.repository.OrderRepository;
@@ -24,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,19 +45,32 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final CustomerService customerService;
     private final CustomerMapper customerMapper;
+    private final AddressService addressService;
+    private final AddressMapper addressMapper;
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
+
         CustomerDTO customerDTO = customerService.getCustomerById(placeOrderDTO.getCustomerId());
         Customer customer = customerMapper.toEntity(customerDTO);
 
+        AddressDTO addressDTO = addressService.getAddressById(placeOrderDTO.getAddressId());
+        Address address = addressMapper.toAddress(addressDTO);
+
+        List<ShoppingCartItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
+        BigDecimal calculatedTotalAmount = calculateTotalAmount(cartItems);
+
+        if (placeOrderDTO.getTotalAmount().compareTo(calculatedTotalAmount) != 0) {
+            throw new IllegalArgumentException("Total amount does not match the cart total.");
+        }
+
         Order order = orderMapper.toEntity(placeOrderDTO);
         order.setCustomer(customer);
-        order.setTotalAmount(placeOrderDTO.getTotalAmount());
+        order.setAddress(address);
+        order.setTotalAmount(calculatedTotalAmount);
 
         Order savedOrder = orderRepository.save(order);
 
-        List<OrderItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
         validateAndSaveOrderItems(savedOrder, cartItems);
 
         shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
@@ -60,13 +78,24 @@ public class OrderService {
         return orderMapper.toDto(savedOrder);
     }
 
-    private void validateAndSaveOrderItems(Order savedOrder, List<OrderItem> cartItems) {
+    private BigDecimal calculateTotalAmount(List<ShoppingCartItem> cartItems) {
+        return cartItems.stream()
+                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void validateAndSaveOrderItems(Order savedOrder, List<ShoppingCartItem> cartItems) {
         cartItems.forEach(item -> {
-            orderItemService.checkStockAvailability(item);
-            item.setOrder(savedOrder);
-            orderItemService.addOrderedProducts(item);
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(item.getProduct());
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setOrder(savedOrder);
+
+            orderItemService.checkStockAvailability(orderItem);
+            orderItemService.addOrderedProducts(orderItem);
         });
     }
+
 
     @Transactional
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
