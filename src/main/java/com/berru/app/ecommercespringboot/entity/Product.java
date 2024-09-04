@@ -43,9 +43,6 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
-
     public Product(Integer id) {
         this.id = id;
     }
