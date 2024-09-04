@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +20,6 @@ public class UpdateOrderRequestDTO {
     private Integer orderId;
 
     private OrderStatus orderStatus;
-
-    @Min(value = 0, message = "Total amount must be greater than or equal to 0")
-    private BigDecimal totalAmount;
 
     private List<UpdateOrderItemRequestDTO> orderItems = new ArrayList<>();
 }

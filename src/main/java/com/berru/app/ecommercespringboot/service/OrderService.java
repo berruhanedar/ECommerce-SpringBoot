@@ -1,7 +1,5 @@
 package com.berru.app.ecommercespringboot.service;
 
-import com.berru.app.ecommercespringboot.dto.AddressDTO;
-import com.berru.app.ecommercespringboot.dto.CustomerDTO;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
@@ -15,9 +13,9 @@ import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCartItem;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
-import com.berru.app.ecommercespringboot.mapper.AddressMapper;
-import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
 import com.berru.app.ecommercespringboot.mapper.OrderMapper;
+import com.berru.app.ecommercespringboot.repository.AddressRepository;
+import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import com.berru.app.ecommercespringboot.repository.OrderRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,36 +41,27 @@ public class OrderService {
     private final ShoppingCartService shoppingCartService;
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
-    private final CustomerService customerService;
-    private final CustomerMapper customerMapper;
-    private final AddressService addressService;
-    private final AddressMapper addressMapper;
+    private final AddressRepository addressRepository;
+    private final CustomerRepository customerRepository;
+
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-        CustomerDTO customerDTO = customerService.getCustomerById(placeOrderDTO.getCustomerId());
-        Customer customer = customerMapper.toEntity(customerDTO);
-
-        AddressDTO addressDTO = addressService.getAddressById(placeOrderDTO.getAddressId());
-        Address address = addressMapper.toAddress(addressDTO);
+        Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + placeOrderDTO.getCustomerId()));
+        Address address = addressRepository.findById(placeOrderDTO.getAddressId())
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id " + placeOrderDTO.getAddressId()));
 
         List<ShoppingCartItem> shoppingCartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
         BigDecimal calculatedTotalAmount = calculateTotalAmount(shoppingCartItems);
 
-        if (placeOrderDTO.getTotalAmount().compareTo(calculatedTotalAmount) != 0) {
-            throw new IllegalArgumentException("Total amount does not match the cart total.");
-        }
+        Order order = Order.createOrder(customer, address, calculatedTotalAmount);
 
-        Order order = orderMapper.toEntity(placeOrderDTO);
-        order.setCustomer(customer);
-        order.setAddress(address);
-        order.setTotalAmount(calculatedTotalAmount);
-        order.setOrderStatus(OrderStatus.ORDERED);
-        order.setOrderDate(LocalDateTime.now());
+        validateOrderItems(order, shoppingCartItems);
 
         Order savedOrder = orderRepository.save(order);
 
-        validateAndSaveOrderItems(savedOrder, shoppingCartItems);
+        saveOrderItems(savedOrder, shoppingCartItems);
 
         shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
 
@@ -86,17 +74,28 @@ public class OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private void validateAndSaveOrderItems(Order savedOrder, List<ShoppingCartItem> cartItems) {
+    private void validateOrderItems(Order order, List<ShoppingCartItem> cartItems) {
+        cartItems.forEach(item -> {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(item.getProduct());
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setOrder(order);
+
+            orderItemService.checkStockAvailability(orderItem);
+        });
+    }
+
+    private void saveOrderItems(Order savedOrder, List<ShoppingCartItem> cartItems) {
         cartItems.forEach(item -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(item.getProduct());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setOrder(savedOrder);
 
-            orderItemService.checkStockAvailability(orderItem);
             orderItemService.addOrderedProducts(orderItem);
         });
     }
+
 
     @Transactional
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
@@ -170,10 +169,6 @@ public class OrderService {
 
         if (updateOrderRequestDTO.getOrderStatus() != null) {
             order.setOrderStatus(updateOrderRequestDTO.getOrderStatus());
-        }
-
-        if (updateOrderRequestDTO.getTotalAmount() != null) {
-            order.setTotalAmount(updateOrderRequestDTO.getTotalAmount());
         }
 
         if (updateOrderRequestDTO.getOrderItems() != null && !updateOrderRequestDTO.getOrderItems().isEmpty()) {
