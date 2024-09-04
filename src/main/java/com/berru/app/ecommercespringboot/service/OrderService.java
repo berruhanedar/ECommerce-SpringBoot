@@ -99,7 +99,6 @@ public class OrderService {
         });
     }
 
-
     @Transactional
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
@@ -239,7 +238,6 @@ public class OrderService {
                     o.setOrderStatus(OrderStatus.DELIVERED);
                     orderRepository.save(o);
                 });
-
         return orderMapper.toDto(order);
     }
 }
