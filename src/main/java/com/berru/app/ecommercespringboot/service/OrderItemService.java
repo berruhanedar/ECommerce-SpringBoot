@@ -59,19 +59,15 @@ public class OrderItemService {
 
     @Transactional
     public OrderItemDTO updateOrderItem(UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
-        OrderItem updatedOrderItem = new OrderItem();
-        updatedOrderItem.setOrderItemId(updateOrderItemRequestDTO.getOrderItemId());
-        updatedOrderItem.setQuantity(updateOrderItemRequestDTO.getQuantity());
-        updatedOrderItem.setOrderedProductPrice(updateOrderItemRequestDTO.getOrderedProductPrice());
+        OrderItem orderItem = orderItemRepository.findById(updateOrderItemRequestDTO.getOrderItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with ID: " + updateOrderItemRequestDTO.getOrderItemId()));
 
-        OrderItem savedOrderItem = orderItemRepository.findById(updatedOrderItem.getOrderItemId())
-                .map(orderItem -> {
-                    checkStockAvailability(updatedOrderItem);
-                    orderItem.setQuantity(updatedOrderItem.getQuantity());
-                    orderItem.setOrderedProductPrice(updatedOrderItem.getOrderedProductPrice());
-                    return orderItemRepository.save(orderItem);
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with ID: " + updatedOrderItem.getOrderItemId()));
+        checkStockAvailability(orderItem);
+
+        orderItem.setQuantity(updateOrderItemRequestDTO.getQuantity());
+        orderItem.setOrderedProductPrice(updateOrderItemRequestDTO.getOrderedProductPrice());
+
+        OrderItem savedOrderItem = orderItemRepository.save(orderItem);
 
         return orderItemMapper.toDto(savedOrderItem);
     }
