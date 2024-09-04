@@ -15,6 +15,8 @@ public interface AddressMapper {
 
     AddressDTO toAddressDTO(Address address);
 
+    Address toAddress(AddressDTO addressDTO);
+
     Address toAddress(NewAddressRequestDTO newAddressRequestDTO);
 
     void updateAddressFromDTO(UpdateAddressRequestDTO updateAddressRequestDTO, @MappingTarget Address address);
