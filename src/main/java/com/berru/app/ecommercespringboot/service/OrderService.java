@@ -57,8 +57,8 @@ public class OrderService {
         AddressDTO addressDTO = addressService.getAddressById(placeOrderDTO.getAddressId());
         Address address = addressMapper.toAddress(addressDTO);
 
-        List<ShoppingCartItem> cartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
-        BigDecimal calculatedTotalAmount = calculateTotalAmount(cartItems);
+        List<ShoppingCartItem> shoppingCartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
+        BigDecimal calculatedTotalAmount = calculateTotalAmount(shoppingCartItems);
 
         if (placeOrderDTO.getTotalAmount().compareTo(calculatedTotalAmount) != 0) {
             throw new IllegalArgumentException("Total amount does not match the cart total.");
@@ -71,7 +71,7 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        validateAndSaveOrderItems(savedOrder, cartItems);
+        validateAndSaveOrderItems(savedOrder, shoppingCartItems);
 
         shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
 
