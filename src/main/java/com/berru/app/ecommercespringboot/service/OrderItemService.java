@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.entity.OrderItem;
+import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.OrderItemMapper;
 import com.berru.app.ecommercespringboot.repository.OrderItemRepository;
@@ -62,15 +63,28 @@ public class OrderItemService {
         OrderItem orderItem = orderItemRepository.findById(updateOrderItemRequestDTO.getOrderItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with ID: " + updateOrderItemRequestDTO.getOrderItemId()));
 
-        checkStockAvailability(orderItem);
+        Integer oldQuantity = orderItem.getQuantity();
+        Product product = productRepository.findById(updateOrderItemRequestDTO.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + updateOrderItemRequestDTO.getProductId()));
 
-        orderItem.setQuantity(updateOrderItemRequestDTO.getQuantity());
+        Integer newQuantity = updateOrderItemRequestDTO.getQuantity();
+        Integer availableStock = productRepository.findStockByProductId(product.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found or stock is unavailable"));
+
+        int stockAdjustment = newQuantity - oldQuantity;
+        if (stockAdjustment > availableStock) {
+            throw new IllegalArgumentException("Ordered quantity exceeds available stock.");
+        }
+
+        orderItem.setQuantity(newQuantity);
         orderItem.setOrderedProductPrice(updateOrderItemRequestDTO.getOrderedProductPrice());
+        orderItem.setProduct(product);
 
         OrderItem savedOrderItem = orderItemRepository.save(orderItem);
 
         return orderItemMapper.toDto(savedOrderItem);
     }
+
 
     @Transactional
     public void deleteOrderItem(Integer orderItemId) {

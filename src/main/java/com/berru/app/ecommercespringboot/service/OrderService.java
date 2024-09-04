@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -51,7 +51,6 @@ public class OrderService {
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-
         CustomerDTO customerDTO = customerService.getCustomerById(placeOrderDTO.getCustomerId());
         Customer customer = customerMapper.toEntity(customerDTO);
 
@@ -102,20 +101,17 @@ public class OrderService {
     @Transactional
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-        List<Order> orders = orderRepository.findAll(pageable).getContent();
-        long totalElements = orderRepository.count();
-        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
-        boolean isLast = pageNo + 1 >= totalPages;
+        Page<Order> orderPage = orderRepository.findAll(pageable);
 
         return PaginationResponse.<OrderDTO>builder()
-                .content(orders.stream()
+                .content(orderPage.getContent().stream()
                         .map(orderMapper::toDto)
                         .collect(Collectors.toList()))
-                .pageNo(pageNo)
-                .pageSize(pageSize)
-                .totalElements(totalElements)
-                .totalPages(totalPages)
-                .isLast(isLast)
+                .pageNo(orderPage.getNumber())
+                .pageSize(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .isLast(orderPage.isLast())
                 .build();
     }
 
@@ -175,6 +171,7 @@ public class OrderService {
         if (updateOrderRequestDTO.getOrderStatus() != null) {
             order.setOrderStatus(updateOrderRequestDTO.getOrderStatus());
         }
+
         if (updateOrderRequestDTO.getTotalAmount() != null) {
             order.setTotalAmount(updateOrderRequestDTO.getTotalAmount());
         }
@@ -186,12 +183,14 @@ public class OrderService {
                         .findFirst()
                         .orElseThrow(() -> new ResourceNotFoundException("Order item not found with id: " + itemDTO.getOrderItemId()));
 
-                orderItem.setQuantity(itemDTO.getQuantity());
-                orderItem.setOrderedProductPrice(itemDTO.getOrderedProductPrice());
-
                 Product product = productRepository.findById(itemDTO.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemDTO.getProductId()));
                 orderItem.setProduct(product);
+
+                orderItem.setQuantity(itemDTO.getQuantity());
+                orderItem.setOrderedProductPrice(itemDTO.getOrderedProductPrice());
+
+                orderItemService.checkStockAvailability(orderItem);
             }
         }
 
