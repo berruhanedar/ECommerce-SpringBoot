@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +69,8 @@ public class OrderService {
         order.setCustomer(customer);
         order.setAddress(address);
         order.setTotalAmount(calculatedTotalAmount);
+        order.setOrderStatus(OrderStatus.ORDERED);
+        order.setOrderDate(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
 
