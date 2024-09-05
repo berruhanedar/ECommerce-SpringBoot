@@ -52,6 +52,10 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
+
+
+
+
     public static Order createOrder(Customer customer, Address address, BigDecimal totalAmount) {
         return Order.builder()
                 .customer(customer)

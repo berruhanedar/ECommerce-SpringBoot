@@ -47,15 +47,31 @@ public class OrderService {
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
+
+        // 1 check the order
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + placeOrderDTO.getCustomerId()));
         Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with id " + placeOrderDTO.getAddressId()));
 
         List<ShoppingCartItem> shoppingCartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
-        BigDecimal calculatedTotalAmount = calculateTotalAmount(shoppingCartItems);
 
-        Order order = Order.createOrder(customer, address, calculatedTotalAmount);
+        //1.2 order total price çekme
+
+        // 2 enough stock ? checkStockAvailability (ORDERITEMSERVICETE)
+
+        // 3 is it valid ? bakiye kontrolu olabilir
+
+        // 4 processing = quantity ve bakiye miktarı düzenlenir
+
+        // 5 status ordered olur
+
+
+        BigDecimal calculatedTotalPrice = calculateTotalPrice(shoppingCartItems);
+        Order order = Order.createOrder(customer, address, calculatedTotalPrice);
+
+
+
 
         validateOrderItems(order, shoppingCartItems);
 
@@ -66,9 +82,18 @@ public class OrderService {
         shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
 
         return orderMapper.toDto(savedOrder);
+
+
+        //status ordered olacak
     }
 
-    private BigDecimal calculateTotalAmount(List<ShoppingCartItem> cartItems) {
+
+
+
+
+
+
+    private BigDecimal calculateTotalPrice(List<ShoppingCartItem> cartItems) {
         return cartItems.stream()
                 .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -161,6 +186,7 @@ public class OrderService {
                         }
                 );
     }
+
 
     @Transactional
     public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
