@@ -1,15 +1,10 @@
 package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.OrderItemDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.entity.OrderItem;
-import com.berru.app.ecommercespringboot.entity.Product;
-import com.berru.app.ecommercespringboot.entity.ShoppingCartItem;
-import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.OrderItemMapper;
 import com.berru.app.ecommercespringboot.repository.OrderItemRepository;
-import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +20,6 @@ public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final OrderItemMapper orderItemMapper;
-    private final ProductRepository productRepository;
-
-
-
 
 
     @Transactional

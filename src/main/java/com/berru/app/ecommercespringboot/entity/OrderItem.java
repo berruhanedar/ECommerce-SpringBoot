@@ -36,7 +36,9 @@ public class OrderItem {
     private BigDecimal price;
 
     // Parametresiz yapıcı
-    public OrderItem() {}
+    public OrderItem() {
+
+    }
 
     // Parametreli yapıcı
     public OrderItem(Order order, Product product, Integer quantity) {

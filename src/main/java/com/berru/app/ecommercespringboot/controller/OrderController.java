@@ -27,9 +27,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<Void> placeOrder(@RequestBody @Valid PlaceOrderDTO placeOrderDTO) {
-        orderService.placeOrder(placeOrderDTO.getCustomerId(), placeOrderDTO.getAddressId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<OrderDTO> placeOrder(@RequestBody @Valid PlaceOrderDTO placeOrderDTO) {
+        OrderDTO orderDTO = orderService.placeOrder(placeOrderDTO);
+        return new ResponseEntity<>(orderDTO, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -76,12 +76,6 @@ public class OrderController {
     public ResponseEntity<String> deliverOrder(@PathVariable Integer orderId) {
         orderService.deliverOrder(orderId);
         return ResponseEntity.ok("Order delivered successfully");
-    }
-
-    @PutMapping("/{orderId}/reactivate")
-    public ResponseEntity<String> reactivateOrder(@PathVariable Integer orderId) {
-        orderService.reactivateOrder(orderId);
-        return ResponseEntity.ok("Order reactivated successfully");
     }
 
 
