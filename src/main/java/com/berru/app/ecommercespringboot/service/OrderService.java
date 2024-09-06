@@ -3,7 +3,6 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.entity.Address;
 import com.berru.app.ecommercespringboot.entity.Customer;
@@ -160,47 +159,35 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
         // Sipariş durumu güncelleme
-        if (updateOrderRequestDTO.getOrderStatus() != null) {
-            order.setOrderStatus(updateOrderRequestDTO.getOrderStatus());
-        }
+        Optional.ofNullable(updateOrderRequestDTO.getOrderStatus())
+                .ifPresent(order::setOrderStatus);
 
-        // Sipariş öğelerini güncelleme
-        if (updateOrderRequestDTO.getOrderItems() != null && !updateOrderRequestDTO.getOrderItems().isEmpty()) {
-            for (UpdateOrderItemRequestDTO itemDTO : updateOrderRequestDTO.getOrderItems()) {
-                // Sipariş öğesi bul
-                Optional<OrderItem> optionalOrderItem = order.getOrderItems().stream()
-                        .filter(item -> item.getOrderItemId().equals(itemDTO.getOrderItemId()))
-                        .findFirst();
-
-                if (optionalOrderItem.isPresent()) {
-                    OrderItem orderItem = optionalOrderItem.get();
-                    // Ürün miktarını ve fiyatını güncelle
-                    orderItem.setQuantity(itemDTO.getQuantity());
-                    orderItem.setPrice(itemDTO.getOrderedProductPrice());
-                } else {
-                    // Yeni bir sipariş öğesi ekleyebilirsiniz
-                    Product product = productRepository.findById(itemDTO.getProductId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + itemDTO.getProductId()));
-
-                    OrderItem newOrderItem = OrderItem.builder()
-                            .order(order)
-                            .product(product)
-                            .quantity(itemDTO.getQuantity())
-                            .price(itemDTO.getOrderedProductPrice())
-                            .build();
-
-                    order.getOrderItems().add(newOrderItem);
-                }
-            }
-        }
-
-        // Siparişi kaydet
+        /// Sipariş öğelerini güncelleme
+        Optional.ofNullable(updateOrderRequestDTO.getOrderItems())
+                .ifPresent(items -> items.forEach(itemDTO ->
+                        order.getOrderItems().stream()
+                                .filter(item -> item.getOrderItemId().equals(itemDTO.getOrderItemId()))
+                                .findFirst()
+                                .ifPresentOrElse(
+                                        orderItem -> {
+                                            orderItem.setQuantity(itemDTO.getQuantity());
+                                            orderItem.setPrice(itemDTO.getOrderedProductPrice());
+                                        },
+                                        () -> {
+                                            Product product = productRepository.findById(itemDTO.getProductId())
+                                                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + itemDTO.getProductId()));
+                                            OrderItem newOrderItem = OrderItem.createOrderItem(
+                                                    order,
+                                                    product,
+                                                    itemDTO.getQuantity(),
+                                                    itemDTO.getOrderedProductPrice());
+                                            order.getOrderItems().add(newOrderItem);
+                                        }
+                                )
+                ));
         orderRepository.save(order);
-
-        // Güncellenmiş siparişi DTO'ya dönüştür
         return orderMapper.toDto(order);
     }
-
 
     @Transactional
     public void cancelOrder(Integer orderId) {

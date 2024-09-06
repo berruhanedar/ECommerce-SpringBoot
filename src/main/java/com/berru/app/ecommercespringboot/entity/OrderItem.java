@@ -37,7 +37,16 @@ public class OrderItem {
 
     // Parametresiz yapıcı
     public OrderItem() {
+    }
 
+    // Yeni OrderItem oluşturan yardımcı metot
+    public static OrderItem createOrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
+        return OrderItem.builder()
+                .order(order)
+                .product(product)
+                .quantity(quantity)
+                .price(price)
+                .build();
     }
 
 }
