@@ -3,7 +3,6 @@ package com.berru.app.ecommercespringboot.controller;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
 import com.berru.app.ecommercespringboot.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -61,13 +60,6 @@ public class OrderController {
     public ResponseEntity<String> cancelOrder(@PathVariable Integer orderId) {
         orderService.cancelOrder(orderId);
         return ResponseEntity.ok("Order cancelled successfully");
-    }
-
-    @PutMapping("/{orderId}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable("orderId") int orderId,
-                                                @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
-        OrderDTO updatedOrder = orderService.updateOrder(orderId, updateOrderRequestDTO);
-        return ResponseEntity.ok(updatedOrder);
     }
 
     @PutMapping("/{orderId}/deliver")

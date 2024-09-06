@@ -18,4 +18,5 @@ public class PlaceOrderDTO {
     @NotNull(message = "Address ID cannot be null")
     @Min(value = 1, message = "Address ID must be at least 1")
     private Integer addressId;
+
 }

@@ -2,7 +2,6 @@ package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.entity.Address;
 import com.berru.app.ecommercespringboot.entity.Customer;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -151,44 +149,6 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
-
-    @Transactional
-    public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
-        // Siparişi bul
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
-
-        // Sipariş durumu güncelleme
-        Optional.ofNullable(updateOrderRequestDTO.getOrderStatus())
-                .ifPresent(order::setOrderStatus);
-
-        /// Sipariş öğelerini güncelleme
-        Optional.ofNullable(updateOrderRequestDTO.getOrderItems())
-                .ifPresent(items -> items.forEach(itemDTO ->
-                        order.getOrderItems().stream()
-                                .filter(item -> item.getOrderItemId().equals(itemDTO.getOrderItemId()))
-                                .findFirst()
-                                .ifPresentOrElse(
-                                        orderItem -> {
-                                            orderItem.setQuantity(itemDTO.getQuantity());
-                                            orderItem.setPrice(itemDTO.getOrderedProductPrice());
-                                        },
-                                        () -> {
-                                            Product product = productRepository.findById(itemDTO.getProductId())
-                                                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + itemDTO.getProductId()));
-                                            OrderItem newOrderItem = OrderItem.createOrderItem(
-                                                    order,
-                                                    product,
-                                                    itemDTO.getQuantity(),
-                                                    itemDTO.getOrderedProductPrice());
-                                            order.getOrderItems().add(newOrderItem);
-                                        }
-                                )
-                ));
-        orderRepository.save(order);
-        return orderMapper.toDto(order);
-    }
-
     @Transactional
     public void cancelOrder(Integer orderId) {
         // Siparişi bul
@@ -201,7 +161,6 @@ public class OrderService {
                 || order.getOrderStatus() == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException("Order cannot be cancelled in its current state.");
         }
-
 
         // Siparişi iptal et ve durumu güncelle
         order.setOrderStatus(OrderStatus.CANCELLED);
@@ -237,6 +196,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
     public void deliverOrder(Integer orderId) {
         // Siparişi bul
         Order order = orderRepository.findById(orderId)

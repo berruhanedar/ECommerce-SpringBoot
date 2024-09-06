@@ -1,5 +1,5 @@
 package com.berru.app.ecommercespringboot.enums;
 
 public enum OrderStatus {
-    SHIPPED, DELIVERED, CANCELLED, ORDERED
+    PENDING, SHIPPED, DELIVERED, CANCELLED, ORDERED
 }
