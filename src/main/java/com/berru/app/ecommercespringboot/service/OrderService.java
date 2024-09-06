@@ -52,14 +52,13 @@ public class OrderService {
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-        // Müşteriyi çek
+        // Müşteriyi çek - check the order
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
 
         // Adresi çek
         final Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + placeOrderDTO.getAddressId()));
-
 
         // Alışveriş sepetini çek
         ShoppingCart shoppingCart = shoppingCartRepository.findById(placeOrderDTO.getCustomerId())
@@ -69,17 +68,17 @@ public class OrderService {
         shoppingCartService.checkoutCart(shoppingCart.getId());
         BigDecimal totalPrice = shoppingCart.getTotalPrice();
 
-        // Sepetteki ürünlerin stok miktarlarını kontrol et
+        // Sepetteki ürünlerin stok miktarlarını kontrol et - enough stock?
         validateOrderItems(shoppingCart.getItems());
 
-        // Mevcut bakiye total amount için yeterli mi kontrol et
+        // Mevcut bakiye total amount için yeterli mi kontrol et - is it valid
         if (customer.getBalance().compareTo(totalPrice) < 0) {
             throw new InsufficientBalanceException("Not enough balance to complete the order.");
         }
-        // Ürün miktarlarını ve müşterinin bakiyesini güncelle
+        // Ürün miktarlarını ve müşterinin bakiyesini güncelle - process oroders
         updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
-        // Siparişi oluştur ve kaydet
+        // Siparişi oluştur ve kaydet - ordered
         Order order = Order.createOrder(customer, address, totalPrice, shoppingCart.getItems());
         orderRepository.save(order);
 
@@ -201,7 +200,6 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
-
     @Transactional
     public void cancelOrder(Integer orderId) {
         // Siparişi bul
@@ -232,7 +230,6 @@ public class OrderService {
         customer.setBalance(customer.getBalance().add(order.getTotalAmount()));
         customerRepository.save(customer);
     }
-
 
     @Transactional
     public void shipOrder(Integer orderId) {
