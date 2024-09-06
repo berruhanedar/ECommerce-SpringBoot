@@ -153,10 +153,10 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDTO updateOrder(UpdateOrderRequestDTO updateOrderRequestDTO) {
+    public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
         // Siparişi bul
-        Order order = orderRepository.findById(updateOrderRequestDTO.getOrderId())
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + updateOrderRequestDTO.getOrderId()));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
         // Sipariş durumu güncelleme
         if (updateOrderRequestDTO.getOrderStatus() != null) {
@@ -199,6 +199,7 @@ public class OrderService {
         // Güncellenmiş siparişi DTO'ya dönüştür
         return orderMapper.toDto(order);
     }
+
 
     @Transactional
     public void cancelOrder(Integer orderId) {

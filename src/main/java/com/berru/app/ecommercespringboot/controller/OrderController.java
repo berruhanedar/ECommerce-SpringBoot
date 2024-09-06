@@ -66,9 +66,7 @@ public class OrderController {
     @PutMapping("/{orderId}")
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable("orderId") int orderId,
                                                 @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
-
-        updateOrderRequestDTO.setOrderId(orderId);
-        OrderDTO updatedOrder = orderService.updateOrder(updateOrderRequestDTO);
+        OrderDTO updatedOrder = orderService.updateOrder(orderId, updateOrderRequestDTO);
         return ResponseEntity.ok(updatedOrder);
     }
 
@@ -77,7 +75,6 @@ public class OrderController {
         orderService.deliverOrder(orderId);
         return ResponseEntity.ok("Order delivered successfully");
     }
-
 
     @PutMapping("/{orderId}/ship")
     public ResponseEntity<Void> shipOrder(@PathVariable Integer orderId) {
