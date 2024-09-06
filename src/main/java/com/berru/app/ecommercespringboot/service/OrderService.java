@@ -147,10 +147,11 @@ public class OrderService {
 
     @Transactional
     public OrderDTO getOrderById(int orderId) {
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithOrderItems(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
         return orderMapper.toDto(order);
     }
+
 
     @Transactional
     public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
