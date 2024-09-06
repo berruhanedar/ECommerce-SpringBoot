@@ -73,11 +73,12 @@ public class ShoppingCartService {
     }
 
     @Transactional
-    public ShoppingCartDTO getShoppingCartById(Integer id) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ShoppingCart not found with id: " + id));
+    public ShoppingCartDTO getShoppingCartByCustomerId(Integer customerId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new RuntimeException("ShoppingCart not found for customer ID: " + customerId));
         return shoppingCartMapper.toDTO(shoppingCart);
     }
+
 
     @Transactional
     public void deleteShoppingCart(Integer id) {
