@@ -8,15 +8,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Entity
 @Data
+@Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "order_items")
 public class OrderItem {
 
@@ -33,6 +33,16 @@ public class OrderItem {
     private Order order;
 
     private Integer quantity;
-    private BigDecimal orderedProductPrice;
+    private BigDecimal price;
+
+    // Parametresiz yapıcı
+    public OrderItem() {}
+
+    // Parametreli yapıcı
+    public OrderItem(Order order, Product product, Integer quantity) {
+        this.order = order;
+        this.product = product;
+        this.quantity = quantity;
+    }
 
 }

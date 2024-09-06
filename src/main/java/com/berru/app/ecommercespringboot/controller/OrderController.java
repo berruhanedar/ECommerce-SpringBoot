@@ -27,9 +27,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> placeOrder(@RequestBody @Valid PlaceOrderDTO placeOrderDTO) {
-        OrderDTO orderDTO = orderService.placeOrder(placeOrderDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderDTO);
+    public ResponseEntity<Void> placeOrder(@RequestBody @Valid PlaceOrderDTO placeOrderDTO) {
+        orderService.placeOrder(placeOrderDTO.getCustomerId(), placeOrderDTO.getAddressId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
@@ -58,30 +58,37 @@ public class OrderController {
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<Void> cancelTheOrderByOrderId(@PathVariable int orderId) {
+    public ResponseEntity<String> cancelOrder(@PathVariable Integer orderId) {
         orderService.cancelOrder(orderId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Order cancelled successfully");
     }
 
     @PutMapping("/{orderId}")
-    public ResponseEntity<OrderDTO> updateOrder(
-            @Valid
-            @PathVariable int orderId,
-            @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable("orderId") int orderId,
+                                                @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
 
-        OrderDTO updatedOrder = orderService.updateOrder(orderId, updateOrderRequestDTO);
+        updateOrderRequestDTO.setOrderId(orderId);
+        OrderDTO updatedOrder = orderService.updateOrder(updateOrderRequestDTO);
         return ResponseEntity.ok(updatedOrder);
     }
 
     @PutMapping("/{orderId}/deliver")
-    public ResponseEntity<OrderDTO> markOrderAsDelivered(@PathVariable @Valid int orderId) {
-        OrderDTO updatedOrder = orderService.markOrderAsDelivered(orderId);
-        return ResponseEntity.ok(updatedOrder);
+    public ResponseEntity<String> deliverOrder(@PathVariable Integer orderId) {
+        orderService.deliverOrder(orderId);
+        return ResponseEntity.ok("Order delivered successfully");
     }
 
     @PutMapping("/{orderId}/reactivate")
-    public ResponseEntity<OrderDTO> reactivateOrder(@PathVariable @Valid int orderId) {
-        OrderDTO updatedOrder = orderService.reactivateOrder(orderId);
-        return ResponseEntity.ok(updatedOrder);
+    public ResponseEntity<String> reactivateOrder(@PathVariable Integer orderId) {
+        orderService.reactivateOrder(orderId);
+        return ResponseEntity.ok("Order reactivated successfully");
     }
+
+
+    @PutMapping("/{orderId}/ship")
+    public ResponseEntity<Void> shipOrder(@PathVariable Integer orderId) {
+        orderService.shipOrder(orderId);
+        return ResponseEntity.ok().build();
+    }
+
 }

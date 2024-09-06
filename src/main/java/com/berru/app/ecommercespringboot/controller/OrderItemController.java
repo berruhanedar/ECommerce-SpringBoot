@@ -35,15 +35,6 @@ public class OrderItemController {
         return ResponseEntity.ok(orderItemDTOs);
     }
 
-    @PutMapping("/{orderItemId}")
-    public ResponseEntity<OrderItemDTO> updateOrderItem(
-            @Valid
-            @PathVariable int orderItemId,
-            @RequestBody UpdateOrderItemRequestDTO updateOrderItemRequestDTO) {
-        updateOrderItemRequestDTO.setOrderItemId(orderItemId);
-        OrderItemDTO updatedOrderItem = orderItemService.updateOrderItem(updateOrderItemRequestDTO);
-        return ResponseEntity.ok(updatedOrderItem);
-    }
 
     @DeleteMapping("/{orderItemId}")
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderItemId) {

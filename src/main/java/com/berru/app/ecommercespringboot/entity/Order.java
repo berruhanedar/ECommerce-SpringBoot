@@ -17,18 +17,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder // Builder desenini ekledik
 @Table(name = "orders")
 public class Order {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,20 +54,25 @@ public class Order {
     private List<OrderItem> orderItems = new ArrayList<>();
 
 
-
-
-
-    public static Order createOrder(Customer customer, Address address, BigDecimal totalAmount) {
-        return Order.builder()
+    public static Order createOrder(Customer customer, Address address, BigDecimal totalAmount, List<ShoppingCartItem> shoppingCartItems) {
+        Order order = Order.builder()
                 .customer(customer)
                 .address(address)
                 .orderDate(LocalDateTime.now())
                 .totalAmount(totalAmount)
-                .orderStatus(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.ORDERED)
                 .build();
+
+
+        for (ShoppingCartItem cartItem : shoppingCartItems) {
+            OrderItem orderItem = OrderItem.builder()
+                    .product(cartItem.getProduct())
+                    .quantity(cartItem.getQuantity())
+                    .price(cartItem.getPrice())
+                    .order(order) // Order ile ilişkilendiriliyor
+                    .build();
+            order.getOrderItems().add(orderItem);
+        }
+        return order;
     }
-
-
-
-
 }

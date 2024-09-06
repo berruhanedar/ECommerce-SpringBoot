@@ -2,22 +2,16 @@ package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
-import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderItemRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
-import com.berru.app.ecommercespringboot.entity.Address;
-import com.berru.app.ecommercespringboot.entity.Customer;
-import com.berru.app.ecommercespringboot.entity.Order;
-import com.berru.app.ecommercespringboot.entity.OrderItem;
-import com.berru.app.ecommercespringboot.entity.Product;
-import com.berru.app.ecommercespringboot.entity.ShoppingCartItem;
+import com.berru.app.ecommercespringboot.entity.*;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
+import com.berru.app.ecommercespringboot.exception.InsufficientBalanceException;
+import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
+import com.berru.app.ecommercespringboot.exception.InvalidOrderStateException;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.OrderMapper;
-import com.berru.app.ecommercespringboot.repository.AddressRepository;
-import com.berru.app.ecommercespringboot.repository.CustomerRepository;
-import com.berru.app.ecommercespringboot.repository.OrderRepository;
-import com.berru.app.ecommercespringboot.repository.ProductRepository;
+import com.berru.app.ecommercespringboot.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,88 +31,72 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemService orderItemService;
     private final ShoppingCartService shoppingCartService;
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
     private final AddressRepository addressRepository;
     private final CustomerRepository customerRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
 
 
     @Transactional
-    public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
+    public void placeOrder(Integer customerId, Integer addressId) {
+        // Müşteriyi çek
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
 
-        // 1 check the order
-        Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + placeOrderDTO.getCustomerId()));
-        Address address = addressRepository.findById(placeOrderDTO.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id " + placeOrderDTO.getAddressId()));
+        // Adresi çek
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + addressId));
 
-        List<ShoppingCartItem> shoppingCartItems = shoppingCartService.getCartItems(placeOrderDTO.getCustomerId());
+        // Alışveriş sepetini çek
+        ShoppingCart shoppingCart = shoppingCartRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found for customer ID: " + customerId));
 
-        //1.2 order total price çekme
+        // Total fiyatı hesapla (checkout işlemi)
+        shoppingCartService.checkoutCart(shoppingCart.getId());
+        BigDecimal totalPrice = shoppingCart.getTotalPrice();
 
-        // 2 enough stock ? checkStockAvailability (ORDERITEMSERVICETE)
+        // Sepetteki ürünlerin stok miktarlarını kontrol et
+        validateOrderItems(shoppingCart.getItems());
 
-        // 3 is it valid ? bakiye kontrolu olabilir
+        // Mevcut bakiye total amount için yeterli mi kontrol et
+        if (customer.getBalance().compareTo(totalPrice) < 0) {
+            throw new InsufficientBalanceException("Not enough balance to complete the order.");
+        }
 
-        // 4 processing = quantity ve bakiye miktarı düzenlenir
+        // Ürün miktarlarını ve müşterinin bakiyesini güncelle
+        updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
-        // 5 status ordered olur
+        // Siparişi oluştur ve kaydet
+        Order order = Order.createOrder(customer, address, totalPrice, shoppingCart.getItems());
+        orderRepository.save(order);
 
-
-        BigDecimal calculatedTotalPrice = calculateTotalPrice(shoppingCartItems);
-        Order order = Order.createOrder(customer, address, calculatedTotalPrice);
-
-
-
-
-        validateOrderItems(order, shoppingCartItems);
-
-        Order savedOrder = orderRepository.save(order);
-
-        saveOrderItems(savedOrder, shoppingCartItems);
-
-        shoppingCartService.deleteShoppingCart(placeOrderDTO.getCustomerId());
-
-        return orderMapper.toDto(savedOrder);
-
-
-        //status ordered olacak
+        // Sepeti temizle
+        shoppingCartService.deleteShoppingCart(shoppingCart.getId());
     }
 
 
-
-
-
-
-
-    private BigDecimal calculateTotalPrice(List<ShoppingCartItem> cartItems) {
-        return cartItems.stream()
-                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    // Sepetteki ürünlerin stok miktarlarını kontrol eden yardımcı method
+    private void validateOrderItems(List<ShoppingCartItem> items) {
+        for (ShoppingCartItem item : items) {
+            Product product = item.getProduct();
+            if (product.getQuantity() < item.getQuantity()) {
+                throw new InsufficientQuantityException("Not enough stock for product: " + product.getName());
+            }
+        }
     }
 
-    private void validateOrderItems(Order order, List<ShoppingCartItem> cartItems) {
-        cartItems.forEach(item -> {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(item.getProduct());
-            orderItem.setQuantity(item.getQuantity());
-            orderItem.setOrder(order);
-
-            orderItemService.checkStockAvailability(orderItem);
-        });
-    }
-
-    private void saveOrderItems(Order savedOrder, List<ShoppingCartItem> cartItems) {
-        cartItems.forEach(item -> {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(item.getProduct());
-            orderItem.setQuantity(item.getQuantity());
-            orderItem.setOrder(savedOrder);
-
-            orderItemService.addOrderedProducts(orderItem);
-        });
+    // Ürün miktarlarını ve müşterinin bakiyesini güncelleyen yardımcı method
+    private void updateProductQuantitiesAndCustomerBalance(List<ShoppingCartItem> items, Customer customer, BigDecimal totalPrice) {
+        for (ShoppingCartItem item : items) {
+            Product product = item.getProduct();
+            product.setQuantity(product.getQuantity() - item.getQuantity());
+            productRepository.save(product);
+        }
+        // Müşterinin bakiyesini güncelle
+        customer.setBalance(customer.getBalance().subtract(totalPrice));
+        customerRepository.save(customer);
     }
 
 
@@ -164,100 +142,142 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(int orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+    public OrderDTO updateOrder(UpdateOrderRequestDTO updateOrderRequestDTO) {
+        // Siparişi bul
+        Order order = orderRepository.findById(updateOrderRequestDTO.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + updateOrderRequestDTO.getOrderId()));
 
-        Optional.of(order)
-                .filter(o -> o.getOrderStatus() != OrderStatus.CANCELLED)
-                .ifPresentOrElse(
-                        o -> {
-                            o.setOrderStatus(OrderStatus.CANCELLED);
-                            orderRepository.save(o);
-
-                            order.getOrderItems().forEach(item -> {
-                                Product product = item.getProduct();
-                                product.setQuantity(product.getQuantity() + item.getQuantity());
-                                productRepository.save(product);
-                            });
-                        },
-                        () -> {
-                            throw new IllegalArgumentException("Order is already cancelled");
-                        }
-                );
-    }
-
-
-    @Transactional
-    public OrderDTO updateOrder(int orderId, UpdateOrderRequestDTO updateOrderRequestDTO) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
-
+        // Sipariş durumu güncelleme
         if (updateOrderRequestDTO.getOrderStatus() != null) {
             order.setOrderStatus(updateOrderRequestDTO.getOrderStatus());
         }
 
+        // Sipariş öğelerini güncelleme
         if (updateOrderRequestDTO.getOrderItems() != null && !updateOrderRequestDTO.getOrderItems().isEmpty()) {
             for (UpdateOrderItemRequestDTO itemDTO : updateOrderRequestDTO.getOrderItems()) {
-                OrderItem orderItem = order.getOrderItems().stream()
+                // Sipariş öğesi bul
+                Optional<OrderItem> optionalOrderItem = order.getOrderItems().stream()
                         .filter(item -> item.getOrderItemId().equals(itemDTO.getOrderItemId()))
-                        .findFirst()
-                        .orElseThrow(() -> new ResourceNotFoundException("Order item not found with id: " + itemDTO.getOrderItemId()));
+                        .findFirst();
 
-                Product product = productRepository.findById(itemDTO.getProductId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemDTO.getProductId()));
-                orderItem.setProduct(product);
+                if (optionalOrderItem.isPresent()) {
+                    OrderItem orderItem = optionalOrderItem.get();
+                    // Ürün miktarını ve fiyatını güncelle
+                    orderItem.setQuantity(itemDTO.getQuantity());
+                    orderItem.setPrice(itemDTO.getOrderedProductPrice());
+                } else {
+                    // Yeni bir sipariş öğesi ekleyebilirsiniz
+                    Product product = productRepository.findById(itemDTO.getProductId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + itemDTO.getProductId()));
 
-                orderItem.setQuantity(itemDTO.getQuantity());
-                orderItem.setOrderedProductPrice(itemDTO.getOrderedProductPrice());
+                    OrderItem newOrderItem = OrderItem.builder()
+                            .order(order)
+                            .product(product)
+                            .quantity(itemDTO.getQuantity())
+                            .price(itemDTO.getOrderedProductPrice())
+                            .build();
 
-                orderItemService.checkStockAvailability(orderItem);
+                    order.getOrderItems().add(newOrderItem);
+                }
             }
         }
 
-        order = orderRepository.save(order);
+        // Siparişi kaydet
+        orderRepository.save(order);
 
+        // Güncellenmiş siparişi DTO'ya dönüştür
         return orderMapper.toDto(order);
     }
 
+
     @Transactional
-    public OrderDTO reactivateOrder(int orderId) {
+    public void cancelOrder(Integer orderId) {
+        // Siparişi bul
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        Optional.of(order)
-                .filter(o -> o.getOrderStatus() == OrderStatus.CANCELLED)
-                .ifPresentOrElse(o -> {
-                    o.setOrderStatus(OrderStatus.ORDERED);
-                    orderRepository.save(o);
+        // Siparişin iptal edilebilir olup olmadığını kontrol et
+        if (order.getOrderStatus() == OrderStatus.SHIPPED ||
+                order.getOrderStatus() == OrderStatus.DELIVERED ||
+                order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new InvalidOrderStateException("Order cannot be cancelled in its current state.");
+        }
 
-                    o.getOrderItems().forEach(item -> {
-                        Product product = item.getProduct();
-                        product.setQuantity(product.getQuantity() + item.getQuantity());
-                        productRepository.save(product);
-                    });
-                }, () -> {
-                    throw new IllegalArgumentException("Order is not cancelled, cannot be reactivated.");
-                });
+        // Siparişi iptal et ve durumu güncelle
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
 
-        return orderMapper.toDto(order);
+        // Ürün stoklarını geri yükle
+        for (OrderItem orderItem : order.getOrderItems()) {
+            Product product = orderItem.getProduct();
+            product.setQuantity(product.getQuantity() + orderItem.getQuantity());
+            productRepository.save(product);
+        }
+
+        // Müşterinin bakiyesini iade et
+        Customer customer = order.getCustomer();
+        customer.setBalance(customer.getBalance().add(order.getTotalAmount()));
+        customerRepository.save(customer);
+    }
+
+
+
+    @Transactional
+    public void reactivateOrder(Integer orderId) {
+        // Siparişi bul
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        // Siparişin iptal edilmiş olup olmadığını kontrol et
+        if (order.getOrderStatus() != OrderStatus.CANCELLED) {
+            throw new InvalidOrderStateException("Order cannot be reactivated because it is not in CANCELLED state.");
+        }
+
+        // Siparişi reaktif hale getir ve durumu güncelle
+        order.setOrderStatus(OrderStatus.ORDERED);
+        orderRepository.save(order);
+
+        // Ürün stoklarını geri yükle
+        for (OrderItem orderItem : order.getOrderItems()) {
+            Product product = orderItem.getProduct();
+            product.setQuantity(product.getQuantity() - orderItem.getQuantity());
+            productRepository.save(product);
+        }
+
+        // Müşterinin bakiyesini güncelle (İhtiyaç varsa, çünkü ürünler geri yüklenmiş olabilir)
+        Customer customer = order.getCustomer();
+        customer.setBalance(customer.getBalance().subtract(order.getTotalAmount()));
+        customerRepository.save(customer);
     }
 
     @Transactional
-    public OrderDTO markOrderAsDelivered(int orderId) {
+    public void shipOrder(Integer orderId) {
+        // Siparişi bul
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        Optional.of(order)
-                .filter(o -> o.getOrderStatus() != OrderStatus.DELIVERED)
-                .orElseThrow(() -> new IllegalStateException("Order is already marked as delivered."));
+        // Siparişin durumunu kontrol et
+        if (order.getOrderStatus() != OrderStatus.ORDERED) {
+            throw new InvalidOrderStateException("Order cannot be shipped because it is not in ORDERED state.");
+        }
 
-        Optional.of(order)
-                .filter(o -> o.getOrderStatus() == OrderStatus.SHIPPED)
-                .ifPresent(o -> {
-                    o.setOrderStatus(OrderStatus.DELIVERED);
-                    orderRepository.save(o);
-                });
-        return orderMapper.toDto(order);
+        // Siparişi SHIPPED durumuna getir
+        order.setOrderStatus(OrderStatus.SHIPPED);
+        orderRepository.save(order);
+    }
+
+    public void deliverOrder(Integer orderId) {
+        // Siparişi bul
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+
+        // Siparişin durumunu kontrol et
+        if (order.getOrderStatus() != OrderStatus.SHIPPED) {
+            throw new InvalidOrderStateException("Order must be in SHIPPED status to be delivered.");
+        }
+
+        // Siparişin durumunu DELIVERED olarak güncelle
+        order.setOrderStatus(OrderStatus.DELIVERED);
+        orderRepository.save(order);
     }
 }
