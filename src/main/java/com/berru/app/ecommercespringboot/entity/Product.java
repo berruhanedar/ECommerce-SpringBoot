@@ -2,6 +2,7 @@ package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.ProductStatus;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +37,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @JsonBackReference // Döngüyü kırmak için bu anotasyonu ekleyin
     private Category category;
 
     @Enumerated(EnumType.STRING)
