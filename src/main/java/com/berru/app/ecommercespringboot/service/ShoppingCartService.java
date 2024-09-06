@@ -1,5 +1,6 @@
 package com.berru.app.ecommercespringboot.service;
 
+import com.berru.app.ecommercespringboot.dto.AddToCartRequestDTO;
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Product;
@@ -26,25 +27,37 @@ public class ShoppingCartService {
 
 
     @Transactional
-    public void addToCart(Integer customerId, Integer productId, Integer quantity) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+    public ShoppingCartDTO addToCart(AddToCartRequestDTO addToCartRequestDTO) {
+        // Müşteriyi bul
+        Customer customer = customerRepository.findById(addToCartRequestDTO.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + addToCartRequestDTO.getCustomerId()));
 
-        if (product.getQuantity() < quantity) {
-            throw new InsufficientQuantityException("Not enough quantity available");
+        // Ürünü bul
+        Product product = productRepository.findById(addToCartRequestDTO.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + addToCartRequestDTO.getProductId()));
+
+        // İstenen miktarın stokta olup olmadığını kontrol et
+        if (product.getQuantity() < addToCartRequestDTO.getQuantity()) {
+            throw new InsufficientQuantityException("Not enough quantity available for product ID: " + addToCartRequestDTO.getProductId());
         }
 
-        ShoppingCart cart = shoppingCartRepository.findById(customerId)
-                .orElseGet(() -> new ShoppingCart(customer));
+        // Müşterinin alışveriş sepetini bul veya yeni bir tane oluştur
+        ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer);
 
-        cart.addItem(product, quantity);
+        if (shoppingCart == null) {
+            shoppingCart = new ShoppingCart(customer);
+        }
 
-        productRepository.save(product);
+        // Ürünü sepete ekle
+        shoppingCart.addItem(product, addToCartRequestDTO.getQuantity());
 
-        shoppingCartRepository.save(cart);
+        // Sepeti kaydet
+        shoppingCartRepository.save(shoppingCart);
+
+        // Sepeti DTO'ya dönüştür ve geri döndür
+        return shoppingCartMapper.toDTO(shoppingCart);
     }
+
 
 
     @Transactional

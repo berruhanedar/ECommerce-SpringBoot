@@ -5,6 +5,7 @@ import com.berru.app.ecommercespringboot.dto.AddToCartRequestDTO;
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.service.ShoppingCartService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +31,9 @@ public class ShoppingCartController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addToCart(@RequestBody AddToCartRequestDTO request) {
-        shoppingCartService.addToCart(request.getCustomerId(), request.getProductId(), request.getQuantity());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ShoppingCartDTO> addToCart(@RequestBody AddToCartRequestDTO addToCartRequestDTO) {
+        ShoppingCartDTO shoppingCartDTO = shoppingCartService.addToCart(addToCartRequestDTO);
+        return new ResponseEntity<>(shoppingCartDTO, HttpStatus.OK);
     }
 
 

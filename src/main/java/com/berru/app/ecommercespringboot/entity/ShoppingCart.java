@@ -49,8 +49,9 @@ public class ShoppingCart {
 
     public ShoppingCart(Customer customer) {
         this.customer = customer;
-    }
-
+        this.totalPrice = BigDecimal.ZERO; // Başlangıçta totalPrice'ı sıfır olarak ayarlıyoruz
+        this.status = ShoppingCartStatus.PENDING; // Varsayılan durum olarak CREATED kullanabilirsiniz
+        }
 
     public void addItem(Product product, int quantity) {
         ShoppingCartItem item = new ShoppingCartItem();
