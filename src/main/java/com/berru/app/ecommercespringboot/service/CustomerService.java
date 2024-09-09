@@ -5,9 +5,11 @@ import com.berru.app.ecommercespringboot.dto.CustomerDTO;
 import com.berru.app.ecommercespringboot.dto.NewCustomerRequestDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.UpdateCustomerRequestDTO;
+import com.berru.app.ecommercespringboot.entity.Address;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
+import com.berru.app.ecommercespringboot.repository.AddressRepository;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final AddressRepository addressRepository;
 
 
     public CustomerDTO getCustomerById(Integer id) {
@@ -36,6 +39,14 @@ public class CustomerService {
 
     public CustomerDTO createCustomer(NewCustomerRequestDTO dto) {
         Customer customer = customerMapper.toEntity(dto);
+
+        // Adresi bul ve ilişkiyi kur
+        Address address = addressRepository.findById(dto.getAddressId())
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id " + dto.getAddressId()));
+
+        address.setCustomer(customer);
+        customer.getAddresses().add(address);
+
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toDTO(savedCustomer);
     }

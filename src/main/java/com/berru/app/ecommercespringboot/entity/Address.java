@@ -42,6 +42,7 @@ public class Address {
     @Column(name = "postal_code")
     private String postalCode;
 
+    // Many addresses can belong to one customer
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
