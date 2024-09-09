@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 @RequiredArgsConstructor
 @Service
 public class ShoppingCartService {
@@ -25,38 +24,25 @@ public class ShoppingCartService {
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
 
-
     @Transactional
     public ShoppingCartDTO addToCart(AddToCartRequestDTO addToCartRequestDTO) {
-        // Müşteriyi bul
         Customer customer = customerRepository.findById(addToCartRequestDTO.getCustomerId().intValue())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + addToCartRequestDTO.getCustomerId()));
 
-        // Ürünü bul
         Product product = productRepository.findById(addToCartRequestDTO.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + addToCartRequestDTO.getProductId()));
 
-        // İstenen miktarın stokta olup olmadığını kontrol et
         if (product.getQuantity() < addToCartRequestDTO.getQuantity()) {
             throw new InsufficientQuantityException("Not enough quantity available for product ID: " + addToCartRequestDTO.getProductId());
         }
 
-        // Müşterinin alışveriş sepetini bul veya yeni bir tane oluştur
         ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(customer.getId())
-                .orElseGet(() -> {
-                    // Yeni alışveriş sepeti oluştur ve müşteriyi ilişkilendir
-                    ShoppingCart newCart = new ShoppingCart(customer);
-                    newCart.setCustomer(customer); // Müşteriyle ilişkilendir
-                    return newCart;
-                });
+                .orElseGet(() -> new ShoppingCart(customer));
 
-        // Ürünü sepete ekle
         shoppingCart.addItem(product, addToCartRequestDTO.getQuantity());
 
-        // Sepeti kaydet
         shoppingCart = shoppingCartRepository.save(shoppingCart);
 
-        // Sepeti DTO'ya dönüştür ve geri döndür
         return shoppingCartMapper.toDTO(shoppingCart);
     }
 
@@ -74,23 +60,18 @@ public class ShoppingCartService {
 
     @Transactional
     public ShoppingCartDTO getShoppingCartByCustomerId(int customerId) {
-        // Müşteriyi bul
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
 
-        // Alışveriş sepetini bul ya da yeni bir tane oluştur
         ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(customerId)
                 .orElseGet(() -> {
                     ShoppingCart newCart = new ShoppingCart(customer);
-                    shoppingCartRepository.save(newCart); // Yeni sepete kaydet
+                    shoppingCartRepository.save(newCart); // Save new cart
                     return newCart;
                 });
 
-        // Sepeti DTO'ya dönüştür ve geri döndür
         return shoppingCartMapper.toDTO(shoppingCart);
     }
-
-
 
     @Transactional
     public void deleteShoppingCart(Integer id) {
@@ -107,5 +88,4 @@ public class ShoppingCartService {
         shoppingCart.checkout();
         shoppingCartRepository.save(shoppingCart);
     }
-
 }

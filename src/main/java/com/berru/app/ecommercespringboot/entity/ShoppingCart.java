@@ -47,15 +47,13 @@ public class ShoppingCart {
     public ShoppingCart() {
         this.totalPrice = BigDecimal.ZERO;
         this.status = ShoppingCartStatus.PENDING;
-        this.customer = new Customer(); // Müşteri nesnesi oluşturulabilir (gerekiyorsa varsayılan değerlerle)
-        this.address = new Address();   // Adres nesnesi oluşturulabilir (gerekiyorsa varsayılan değerlerle)
+        this.customer = new Customer();
     }
 
-
     public ShoppingCart(Customer customer) {
-        this.customer = customer;
-        this.totalPrice = BigDecimal.ZERO; // Başlangıçta totalPrice'ı sıfır olarak ayarlıyoruz
-        this.status = ShoppingCartStatus.PENDING; // Varsayılan durum olarak CREATED kullanabilirsiniz
+        this.customer = customer != null ? customer : new Customer();
+        this.totalPrice = BigDecimal.ZERO;
+        this.status = ShoppingCartStatus.PENDING;
     }
 
     public void addItem(Product product, int quantity) {
@@ -91,7 +89,6 @@ public class ShoppingCart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         this.totalPrice = calculatedTotalPrice;
-
         this.status = ShoppingCartStatus.CHECKED_OUT;
     }
 }
