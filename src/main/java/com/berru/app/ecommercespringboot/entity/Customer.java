@@ -1,15 +1,8 @@
 package com.berru.app.ecommercespringboot.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import com.berru.app.ecommercespringboot.enums.CustomerStatus;
+import com.berru.app.ecommercespringboot.enums.ProductStatus;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -58,6 +51,9 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private CustomerStatus status;
 
     public Customer(Integer id) {
         this.id = id;
