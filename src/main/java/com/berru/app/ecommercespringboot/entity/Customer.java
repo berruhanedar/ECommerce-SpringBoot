@@ -39,9 +39,6 @@ public class Customer {
     @Column(name = "balance")
     private BigDecimal balance;
 
-    @Column(name = "address_id")
-    private Integer addressId;
-
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
 

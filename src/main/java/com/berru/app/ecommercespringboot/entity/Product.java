@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @Data
@@ -35,6 +36,7 @@ public class Product {
     private Integer quantity;
     private String image;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @JsonBackReference // Döngüyü kırmak için bu anotasyonu ekleyin

@@ -1,20 +1,12 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.ShoppingCartStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Column;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 
 
 import lombok.Data;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +20,16 @@ public class ShoppingCart {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "total price")
+    @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @OneToOne(mappedBy = "shoppingCart")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ShoppingCartItem> items = new ArrayList<>();
-
-    @OneToOne
-    @JoinColumn(name = "address_id")
-    private Address address;
 
     @Enumerated(EnumType.STRING)
     private ShoppingCartStatus status;

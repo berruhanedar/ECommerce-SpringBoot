@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import java.math.BigDecimal;
 import jakarta.persistence.Entity;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -20,10 +21,12 @@ public class ShoppingCartItem {
     private Integer id;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "shopping_cart_id")
     private ShoppingCart shoppingCart;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -32,6 +35,7 @@ public class ShoppingCartItem {
 
     @Column(name = "price")
     private BigDecimal price;
+
 
     public ShoppingCartItem() {
     }

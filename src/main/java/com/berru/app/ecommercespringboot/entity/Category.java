@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class Category {
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY)
     private List<Category> children = new ArrayList<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Product> products = new ArrayList<>();
