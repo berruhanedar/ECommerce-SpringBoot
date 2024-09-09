@@ -45,13 +45,18 @@ public class ShoppingCart {
     private ShoppingCartStatus status;
 
     public ShoppingCart() {
+        this.totalPrice = BigDecimal.ZERO;
+        this.status = ShoppingCartStatus.PENDING;
+        this.customer = new Customer(); // Müşteri nesnesi oluşturulabilir (gerekiyorsa varsayılan değerlerle)
+        this.address = new Address();   // Adres nesnesi oluşturulabilir (gerekiyorsa varsayılan değerlerle)
     }
+
 
     public ShoppingCart(Customer customer) {
         this.customer = customer;
         this.totalPrice = BigDecimal.ZERO; // Başlangıçta totalPrice'ı sıfır olarak ayarlıyoruz
         this.status = ShoppingCartStatus.PENDING; // Varsayılan durum olarak CREATED kullanabilirsiniz
-        }
+    }
 
     public void addItem(Product product, int quantity) {
         ShoppingCartItem item = new ShoppingCartItem();
@@ -79,7 +84,6 @@ public class ShoppingCart {
                 .map(item -> item.getPrice())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
 
     public void checkout() {
         BigDecimal calculatedTotalPrice = items.stream()

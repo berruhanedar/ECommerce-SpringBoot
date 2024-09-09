@@ -17,10 +17,10 @@ public class ShoppingCartController {
     private final ShoppingCartService shoppingCartService;
 
 
-    @GetMapping("/by-customer")
-    public ResponseEntity<ShoppingCartDTO> getShoppingCartByCustomerId(@RequestParam Integer customerId) {
-        ShoppingCartDTO shoppingCart = shoppingCartService.getShoppingCartByCustomerId(customerId);
-        return ResponseEntity.ok(shoppingCart);
+    @GetMapping("/{customerId}")
+    public ResponseEntity<ShoppingCartDTO> getShoppingCartByCustomerId(@PathVariable Integer customerId) {
+        ShoppingCartDTO shoppingCartDTO = shoppingCartService.getShoppingCartByCustomerId(customerId);
+        return ResponseEntity.ok(shoppingCartDTO);
     }
 
 

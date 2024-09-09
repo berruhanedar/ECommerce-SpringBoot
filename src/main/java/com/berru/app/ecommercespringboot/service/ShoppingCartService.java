@@ -29,7 +29,7 @@ public class ShoppingCartService {
     @Transactional
     public ShoppingCartDTO addToCart(AddToCartRequestDTO addToCartRequestDTO) {
         // Müşteriyi bul
-        Customer customer = customerRepository.findById(addToCartRequestDTO.getCustomerId())
+        Customer customer = customerRepository.findById(addToCartRequestDTO.getCustomerId().intValue())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + addToCartRequestDTO.getCustomerId()));
 
         // Ürünü bul
@@ -42,23 +42,23 @@ public class ShoppingCartService {
         }
 
         // Müşterinin alışveriş sepetini bul veya yeni bir tane oluştur
-        ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer);
-
-        if (shoppingCart == null) {
-            shoppingCart = new ShoppingCart(customer);
-        }
+        ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(customer.getId())
+                .orElseGet(() -> {
+                    // Yeni alışveriş sepeti oluştur ve müşteriyi ilişkilendir
+                    ShoppingCart newCart = new ShoppingCart(customer);
+                    newCart.setCustomer(customer); // Müşteriyle ilişkilendir
+                    return newCart;
+                });
 
         // Ürünü sepete ekle
         shoppingCart.addItem(product, addToCartRequestDTO.getQuantity());
 
         // Sepeti kaydet
-        shoppingCartRepository.save(shoppingCart);
+        shoppingCart = shoppingCartRepository.save(shoppingCart);
 
         // Sepeti DTO'ya dönüştür ve geri döndür
         return shoppingCartMapper.toDTO(shoppingCart);
     }
-
-
 
     @Transactional
     public void removeItemFromCart(Integer cartId, Integer productId) {
@@ -73,11 +73,23 @@ public class ShoppingCartService {
     }
 
     @Transactional
-    public ShoppingCartDTO getShoppingCartByCustomerId(Integer customerId) {
+    public ShoppingCartDTO getShoppingCartByCustomerId(int customerId) {
+        // Müşteriyi bul
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
+
+        // Alışveriş sepetini bul ya da yeni bir tane oluştur
         ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new RuntimeException("ShoppingCart not found for customer ID: " + customerId));
+                .orElseGet(() -> {
+                    ShoppingCart newCart = new ShoppingCart(customer);
+                    shoppingCartRepository.save(newCart); // Yeni sepete kaydet
+                    return newCart;
+                });
+
+        // Sepeti DTO'ya dönüştür ve geri döndür
         return shoppingCartMapper.toDTO(shoppingCart);
     }
+
 
 
     @Transactional
