@@ -72,7 +72,7 @@ public class OrderService {
         if (customer.getBalance().compareTo(totalPrice) < 0) {
             throw new InsufficientBalanceException("Not enough balance to complete the order.");
         }
-        // Ürün miktarlarını ve müşterinin bakiyesini güncelle - process oroders
+
         updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
         // Siparişi oluştur ve kaydet - ordered

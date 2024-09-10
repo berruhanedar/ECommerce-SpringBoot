@@ -23,7 +23,7 @@ public class ShoppingCart {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 

@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     Page<Order> findAllByCustomerIdOrderByOrderDateDesc(Integer customerId, Pageable pageable);
 
-    @Query("SELECT o FROM Order o JOIN FETCH o.orderItems WHERE o.orderId = :orderId")
+    @Query("SELECT o FROM Order o JOIN FETCH o.orderItems WHERE o.id = :orderId")
     Optional<Order> findByIdWithOrderItems(Integer orderId);
 }

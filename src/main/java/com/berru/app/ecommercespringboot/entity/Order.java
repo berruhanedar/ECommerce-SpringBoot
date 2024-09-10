@@ -23,7 +23,7 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     // AUTO yerine IDENTITY daha uygundur, çünkü genelde IDENTITY ile kimlik üretimi daha verimli olur.
-    private Integer orderId;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false) // Lazy yükleme ve zorunluluk şartı
     @JoinColumn(name = "customer_id")
