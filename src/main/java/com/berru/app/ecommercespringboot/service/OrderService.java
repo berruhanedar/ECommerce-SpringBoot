@@ -54,7 +54,7 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
 
         // Adresi çek
-        final Address address = addressRepository.findById(placeOrderDTO.getAddressId())
+        Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + placeOrderDTO.getAddressId()));
 
         // Alışveriş sepetini çek
