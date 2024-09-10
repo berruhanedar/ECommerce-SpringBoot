@@ -22,14 +22,13 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // AUTO yerine IDENTITY daha uygundur, çünkü genelde IDENTITY ile kimlik üretimi daha verimli olur.
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) // Lazy yükleme ve zorunluluk şartı
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) // Lazy yükleme ve zorunluluk şartı
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "address_id")
     private Address address;
 
@@ -43,7 +42,6 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    // Statik metod, bir Order nesnesi oluşturmak için kullanılıyor.
     public static Order createOrder(Customer customer, Address address, BigDecimal totalAmount, List<ShoppingCartItem> shoppingCartItems) {
         Order order = Order.builder()
                 .customer(customer)
@@ -54,10 +52,9 @@ public class Order {
                 .build();
 
         if (order.getOrderItems() == null) {
-            order.setOrderItems(new ArrayList<>()); // Eğer null ise yeni bir liste başlat
+            order.setOrderItems(new ArrayList<>());
         }
 
-        // Her bir ShoppingCartItem için OrderItem oluşturuluyor ve Order ile ilişkilendiriliyor
         for (ShoppingCartItem cartItem : shoppingCartItems) {
             OrderItem orderItem = OrderItem.builder()
                     .product(cartItem.getProduct())
@@ -65,7 +62,7 @@ public class Order {
                     .price(cartItem.getPrice())
                     .order(order)
                     .build();
-            order.getOrderItems().add(orderItem); // Burada listeye ekleniyor
+            order.getOrderItems().add(orderItem);
         }
         return order;
     }

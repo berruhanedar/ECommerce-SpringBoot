@@ -49,44 +49,32 @@ public class OrderService {
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
-        // Müşteriyi çek - check the order
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
-
-        // Adresi çek
         Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + placeOrderDTO.getAddressId()));
-
-        // Alışveriş sepetini çek
         ShoppingCart shoppingCart = shoppingCartRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found for customer ID: " + placeOrderDTO.getCustomerId()));
 
-        // Total fiyatı hesapla (checkout işlemi)
         shoppingCartService.checkoutCart(shoppingCart.getId());
         BigDecimal totalPrice = shoppingCart.getTotalPrice();
 
-        // Sepetteki ürünlerin stok miktarlarını kontrol et - enough stock?
         validateOrderItems(shoppingCart.getItems());
 
-        // Mevcut bakiye total amount için yeterli mi kontrol et - is it valid
         if (customer.getBalance().compareTo(totalPrice) < 0) {
             throw new InsufficientBalanceException("Not enough balance to complete the order.");
         }
 
         updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
-        // Siparişi oluştur ve kaydet - ordered
         Order order = Order.createOrder(customer, address, totalPrice, shoppingCart.getItems());
         orderRepository.save(order);
 
-        // Sepeti temizle
         shoppingCartService.deleteShoppingCart(shoppingCart.getId());
 
-        // OrderMapper kullanarak sipariş bilgilerini OrderDTO'ya dönüştür
         return orderMapper.toDto(order);
     }
 
-    // Sepetteki ürünlerin stok miktarlarını kontrol eden yardımcı method
     private void validateOrderItems(List<ShoppingCartItem> items) {
         for (ShoppingCartItem item : items) {
             Product product = item.getProduct();
@@ -96,7 +84,7 @@ public class OrderService {
         }
     }
 
-    // Ürün miktarlarını ve müşterinin bakiyesini güncelleyen yardımcı method
+
     private void updateProductQuantitiesAndCustomerBalance(List<ShoppingCartItem> items, Customer customer, BigDecimal totalPrice) {
         for (ShoppingCartItem item : items) {
             Product product = item.getProduct();
@@ -151,29 +139,22 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(Integer orderId) {
-        // Siparişi bul
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
-
-        // Siparişin iptal edilebilir olup olmadığını kontrol et
         if (order.getOrderStatus() == OrderStatus.SHIPPED
                 || order.getOrderStatus() == OrderStatus.DELIVERED
                 || order.getOrderStatus() == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException("Order cannot be cancelled in its current state.");
         }
-
-        // Siparişi iptal et ve durumu güncelle
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
 
-        // Ürün stoklarını geri yükle
         for (OrderItem orderItem : order.getOrderItems()) {
             Product product = orderItem.getProduct();
             product.setQuantity(product.getQuantity() + orderItem.getQuantity());
             productRepository.save(product);
         }
 
-        // Müşterinin bakiyesini iade et
         Customer customer = order.getCustomer();
         customer.setBalance(customer.getBalance().add(order.getTotalAmount()));
         customerRepository.save(customer);
@@ -181,33 +162,27 @@ public class OrderService {
 
     @Transactional
     public void shipOrder(Integer orderId) {
-        // Siparişi bul
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        // Siparişin durumunu kontrol et
         if (order.getOrderStatus() != OrderStatus.ORDERED) {
             throw new InvalidOrderStateException("Order cannot be shipped because it is not in ORDERED state.");
         }
 
-
-        // Siparişi SHIPPED durumuna getir
         order.setOrderStatus(OrderStatus.SHIPPED);
         orderRepository.save(order);
     }
 
     @Transactional
     public void deliverOrder(Integer orderId) {
-        // Siparişi bul
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
 
-        // Siparişin durumunu kontrol et
         if (order.getOrderStatus() != OrderStatus.SHIPPED) {
             throw new InvalidOrderStateException("Order must be in SHIPPED status to be delivered.");
         }
 
-        // Siparişin durumunu DELIVERED olarak güncelle
         order.setOrderStatus(OrderStatus.DELIVERED);
         orderRepository.save(order);
     }
