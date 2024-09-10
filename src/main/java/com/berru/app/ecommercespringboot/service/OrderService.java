@@ -53,17 +53,13 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
         Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + placeOrderDTO.getAddressId()));
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(placeOrderDTO.getCustomerId())
+        ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found for customer ID: " + placeOrderDTO.getCustomerId()));
 
         shoppingCartService.checkoutCart(shoppingCart.getId());
         BigDecimal totalPrice = shoppingCart.getTotalPrice();
 
         validateOrderItems(shoppingCart.getItems());
-
-        if (customer.getBalance().compareTo(totalPrice) < 0) {
-            throw new InsufficientBalanceException("Not enough balance to complete the order.");
-        }
 
         updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
@@ -175,7 +171,6 @@ public class OrderService {
 
     @Transactional
     public void deliverOrder(Integer orderId) {
-
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
 

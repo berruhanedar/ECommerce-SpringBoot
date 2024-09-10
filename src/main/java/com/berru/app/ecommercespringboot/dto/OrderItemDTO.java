@@ -1,5 +1,7 @@
 package com.berru.app.ecommercespringboot.dto;
 
+import com.berru.app.ecommercespringboot.entity.Order;
+import com.berru.app.ecommercespringboot.entity.Product;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -8,8 +10,8 @@ import java.math.BigDecimal;
 public class OrderItemDTO {
 
     private Integer orderItemId;
-    private Integer productId;
-    private Integer orderId;
+    private Product product;
     private Integer quantity;
-    private BigDecimal orderedProductPrice;
+    private BigDecimal price;
+    private Order order;
 }

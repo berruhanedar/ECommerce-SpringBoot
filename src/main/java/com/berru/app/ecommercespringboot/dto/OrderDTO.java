@@ -16,7 +16,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class OrderDTO {
 
-    private Integer orderId;
+    private Integer id;
     private LocalDateTime orderDate;
     private OrderStatus orderStatus;
     private BigDecimal totalAmount;

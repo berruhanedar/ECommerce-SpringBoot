@@ -1,6 +1,7 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +40,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -60,11 +62,9 @@ public class Order {
                     .product(cartItem.getProduct())
                     .quantity(cartItem.getQuantity())
                     .price(cartItem.getPrice())
-                    .order(order)
                     .build();
             order.getOrderItems().add(orderItem);
         }
         return order;
     }
 }
-

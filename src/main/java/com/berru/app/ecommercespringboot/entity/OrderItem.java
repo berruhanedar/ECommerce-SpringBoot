@@ -31,7 +31,6 @@ public class OrderItem {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
-
     private Integer quantity;
     private BigDecimal price;
 
@@ -39,14 +38,5 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    // Yeni OrderItem oluşturan yardımcı metot
-    public static OrderItem createOrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
-        return OrderItem.builder()
-                .order(order)
-                .product(product)
-                .quantity(quantity)
-                .price(price)
-                .build();
-    }
 
 }
