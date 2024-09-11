@@ -11,7 +11,6 @@ import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
 import com.berru.app.ecommercespringboot.entity.ShoppingCartItem;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
-import com.berru.app.ecommercespringboot.exception.InsufficientBalanceException;
 import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
 import com.berru.app.ecommercespringboot.exception.InvalidOrderStateException;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
