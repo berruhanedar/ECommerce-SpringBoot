@@ -11,6 +11,7 @@ import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
 import com.berru.app.ecommercespringboot.entity.ShoppingCartItem;
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
+import com.berru.app.ecommercespringboot.exception.InsufficientBalanceException;
 import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
 import com.berru.app.ecommercespringboot.exception.InvalidOrderStateException;
 import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
@@ -59,6 +60,7 @@ public class OrderService {
         BigDecimal totalPrice = shoppingCart.getTotalPrice();
 
         validateOrderItems(shoppingCart.getItems());
+        validateCustomerBalance(customer, totalPrice);
 
         updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
@@ -76,6 +78,12 @@ public class OrderService {
             if (product.getQuantity() < item.getQuantity()) {
                 throw new InsufficientQuantityException("Not enough stock for product: " + product.getName());
             }
+        }
+    }
+
+    private void validateCustomerBalance(Customer customer, BigDecimal totalPrice) {
+        if (customer.getBalance().compareTo(totalPrice) < 0) {
+            throw new InsufficientBalanceException("Customer balance is insufficient for the order amount.");
         }
     }
 
