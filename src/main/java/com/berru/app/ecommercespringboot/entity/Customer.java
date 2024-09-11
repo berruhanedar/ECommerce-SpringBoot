@@ -1,7 +1,6 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.CustomerStatus;
-import com.berru.app.ecommercespringboot.enums.ProductStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;

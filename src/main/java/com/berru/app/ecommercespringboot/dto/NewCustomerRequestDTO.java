@@ -2,7 +2,6 @@ package com.berru.app.ecommercespringboot.dto;
 
 
 import com.berru.app.ecommercespringboot.enums.CustomerStatus;
-import com.berru.app.ecommercespringboot.enums.ProductStatus;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
