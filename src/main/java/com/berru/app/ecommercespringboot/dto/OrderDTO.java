@@ -23,7 +23,7 @@ public class OrderDTO {
     private OrderStatus orderStatus;
     private BigDecimal totalAmount;
     private Integer customerId;
-    private Integer addressId;
+    private AddressDTO address;
     private List<OrderItemDTO> orderItems = new ArrayList<>();
 
 }

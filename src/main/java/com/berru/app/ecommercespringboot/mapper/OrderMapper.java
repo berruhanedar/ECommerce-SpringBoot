@@ -18,7 +18,7 @@ public interface OrderMapper {
     Order toEntity(UpdateOrderRequestDTO dto, @MappingTarget Order order);
 
     @Mapping(source = "customer.id", target = "customerId")
-    @Mapping(source = "address.id", target = "addressId")
+    @Mapping(source = "address", target = "address")
     @Mapping(source = "orderItems", target = "orderItems")
     //@Mapping(target = "orderItems", ignore = false)  // Burada ilişkili nesneleri tekrar tekrar dahil etme.
     OrderDTO toDto(Order order);
