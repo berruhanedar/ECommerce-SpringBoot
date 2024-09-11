@@ -41,7 +41,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{customerId}")
+    @GetMapping("/customer/{customerId}")
     public ResponseEntity<PaginationResponse<OrderDTO>> listOrders(
             @PathVariable int customerId,
             @RequestParam(defaultValue = "0") int pageNo,
@@ -69,9 +69,9 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/ship")
-    public ResponseEntity<Void> shipOrder(@PathVariable Integer orderId) {
+    public ResponseEntity<String> shipOrder(@PathVariable Integer orderId) {
         orderService.shipOrder(orderId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Order delivered successfully");
     }
 
 }
