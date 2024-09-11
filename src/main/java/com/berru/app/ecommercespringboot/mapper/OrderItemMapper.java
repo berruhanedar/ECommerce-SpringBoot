@@ -14,9 +14,9 @@ public interface OrderItemMapper {
 
     OrderItemDTO toOrderItemDto(OrderItem orderItem);
 
-    OrderItem toEntity(OrderItemDTO dto);
-
     List<OrderItemDTO> toOrderItemDto(List<OrderItem> orderItems);
+
+    OrderItem toEntity(OrderItemDTO dto);
 
     List<OrderItem> toOrderItems(List<OrderItemDTO> orderItemDTOs);
 }

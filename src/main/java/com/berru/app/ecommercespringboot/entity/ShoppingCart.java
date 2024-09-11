@@ -1,8 +1,18 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.ShoppingCartStatus;
-import jakarta.persistence.*;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import lombok.Data;
 import lombok.ToString;
@@ -16,7 +26,6 @@ import java.util.List;
 public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     @Column(name = "id")
     private Integer id;
 
@@ -69,7 +78,7 @@ public class ShoppingCart {
 
     public void recalculateTotalPrice() {
         totalPrice = items.stream()
-                .map(item -> item.getPrice())
+                .map(ShoppingCartItem::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

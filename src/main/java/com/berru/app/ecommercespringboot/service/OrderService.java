@@ -51,7 +51,7 @@ public class OrderService {
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
-        Address address = addressRepository.findById(placeOrderDTO.getAddressId())
+        final Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + placeOrderDTO.getAddressId()));
         ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found for customer ID: " + placeOrderDTO.getCustomerId()));

@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
     Order toEntity(PlaceOrderDTO dto);
+
     Order toEntity(UpdateOrderRequestDTO dto, @MappingTarget Order order);
 
     @Mapping(source = "customer.id", target = "customerId")

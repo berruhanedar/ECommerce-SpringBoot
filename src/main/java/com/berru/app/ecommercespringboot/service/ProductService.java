@@ -13,7 +13,6 @@ import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
