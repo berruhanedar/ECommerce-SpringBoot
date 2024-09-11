@@ -15,6 +15,4 @@ public class OrderItemDTO {
     private Integer quantity;
     private BigDecimal price;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL) 
-    private Order order;
 }

@@ -2,6 +2,8 @@ package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.CustomerStatus;
 import com.berru.app.ecommercespringboot.enums.ProductStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,6 +48,8 @@ public class Customer {
     @JoinColumn(name = "shopping_cart_id")
     private ShoppingCart shoppingCart;
 
+    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
 

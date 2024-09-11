@@ -1,6 +1,7 @@
 package com.berru.app.ecommercespringboot.entity;
 
 import com.berru.app.ecommercespringboot.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
     private Customer customer;
@@ -62,6 +64,7 @@ public class Order {
                     .product(cartItem.getProduct())
                     .quantity(cartItem.getQuantity())
                     .price(cartItem.getPrice())
+                    .order(order) // Burada Order'ı OrderItem'a set ediyoruz
                     .build();
             order.getOrderItems().add(orderItem);
         }

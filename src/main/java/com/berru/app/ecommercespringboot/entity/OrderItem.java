@@ -1,5 +1,6 @@
 package com.berru.app.ecommercespringboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +29,7 @@ public class OrderItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;

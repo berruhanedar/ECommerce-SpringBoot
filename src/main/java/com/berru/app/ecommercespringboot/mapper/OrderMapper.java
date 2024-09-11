@@ -19,6 +19,8 @@ public interface OrderMapper {
 
     @Mapping(source = "customer.id", target = "customerId")
     @Mapping(source = "address.id", target = "addressId")
+    @Mapping(source = "orderItems", target = "orderItems")
+    //@Mapping(target = "orderItems", ignore = false)  // Burada ilişkili nesneleri tekrar tekrar dahil etme.
     OrderDTO toDto(Order order);
 
     OrderItemDTO toOrderItemDto(OrderItem orderItem);
