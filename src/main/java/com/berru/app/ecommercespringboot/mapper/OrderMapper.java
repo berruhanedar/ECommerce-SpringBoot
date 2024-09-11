@@ -4,7 +4,6 @@ import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateOrderRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Order;
-import com.berru.app.ecommercespringboot.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
