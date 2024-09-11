@@ -109,21 +109,15 @@ public class ProductService {
     }
 
     private List<CategoryDTO> getCategoryTreeForProduct(Integer categoryId) {
-        List<Category> categoryPath = categoryRepository.findCategoryPath(categoryId);
-        List<CategoryDTO> categoryTree = categoryMapper.toCategoryDTOList(categoryPath);
-
-        if (!categoryTree.isEmpty()) {
-            List<CategoryDTO> resultTree = new ArrayList<>();
-            categoryTree.stream().reduce((parent, child) -> {
-                parent.setChildren(Collections.singletonList(child));
-                resultTree.add(parent);
-                if (child.getId().equals(categoryId)) {
-                    child.setChildren(Collections.emptyList());
-                }
-                return child;
-            });
-            return Collections.singletonList(resultTree.get(0));
+        var categoryPath = categoryMapper.toCategoryDTOList(categoryRepository.findCategoryPath(categoryId));
+        for (int i = 1; i < categoryPath.size(); i++) {
+            categoryPath.get(i - 1).setChildren(Collections.singletonList(categoryPath.get(i)));
+            if (categoryPath.get(i).getId().equals(categoryId)) {
+                categoryPath.get(i).setChildren(Collections.emptyList());
+                break;
+            }
         }
-        return Collections.emptyList();
+        return categoryPath.isEmpty() ? Collections.emptyList() : Collections.singletonList(categoryPath.get(0));
     }
+
 }
