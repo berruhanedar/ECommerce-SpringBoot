@@ -22,6 +22,8 @@ import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +39,6 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class OrderService {
-
     private final OrderRepository orderRepository;
     private final ShoppingCartService shoppingCartService;
     private final OrderMapper orderMapper;
@@ -46,8 +47,8 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ShoppingCartRepository shoppingCartRepository;
 
-
     @Transactional
+    @CacheEvict(value = "orders", allEntries = true)
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
@@ -87,19 +88,18 @@ public class OrderService {
         }
     }
 
-
     private void updateProductQuantitiesAndCustomerBalance(List<ShoppingCartItem> items, Customer customer, BigDecimal totalPrice) {
         for (ShoppingCartItem item : items) {
             Product product = item.getProduct();
             product.setQuantity(product.getQuantity() - item.getQuantity());
             productRepository.save(product);
         }
-        // Müşterinin bakiyesini güncelle
         customer.setBalance(customer.getBalance().subtract(totalPrice));
         customerRepository.save(customer);
     }
 
     @Transactional
+    @Cacheable(value = "orders")
     public PaginationResponse<OrderDTO> listAllOrders(int pageNo, int pageSize, String sortBy) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
         Page<Order> orderPage = orderRepository.findAll(pageable);
@@ -117,6 +117,7 @@ public class OrderService {
     }
 
     @Transactional
+    @Cacheable(value = "orders", key = "#customerId")
     public PaginationResponse<OrderDTO> listOrders(int customerId, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "orderDate"));
         Page<Order> orderPage = orderRepository.findAllByCustomerIdOrderByOrderDateDesc(customerId, pageable);
@@ -134,6 +135,7 @@ public class OrderService {
     }
 
     @Transactional
+    @Cacheable(value = "orders", key = "#orderId")
     public OrderDTO getOrderById(int orderId) {
         Order order = orderRepository.findByIdWithOrderItems(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
@@ -141,6 +143,7 @@ public class OrderService {
     }
 
     @Transactional
+    @CacheEvict(value = "orders", key = "#orderId")
     public void cancelOrder(Integer orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
