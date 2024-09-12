@@ -41,13 +41,11 @@ public class ShoppingCartController {
         return ResponseEntity.ok().build();
     }
 
-
     @DeleteMapping("/{cartId}/items/{productId}")
     public ResponseEntity<Void> removeItemFromCart(@PathVariable Integer cartId, @PathVariable Integer productId) {
         shoppingCartService.removeItemFromCart(cartId, productId);
         return ResponseEntity.noContent().build();
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteShoppingCart(@PathVariable Integer id) {
