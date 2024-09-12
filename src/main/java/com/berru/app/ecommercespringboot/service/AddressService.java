@@ -29,6 +29,7 @@ public class AddressService {
         return addressMapper.toAddressDTO(savedAddress);
     }
 
+    @Transactional
     @Cacheable(value = "addresses", key = "#id")
     public AddressDTO getAddressById(Integer id) {
         Address address = addressRepository.findById(id)
@@ -36,6 +37,7 @@ public class AddressService {
         return addressMapper.toAddressDTO(address);
     }
 
+    @Transactional
     @Cacheable(value = "allAddresses")
     public List<AddressDTO> getAllAddresses() {
         return addressRepository.findAll().stream()
