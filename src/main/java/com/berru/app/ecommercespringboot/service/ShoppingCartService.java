@@ -13,6 +13,8 @@ import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class ShoppingCartService {
 
 
     @Transactional
+    @CacheEvict(value = "shoppingCarts", key = "#cartId")
     public void removeItemFromCart(Integer cartId, Integer productId) {
         ShoppingCart cart = shoppingCartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("ShoppingCart not found with id: " + cartId));
@@ -60,6 +63,7 @@ public class ShoppingCartService {
     }
 
     @Transactional
+    @Cacheable(value = "shoppingCarts", key = "#customerId")
     public ShoppingCartDTO getShoppingCartByCustomerId(int customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
@@ -74,8 +78,8 @@ public class ShoppingCartService {
         return shoppingCartMapper.toDTO(shoppingCart);
     }
 
-
     @Transactional
+    @Cacheable(value = "shoppingCarts", key = "#id")
     public void deleteShoppingCart(Integer id) {
         ShoppingCart shoppingCart = shoppingCartRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ShoppingCart not found with id: " + id));
@@ -83,6 +87,7 @@ public class ShoppingCartService {
     }
 
     @Transactional
+    @Cacheable(value = "shoppingCarts", key = "#id")
     public void checkoutCart(Integer id) {
         ShoppingCart shoppingCart = shoppingCartRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ShoppingCart not found with id: " + id));
