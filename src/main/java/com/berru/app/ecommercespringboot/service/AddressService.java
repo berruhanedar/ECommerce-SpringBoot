@@ -8,6 +8,9 @@ import com.berru.app.ecommercespringboot.mapper.AddressMapper;
 import com.berru.app.ecommercespringboot.repository.AddressRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,20 +29,22 @@ public class AddressService {
         return addressMapper.toAddressDTO(savedAddress);
     }
 
+    @Cacheable(value = "addresses", key = "#id")
     public AddressDTO getAddressById(Integer id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found"));
         return addressMapper.toAddressDTO(address);
     }
 
+    @Cacheable(value = "allAddresses")
     public List<AddressDTO> getAllAddresses() {
         return addressRepository.findAll().stream()
                 .map(addressMapper::toAddressDTO)
                 .toList();
     }
 
-
     @Transactional
+    @CachePut(value = "addresses", key = "#id")
     public AddressDTO updateAddress(Integer id, UpdateAddressRequestDTO updateAddressRequestDTO) {
         Address existingAddress = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found with id: " + id));
@@ -48,8 +53,8 @@ public class AddressService {
         return addressMapper.toAddressDTO(updatedAddress);
     }
 
-
     @Transactional
+    @CacheEvict(value = "addresses", key = "#id")
     public void deleteAddress(Integer id) {
         addressRepository.deleteById(id);
     }
