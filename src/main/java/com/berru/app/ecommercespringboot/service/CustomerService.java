@@ -13,6 +13,9 @@ import com.berru.app.ecommercespringboot.repository.AddressRepository;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,24 +26,25 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
 
-
+    @Transactional
+    @Cacheable(value = "customers", key = "#id")
     public CustomerDTO getCustomerById(Integer id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
         return customerMapper.toDTO(customer);
     }
 
+    @Transactional
+    @CacheEvict(value = "customers", allEntries = true)
     public CustomerDTO createCustomer(NewCustomerRequestDTO dto) {
         Customer customer = customerMapper.toEntity(dto);
 
-        // Adresi bul ve ilişkiyi kur
         Address address = addressRepository.findById(dto.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with id " + dto.getAddressId()));
 
@@ -51,6 +55,8 @@ public class CustomerService {
         return customerMapper.toDTO(savedCustomer);
     }
 
+    @Transactional
+    @CachePut(value = "customers", key = "#id")
     public CustomerDTO updateCustomer(Integer id, UpdateCustomerRequestDTO updateCustomerRequestDTO) {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
@@ -59,12 +65,16 @@ public class CustomerService {
         return customerMapper.toDTO(updatedCustomer);
     }
 
+    @Transactional
+    @CacheEvict(value = "customers", key = "#id")
     public void deleteCustomer(Integer id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
         customerRepository.delete(customer);
     }
 
+    @Transactional
+    @Cacheable(value = "customersList", key = "#pageNo + '-' + #pageSize")
     public PaginationResponse<CustomerDTO> listPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
