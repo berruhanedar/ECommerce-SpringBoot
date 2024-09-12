@@ -16,6 +16,7 @@ import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +61,7 @@ public class CategoryService {
 
 
     @Transactional
-    @CacheEvict(value = "categories", key = "#id")
+    @CachePut(value = "categories", key = "#id")
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryRepository.findById(id).map(category -> {
             categoryMapper.updateCategoryFromDTO(updateCategoryRequestDTO, category);

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,7 +60,7 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = "products", key = "#id")
+    @CachePut(value = "products", key = "#id")
     public ProductDTO updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
