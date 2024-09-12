@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +37,7 @@ public class ProductService {
     private final CategoryMapper categoryMapper;
 
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public ProductDTO create(NewProductRequestDTO newProductRequestDTO) {
         Product product = productMapper.toEntity(newProductRequestDTO);
         Category category = categoryRepository.findById(newProductRequestDTO.getCategoryId())
@@ -45,6 +48,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#id")
     public ProductDTO getProductById(Integer id) {
         ProductDTO productDTO = productRepository.findById(id)
                 .map(productMapper::toDto)
@@ -55,6 +59,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "products", key = "#id")
     public ProductDTO updateProduct(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
@@ -72,6 +77,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "products", key = "#id")
     public void deleteProduct(Integer id) {
         Optional.of(id)
                 .filter(productRepository::existsById)
@@ -84,6 +90,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#pageNo + '-' + #pageSize")
     public PaginationResponse<ProductDTO> listPaginated(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Product> productPage = productRepository.findAll(pageable);
