@@ -15,6 +15,7 @@ import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ public class CategoryService {
     private final ProductMapper productMapper;
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
         Category parentCategory = newCategoryRequestDTO.getParentCategoryId() != null
                 ? categoryRepository.findById(newCategoryRequestDTO.getParentCategoryId()).orElse(null)
@@ -46,6 +48,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public List<ProductDTO> getProductsByCategoryId(Integer categoryId) {
         List<Category> categoryTree = categoryRepository.findCategoryTreeById(categoryId);
         List<Integer> categoryIds = categoryTree.stream()
@@ -57,6 +60,7 @@ public class CategoryService {
 
 
     @Transactional
+    @CacheEvict(value = "categories", key = "#id")
     public Optional<CategoryDTO> updateCategory(Integer id, UpdateCategoryRequestDTO updateCategoryRequestDTO) {
         return categoryRepository.findById(id).map(category -> {
             categoryMapper.updateCategoryFromDTO(updateCategoryRequestDTO, category);
@@ -66,6 +70,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", key = "#id")
     public void deleteCategory(Integer id) {
         categoryRepository.findById(id)
                 .ifPresentOrElse(
