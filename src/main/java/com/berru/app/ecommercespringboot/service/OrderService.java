@@ -48,7 +48,6 @@ public class OrderService {
     private final ShoppingCartRepository shoppingCartRepository;
 
     @Transactional
-    @CacheEvict(value = "orders", allEntries = true)
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
@@ -135,7 +134,6 @@ public class OrderService {
     }
 
     @Transactional
-    @Cacheable(value = "orders", key = "#orderId")
     public OrderDTO getOrderById(int orderId) {
         Order order = orderRepository.findByIdWithOrderItems(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));

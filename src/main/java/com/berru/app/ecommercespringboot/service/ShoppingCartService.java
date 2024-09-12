@@ -63,7 +63,7 @@ public class ShoppingCartService {
     }
 
     @Transactional
-    @Cacheable(value = "shoppingCarts", key = "#customerId")
+    @Cacheable(value = "shoppingCarts", key = "#customerId", unless = "#result ==null")
     public ShoppingCartDTO getShoppingCartByCustomerId(int customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
