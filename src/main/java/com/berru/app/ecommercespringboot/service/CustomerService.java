@@ -11,6 +11,9 @@ import com.berru.app.ecommercespringboot.exception.ResourceNotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CustomerMapper;
 import com.berru.app.ecommercespringboot.repository.AddressRepository;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
+import com.berru.app.ecommercespringboot.rsql.CustomRsqlVisitor;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,6 +22,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -93,6 +97,26 @@ public class CustomerService {
                 .isLast(customerPage.isLast())
                 .build();
     }
+
+    @Transactional
+    public List<CustomerDTO> searchCustomersByRsql(String query) {
+        // RSQL sorgusunu parse et
+        RSQLParser parser = new RSQLParser();
+        Node rootNode = parser.parse(query);
+
+        // Custom RSQL visitor kullanarak Specification oluştur
+        CustomRsqlVisitor<Customer> visitor = new CustomRsqlVisitor<>();
+        Specification<Customer> spec = rootNode.accept(visitor);
+
+        // Veritabanından müşterileri çek
+        List<Customer> customers = customerRepository.findAll(spec);
+
+        // Müşterileri DTO'ya dönüştür
+        return customers.stream()
+                .map(customerMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
 
 

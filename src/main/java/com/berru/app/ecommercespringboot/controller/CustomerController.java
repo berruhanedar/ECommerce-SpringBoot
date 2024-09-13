@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -57,6 +59,12 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CustomerDTO>> searchCustomersByRsql(@RequestParam String query) {
+        List<CustomerDTO> customers = customerService.searchCustomersByRsql(query);
+        return ResponseEntity.ok(customers);
     }
 }
 
