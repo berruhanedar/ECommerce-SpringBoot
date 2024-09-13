@@ -13,6 +13,10 @@ import com.berru.app.ecommercespringboot.mapper.ProductMapper;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
+import com.berru.app.ecommercespringboot.rsql.CustomRsqlVisitor;
+import com.berru.app.ecommercespringboot.rsql.GenericRsqlSpecification;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,6 +24,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,5 +136,24 @@ public class CategoryService {
                 .filter(category -> parent.getId().equals(category.getParentId()))
                 .peek(child -> populateChildren(child, categories)) // Recursive call with lambda
                 .collect(Collectors.toList()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryDTO> searchCategoriesByRsql(String query) {
+        // RSQL sorgusunu parse et
+        RSQLParser parser = new RSQLParser();
+        Node rootNode = parser.parse(query);
+
+        // Custom RSQL visitor kullanarak Specification oluştur
+        CustomRsqlVisitor<Category> visitor = new CustomRsqlVisitor<>();
+        Specification<Category> spec = rootNode.accept(visitor);
+
+        // Veritabanından kategorileri çek
+        List<Category> categories = categoryRepository.findAll(spec);
+
+        // Kategorileri DTO'ya dönüştür
+        return categories.stream()
+                .map(categoryMapper::toCategoryDTO)
+                .collect(Collectors.toList());
     }
 }

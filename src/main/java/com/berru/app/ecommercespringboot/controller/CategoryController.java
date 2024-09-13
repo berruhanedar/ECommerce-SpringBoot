@@ -69,4 +69,10 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<CategoryDTO>> searchCategoriesByRsql(@RequestParam String query) {
+        List<CategoryDTO> categories = categoryService.searchCategoriesByRsql(query);
+        return ResponseEntity.ok(categories);
+    }
+
 }
