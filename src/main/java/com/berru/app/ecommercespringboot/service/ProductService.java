@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.berru.app.ecommercespringboot.rsql.RSQLSpecificationBuilder;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,6 +27,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -125,6 +127,20 @@ public class ProductService {
             }
         }
         return categoryPath.isEmpty() ? Collections.emptyList() : Collections.singletonList(categoryPath.get(0));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductDTO> searchProductsByRsql(String query) {
+        // RSQL sorgusunu Specification'a çevir
+        Specification<Product> spec = new RSQLSpecificationBuilder<Product>().createSpecification(query);
+
+        // Specification'a göre ürünleri getir
+        List<Product> products = productRepository.findAll(spec);
+
+        // Ürünleri DTO'ya dönüştür
+        return products.stream()
+                .map(productMapper::toDto)
+                .collect(Collectors.toList());
     }
 
 }
