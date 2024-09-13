@@ -23,33 +23,26 @@ public class RedisConfig {
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
-
-        // ObjectMapper ile Jackson modülünü kaydedin
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        // GenericJackson2JsonRedisSerializer için özel ObjectMapper kullanımı
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(serializer);
-
         return template;
     }
 
     @Bean
     public RedisCacheConfiguration cacheConfiguration() {
-        // ObjectMapper ile Jackson modülünü kaydedin
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        // GenericJackson2JsonRedisSerializer için özel ObjectMapper kullanımı
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10)) // Cache süresi 10 dakika
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())) // Key serileştirme
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer)); // Value serileştirme
+                .entryTtl(Duration.ofMinutes(10))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
     }
 
     @Bean

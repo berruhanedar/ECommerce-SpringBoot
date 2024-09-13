@@ -37,7 +37,6 @@ public class CategoryService {
     private final ProductMapper productMapper;
 
     @Transactional
-    @CacheEvict(value = "categories", allEntries = true)
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
         Category parentCategory = newCategoryRequestDTO.getParentCategoryId() != null
                 ? categoryRepository.findById(newCategoryRequestDTO.getParentCategoryId()).orElse(null)
