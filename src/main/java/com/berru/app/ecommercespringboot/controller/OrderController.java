@@ -78,7 +78,7 @@ public class OrderController {
     }
 
     @GetMapping("/search")
-    public List<OrderDTO> searchProductsByRsql(@RequestParam String query) {
+    public List<OrderDTO> searchOrdersByRsql(@RequestParam String query) {
         return orderService.searchOrdersByRsql(query);
     }
 
