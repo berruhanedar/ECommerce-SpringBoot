@@ -1,8 +1,10 @@
 package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.AddToCartRequestDTO;
+import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
+import com.berru.app.ecommercespringboot.entity.Order;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
 import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;
@@ -11,11 +13,18 @@ import com.berru.app.ecommercespringboot.mapper.ShoppingCartMapper;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
+import com.berru.app.ecommercespringboot.rsql.CustomRsqlVisitor;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -94,5 +103,21 @@ public class ShoppingCartService {
 
         shoppingCart.checkout();
         shoppingCartRepository.save(shoppingCart);
+    }
+
+    @Transactional
+    public List<ShoppingCartDTO> searchShoppingCartsByRsql(String query) {
+
+        RSQLParser parser = new RSQLParser();
+        Node rootNode = parser.parse(query);
+
+        CustomRsqlVisitor<ShoppingCart> visitor = new CustomRsqlVisitor<>();
+        Specification<ShoppingCart> spec = rootNode.accept(visitor);
+
+        List<ShoppingCart> shoppingCarts = shoppingCartRepository.findAll(spec);
+
+        return shoppingCarts.stream()
+                .map(shoppingCartMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
