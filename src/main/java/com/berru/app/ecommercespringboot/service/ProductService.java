@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.berru.app.ecommercespringboot.rsql.RSQLSpecificationBuilder;
+import com.berru.app.ecommercespringboot.rsql.CustomRsqlVisitor;
+import com.berru.app.ecommercespringboot.rsql.GenericRsqlSpecification;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -131,10 +134,15 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductDTO> searchProductsByRsql(String query) {
-        // RSQL sorgusunu Specification'a çevir
-        Specification<Product> spec = new RSQLSpecificationBuilder<Product>().createSpecification(query);
+        // RSQL sorgusunu parse et
+        RSQLParser parser = new RSQLParser();
+        Node rootNode = parser.parse(query);
 
-        // Specification'a göre ürünleri getir
+        // Custom RSQL visitor kullanarak Specification oluştur
+        CustomRsqlVisitor<Product> visitor = new CustomRsqlVisitor<>();
+        Specification<Product> spec = rootNode.accept(visitor);
+
+        // Veritabanından ürünleri çek
         List<Product> products = productRepository.findAll(spec);
 
         // Ürünleri DTO'ya dönüştür
@@ -142,5 +150,6 @@ public class ProductService {
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
     }
+
 
 }

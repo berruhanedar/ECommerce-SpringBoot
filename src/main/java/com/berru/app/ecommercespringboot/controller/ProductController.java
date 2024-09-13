@@ -4,6 +4,7 @@ import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -63,10 +64,12 @@ public class ProductController {
         return ResponseEntity.ok(paginationResponse);
     }
 
-    @GetMapping("/products/search")
-    public List<ProductDTO> searchProducts(@RequestParam("query") String query) {
+    @GetMapping("/search")
+    public List<ProductDTO> searchProductsByRsql(@RequestParam String query) {
         return productService.searchProductsByRsql(query);
     }
+
+
 
 
 
