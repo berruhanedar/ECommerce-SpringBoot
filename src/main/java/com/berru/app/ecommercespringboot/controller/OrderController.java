@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.controller;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
+import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -72,6 +75,11 @@ public class OrderController {
     public ResponseEntity<String> shipOrder(@PathVariable Integer orderId) {
         orderService.shipOrder(orderId);
         return ResponseEntity.ok("Order delivered successfully");
+    }
+
+    @GetMapping("/search")
+    public List<OrderDTO> searchProductsByRsql(@RequestParam String query) {
+        return orderService.searchOrdersByRsql(query);
     }
 
 }

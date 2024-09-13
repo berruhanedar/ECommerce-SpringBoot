@@ -3,6 +3,7 @@ package com.berru.app.ecommercespringboot.service;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
+import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.entity.Address;
 import com.berru.app.ecommercespringboot.entity.Customer;
 import com.berru.app.ecommercespringboot.entity.Order;
@@ -21,6 +22,9 @@ import com.berru.app.ecommercespringboot.repository.AddressRepository;
 import com.berru.app.ecommercespringboot.repository.CustomerRepository;
 import com.berru.app.ecommercespringboot.repository.ShoppingCartRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
+import com.berru.app.ecommercespringboot.rsql.CustomRsqlVisitor;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -188,5 +193,21 @@ public class OrderService {
 
         order.setOrderStatus(OrderStatus.DELIVERED);
         orderRepository.save(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDTO> searchOrdersByRsql(String query) {
+
+        RSQLParser parser = new RSQLParser();
+        Node rootNode = parser.parse(query);
+
+        CustomRsqlVisitor<Order> visitor = new CustomRsqlVisitor<>();
+        Specification<Order> spec = rootNode.accept(visitor);
+
+        List<Order> orders = orderRepository.findAll(spec);
+
+        return orders.stream()
+                .map(orderMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
