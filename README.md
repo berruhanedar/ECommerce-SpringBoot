@@ -22,18 +22,12 @@ We have developed a robust REST API for an e-commerce platform, designed to hand
 
 ## Modules
 
+* Address Module
+* Category Module
 * Customer Module
-* Product Module
-* Cart Module
 * Order Module
-
-## Features
-* Customer Features:
-  - Fetch categories and products based on category
-  - Adding & deleting products to cart
-  - Managing address and products quantity
-  - Ordering products and fetching order status
-  
+* Product Module
+* Shopping Cart Module
 
 
 
