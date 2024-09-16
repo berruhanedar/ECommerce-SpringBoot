@@ -68,18 +68,14 @@ public class AddressService {
 
     @Transactional
     public List<AddressDTO> searchAddressesByRsql(String query) {
-        // RSQL sorgusunu parse et
         RSQLParser parser = new RSQLParser();
         Node rootNode = parser.parse(query);
 
-        // Custom RSQL visitor kullanarak Specification oluştur
         CustomRsqlVisitor<Address> visitor = new CustomRsqlVisitor<>();
         Specification<Address> spec = rootNode.accept(visitor);
 
-        // Veritabanından adresleri çek
         List<Address> addresses = addressRepository.findAll(spec);
 
-        // Adresleri DTO'ya dönüştür
         return addresses.stream()
                 .map(addressMapper::toAddressDTO)
                 .collect(Collectors.toList());
