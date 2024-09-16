@@ -2,9 +2,11 @@ name: Verify the PR
 run-name: ${{ github.actor }} is verify the PR.
 
 on:
+  push:
+    branches: [master]
   pull_request:
-    branches:
-      - develop
+    branches: [master]
+
 
 
 jobs:
