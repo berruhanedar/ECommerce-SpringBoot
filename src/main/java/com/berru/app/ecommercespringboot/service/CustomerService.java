@@ -85,8 +85,6 @@ public class CustomerService {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id " + id));
         customerRepository.delete(customer);
-
-        kafkaProducerService.sendMessage("customer-deleted", "Customer deleted: " + id);
     }
 
     @Transactional

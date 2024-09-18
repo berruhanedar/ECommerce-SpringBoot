@@ -32,11 +32,6 @@ public class AddressService {
     public AddressDTO createAddress(NewAddressRequestDTO newAddressRequestDTO) {
         Address address = addressMapper.toAddress(newAddressRequestDTO);
         Address savedAddress = addressRepository.save(address);
-
-        kafkaProducerService.sendMessage("address-created", "Address created: " + savedAddress.getId() +
-                " | Address Name: " + savedAddress.getAddressName() +
-                " | City: " + savedAddress.getCity());
-
         return addressMapper.toAddressDTO(savedAddress);
     }
 
@@ -64,10 +59,6 @@ public class AddressService {
         addressMapper.updateAddressFromDTO(updateAddressRequestDTO, existingAddress);
         Address updatedAddress = addressRepository.save(existingAddress);
 
-        kafkaProducerService.sendMessage("address-updated", "Address updated: " + updatedAddress.getId() +
-                " | Address Name: " + updatedAddress.getAddressName() +
-                " | City: " + updatedAddress.getCity());
-
         return addressMapper.toAddressDTO(updatedAddress);
     }
 
@@ -75,9 +66,6 @@ public class AddressService {
     @CacheEvict(value = "addresses", key = "#id")
     public void deleteAddress(Integer id) {
         addressRepository.deleteById(id);
-
-        kafkaProducerService.sendMessage("address-deleted", "Address deleted: " + id);
-
     }
 
     @Transactional
