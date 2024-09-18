@@ -25,7 +25,6 @@ public class KafkaConsumerService {
         log.info("Consumed address deleted message: Key = {}, Value = {}", record.key(), record.value());
     }
 
-
     @KafkaListener(topics = "category-created", groupId = "my-group")
     public void consumeCategoryCreated(ConsumerRecord<String, String> record) {
         log.info("Consumed category created message: Key = {}, Value = {}", record.key(), record.value());
@@ -66,4 +65,25 @@ public class KafkaConsumerService {
     public void consumeProductDeletion(ConsumerRecord<String, String> record) {
           log.info("Consumed product deletion message: Key = {}, Value = {}", record.key(), record.value());
     }
+
+    @KafkaListener(topics = "order-placed", groupId = "my-group")
+    public void consumeOrderPlaced(ConsumerRecord<String, String> record) {
+        log.info("Consumed order placed message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+    @KafkaListener(topics = "order-cancelled", groupId = "my-group")
+    public void consumeOrderCancelled(ConsumerRecord<String, String> record) {
+        log.info("Consumed order cancelled message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+    @KafkaListener(topics = "order-shipped", groupId = "my-group")
+    public void consumeOrderShipped(ConsumerRecord<String, String> record) {
+        log.info("Consumed order shipped message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+    @KafkaListener(topics = "order-delivered", groupId = "my-group")
+    public void consumeOrderDelivered(ConsumerRecord<String, String> record) {
+        log.info("Consumed order delivered message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
 }

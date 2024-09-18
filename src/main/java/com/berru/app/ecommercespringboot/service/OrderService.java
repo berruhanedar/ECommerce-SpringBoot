@@ -50,6 +50,7 @@ public class OrderService {
     private final AddressRepository addressRepository;
     private final CustomerRepository customerRepository;
     private final ShoppingCartRepository shoppingCartRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
@@ -70,6 +71,10 @@ public class OrderService {
 
         Order order = Order.createOrder(customer, address, totalPrice, shoppingCart.getItems());
         orderRepository.save(order);
+
+        kafkaProducerService.sendMessage("order-placed", "Order placed: " + order.getId() +
+                " | Customer ID: " + customer.getId() +
+                " | Total Price: " + totalPrice);
 
         shoppingCartService.deleteShoppingCart(shoppingCart.getId());
 
@@ -157,6 +162,8 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
 
+        kafkaProducerService.sendMessage("order-cancelled", "Order cancelled: " + order.getId());
+
         for (OrderItem orderItem : order.getOrderItems()) {
             Product product = orderItem.getProduct();
             product.setQuantity(product.getQuantity() + orderItem.getQuantity());
@@ -178,7 +185,9 @@ public class OrderService {
         }
 
         order.setOrderStatus(OrderStatus.SHIPPED);
+
         orderRepository.save(order);
+        kafkaProducerService.sendMessage("order-shipped", "Order shipped: " + order.getId());
     }
 
     @Transactional
@@ -192,6 +201,8 @@ public class OrderService {
 
         order.setOrderStatus(OrderStatus.DELIVERED);
         orderRepository.save(order);
+
+        kafkaProducerService.sendMessage("order-delivered", "Order delivered: " + order.getId());
     }
 
     @Transactional(readOnly = true)
