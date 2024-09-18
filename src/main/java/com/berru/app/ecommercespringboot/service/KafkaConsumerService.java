@@ -55,7 +55,6 @@ public class KafkaConsumerService {
         log.info("Consumed customer deleted message: Key = {}, Value = {}", record.key(), record.value());
     }
 
-
     @KafkaListener(topics = "product-updates", groupId = "my-group")
     public void consume(ConsumerRecord<String, String> record) {
         log.info("Consumed message: Key = {}, Value = {}", record.key(), record.value());
@@ -86,4 +85,13 @@ public class KafkaConsumerService {
         log.info("Consumed order delivered message: Key = {}, Value = {}", record.key(), record.value());
     }
 
+    @KafkaListener(topics = "cart-item-added", groupId = "my-group")
+    public void consumeCartItemAdded(ConsumerRecord<String, String> record) {
+        log.info("Consumed cart item added message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+    @KafkaListener(topics = "cart-item-removed", groupId = "my-group")
+    public void consumeCartItemRemoved(ConsumerRecord<String, String> record) {
+        log.info("Consumed cart item removed message: Key = {}, Value = {}", record.key(), record.value());
+    }
 }
