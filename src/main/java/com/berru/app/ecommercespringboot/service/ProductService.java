@@ -40,6 +40,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     @CacheEvict(value = "products", allEntries = true)
@@ -78,6 +79,9 @@ public class ProductService {
 
         productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
+
+        kafkaProducerService.sendMessage("product-updates", "Product updated: " + updatedProduct.getId() + " | Name: " + updatedProduct.getName());
+
         return productMapper.toDto(updatedProduct);
     }
 
