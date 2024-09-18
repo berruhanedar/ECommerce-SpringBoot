@@ -14,4 +14,9 @@ public class KafkaConsumerService {
     public void consume(ConsumerRecord<String, String> record) {
         log.info("Consumed message: Key = {}, Value = {}", record.key(), record.value());
     }
+
+    @KafkaListener(topics = "product-deletions", groupId = "my-group")
+    public void consumeProductDeletion(ConsumerRecord<String, String> record) {
+          log.info("Consumed product deletion message: Key = {}, Value = {}", record.key(), record.value());
+    }
 }

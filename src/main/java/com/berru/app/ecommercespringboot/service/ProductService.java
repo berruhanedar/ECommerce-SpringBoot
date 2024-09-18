@@ -50,6 +50,9 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         product.setCategory(category);
         Product savedProduct = productRepository.save(product);
+
+        kafkaProducerService.sendMessage("product-creation", "Product created: " + savedProduct.getId() + " | Name: " + savedProduct.getName());
+
         return productMapper.toDto(savedProduct);
     }
 
@@ -91,12 +94,17 @@ public class ProductService {
         Optional.of(id)
                 .filter(productRepository::existsById)
                 .ifPresentOrElse(
-                        productRepository::deleteById,
+                        productId -> {
+                            productRepository.deleteById(productId);
+
+                            kafkaProducerService.sendMessage("product-deletions", "Product deleted: " + productId);
+                        },
                         () -> {
                             throw new NotFoundException("Product not found");
                         }
                 );
     }
+
 
     @Transactional(readOnly = true)
     @Cacheable(value = "products", key = "#pageNo + '-' + #pageSize")
@@ -137,18 +145,14 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductDTO> searchProductsByRsql(String query) {
-        // RSQL sorgusunu parse et
         RSQLParser parser = new RSQLParser();
         Node rootNode = parser.parse(query);
 
-        // Custom RSQL visitor kullanarak Specification oluştur
         CustomRsqlVisitor<Product> visitor = new CustomRsqlVisitor<>();
         Specification<Product> spec = rootNode.accept(visitor);
 
-        // Veritabanından ürünleri çek
         List<Product> products = productRepository.findAll(spec);
 
-        // Ürünleri DTO'ya dönüştür
         return products.stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
