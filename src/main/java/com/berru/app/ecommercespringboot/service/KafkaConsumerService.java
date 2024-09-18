@@ -25,6 +25,23 @@ public class KafkaConsumerService {
         log.info("Consumed address deleted message: Key = {}, Value = {}", record.key(), record.value());
     }
 
+
+    @KafkaListener(topics = "category-created", groupId = "my-group")
+    public void consumeCategoryCreated(ConsumerRecord<String, String> record) {
+        log.info("Consumed category created message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+    @KafkaListener(topics = "category-updated", groupId = "my-group")
+    public void consumeCategoryUpdated(ConsumerRecord<String, String> record) {
+        log.info("Consumed category updated message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+    @KafkaListener(topics = "category-deleted", groupId = "my-group")
+    public void consumeCategoryDeleted(ConsumerRecord<String, String> record) {
+        log.info("Consumed category deleted message: Key = {}, Value = {}", record.key(), record.value());
+    }
+
+
     @KafkaListener(topics = "product-updates", groupId = "my-group")
     public void consume(ConsumerRecord<String, String> record) {
         log.info("Consumed message: Key = {}, Value = {}", record.key(), record.value());

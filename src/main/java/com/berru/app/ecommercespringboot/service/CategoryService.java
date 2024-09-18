@@ -39,6 +39,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {
@@ -48,6 +49,12 @@ public class CategoryService {
         Category category = categoryMapper.toCategoryEntity(newCategoryRequestDTO);
         category.setParentCategory(parentCategory);
         Category savedCategory = categoryRepository.save(category);
+
+        kafkaProducerService.sendMessage("category-created",
+                "Category created: ID = " + savedCategory.getId() +
+                        " | Name = " + savedCategory.getName() +
+                        " | Parent ID = " + (savedCategory.getParentCategory() != null ? savedCategory.getParentCategory().getId() : "None"));
+
         return categoryMapper.toCategoryDTO(savedCategory);
     }
 
@@ -69,6 +76,12 @@ public class CategoryService {
         return categoryRepository.findById(id).map(category -> {
             categoryMapper.updateCategoryFromDTO(updateCategoryRequestDTO, category);
             Category updatedCategory = categoryRepository.save(category);
+
+            kafkaProducerService.sendMessage("category-updated",
+                    "Category updated: ID = " + updatedCategory.getId() +
+                            " | New Name = " + updatedCategory.getName() +
+                            " | Parent ID = " + (updatedCategory.getParentCategory() != null ? updatedCategory.getParentCategory().getId() : "None"));
+
             return categoryMapper.toCategoryDTO(updatedCategory);
         });
     }
@@ -78,7 +91,12 @@ public class CategoryService {
     public void deleteCategory(Integer id) {
         categoryRepository.findById(id)
                 .ifPresentOrElse(
-                        categoryRepository::delete,
+                        category -> {
+                            categoryRepository.delete(category);
+
+                            kafkaProducerService.sendMessage("category-deleted",
+                                    "Category deleted: ID = " + id);
+                        },
                         () -> {
                             throw new NotFoundException("Category not found");
                         }
@@ -139,18 +157,14 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public List<CategoryDTO> searchCategoriesByRsql(String query) {
-        // RSQL sorgusunu parse et
         RSQLParser parser = new RSQLParser();
         Node rootNode = parser.parse(query);
 
-        // Custom RSQL visitor kullanarak Specification oluştur
         CustomRsqlVisitor<Category> visitor = new CustomRsqlVisitor<>();
         Specification<Category> spec = rootNode.accept(visitor);
 
-        // Veritabanından kategorileri çek
         List<Category> categories = categoryRepository.findAll(spec);
 
-        // Kategorileri DTO'ya dönüştür
         return categories.stream()
                 .map(categoryMapper::toCategoryDTO)
                 .collect(Collectors.toList());
