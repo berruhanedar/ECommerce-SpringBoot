@@ -4,7 +4,6 @@ import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
-import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.service.ProductService;
 
 import jakarta.validation.Valid;

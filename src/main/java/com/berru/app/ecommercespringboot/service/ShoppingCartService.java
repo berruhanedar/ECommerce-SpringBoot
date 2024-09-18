@@ -1,10 +1,8 @@
 package com.berru.app.ecommercespringboot.service;
 
 import com.berru.app.ecommercespringboot.dto.AddToCartRequestDTO;
-import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.ShoppingCartDTO;
 import com.berru.app.ecommercespringboot.entity.Customer;
-import com.berru.app.ecommercespringboot.entity.Order;
 import com.berru.app.ecommercespringboot.entity.Product;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
 import com.berru.app.ecommercespringboot.exception.InsufficientQuantityException;

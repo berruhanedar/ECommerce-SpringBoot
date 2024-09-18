@@ -9,6 +9,6 @@ import java.util.Optional;
 
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Integer> , JpaSpecificationExecutor<Customer> {
+public interface CustomerRepository extends JpaRepository<Customer, Integer>, JpaSpecificationExecutor<Customer> {
     Optional<Customer> findById(Integer customerId);
 }

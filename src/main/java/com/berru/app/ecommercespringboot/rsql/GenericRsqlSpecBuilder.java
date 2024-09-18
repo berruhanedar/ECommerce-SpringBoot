@@ -1,10 +1,15 @@
 package com.berru.app.ecommercespringboot.rsql;
 
-import cz.jirutka.rsql.parser.ast.*;
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.LogicalOperator;
+import cz.jirutka.rsql.parser.ast.Node;
 import org.springframework.data.jpa.domain.Specification;
-import java.util.*;
+
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import jakarta.persistence.criteria.*;
+
 
 public class GenericRsqlSpecBuilder<T> {
 

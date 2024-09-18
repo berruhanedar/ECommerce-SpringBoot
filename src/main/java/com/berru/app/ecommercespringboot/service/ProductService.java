@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.berru.app.ecommercespringboot.rsql.CustomRsqlVisitor;
-import com.berru.app.ecommercespringboot.rsql.GenericRsqlSpecification;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
 import lombok.RequiredArgsConstructor;

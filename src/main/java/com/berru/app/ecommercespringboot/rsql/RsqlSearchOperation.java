@@ -15,7 +15,7 @@ public enum RsqlSearchOperation {
 
     private ComparisonOperator operator;
 
-    private RsqlSearchOperation(ComparisonOperator operator) {
+    RsqlSearchOperation(ComparisonOperator operator) {
         this.operator = operator;
     }
 

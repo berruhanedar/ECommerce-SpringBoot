@@ -1,7 +1,6 @@
 package com.berru.app.ecommercespringboot.repository;
 
 import com.berru.app.ecommercespringboot.entity.Customer;
-import com.berru.app.ecommercespringboot.entity.Order;
 import com.berru.app.ecommercespringboot.entity.ShoppingCart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

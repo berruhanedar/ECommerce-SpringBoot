@@ -3,7 +3,6 @@ package com.berru.app.ecommercespringboot.controller;
 import com.berru.app.ecommercespringboot.dto.OrderDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.PlaceOrderDTO;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
