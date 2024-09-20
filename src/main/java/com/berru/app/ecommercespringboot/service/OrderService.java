@@ -56,7 +56,7 @@ public class OrderService {
     public OrderDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
         Customer customer = customerRepository.findById(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + placeOrderDTO.getCustomerId()));
-        final Address address = addressRepository.findById(placeOrderDTO.getAddressId())
+        Address address = addressRepository.findById(placeOrderDTO.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + placeOrderDTO.getAddressId()));
         ShoppingCart shoppingCart = shoppingCartRepository.findByCustomerId(placeOrderDTO.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found for customer ID: " + placeOrderDTO.getCustomerId()));
@@ -66,20 +66,18 @@ public class OrderService {
 
         validateOrderItems(shoppingCart.getItems());
         validateCustomerBalance(customer, totalPrice);
-
         updateProductQuantitiesAndCustomerBalance(shoppingCart.getItems(), customer, totalPrice);
 
         Order order = Order.createOrder(customer, address, totalPrice, shoppingCart.getItems());
         orderRepository.save(order);
 
-        kafkaProducerService.sendMessage("order-placed", "Order placed: " + order.getId() +
-                " | Customer ID: " + customer.getId() +
-                " | Total Price: " + totalPrice);
+        OrderDTO orderDTO = orderMapper.toDto(order);
 
-        shoppingCartService.deleteShoppingCart(shoppingCart.getId());
+        kafkaProducerService.sendMessage("order-topic", orderDTO);
 
-        return orderMapper.toDto(order);
+        return orderDTO;
     }
+
 
     private void validateOrderItems(List<ShoppingCartItem> items) {
         for (ShoppingCartItem item : items) {
@@ -162,8 +160,6 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
 
-        kafkaProducerService.sendMessage("order-cancelled", "Order cancelled: " + order.getId());
-
         for (OrderItem orderItem : order.getOrderItems()) {
             Product product = orderItem.getProduct();
             product.setQuantity(product.getQuantity() + orderItem.getQuantity());
@@ -187,8 +183,7 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.SHIPPED);
 
         orderRepository.save(order);
-        kafkaProducerService.sendMessage("order-shipped", "Order shipped: " + order.getId());
-    }
+        }
 
     @Transactional
     public void deliverOrder(Integer orderId) {
@@ -198,11 +193,6 @@ public class OrderService {
         if (order.getOrderStatus() != OrderStatus.SHIPPED) {
             throw new InvalidOrderStateException("Order must be in SHIPPED status to be delivered.");
         }
-
-        order.setOrderStatus(OrderStatus.DELIVERED);
-        orderRepository.save(order);
-
-        kafkaProducerService.sendMessage("order-delivered", "Order delivered: " + order.getId());
     }
 
     @Transactional(readOnly = true)
