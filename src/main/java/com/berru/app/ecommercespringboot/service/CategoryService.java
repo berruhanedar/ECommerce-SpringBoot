@@ -50,11 +50,6 @@ public class CategoryService {
         category.setParentCategory(parentCategory);
         Category savedCategory = categoryRepository.save(category);
 
-        kafkaProducerService.sendMessage("category-created",
-                "Category created: ID = " + savedCategory.getId() +
-                        " | Name = " + savedCategory.getName() +
-                        " | Parent ID = " + (savedCategory.getParentCategory() != null ? savedCategory.getParentCategory().getId() : "None"));
-
         return categoryMapper.toCategoryDTO(savedCategory);
     }
 
@@ -77,11 +72,6 @@ public class CategoryService {
             categoryMapper.updateCategoryFromDTO(updateCategoryRequestDTO, category);
             Category updatedCategory = categoryRepository.save(category);
 
-            kafkaProducerService.sendMessage("category-updated",
-                    "Category updated: ID = " + updatedCategory.getId() +
-                            " | New Name = " + updatedCategory.getName() +
-                            " | Parent ID = " + (updatedCategory.getParentCategory() != null ? updatedCategory.getParentCategory().getId() : "None"));
-
             return categoryMapper.toCategoryDTO(updatedCategory);
         });
     }
@@ -94,9 +84,7 @@ public class CategoryService {
                         category -> {
                             categoryRepository.delete(category);
 
-                            kafkaProducerService.sendMessage("category-deleted",
-                                    "Category deleted: ID = " + id);
-                        },
+                            },
                         () -> {
                             throw new NotFoundException("Category not found");
                         }
