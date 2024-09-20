@@ -1,7 +1,6 @@
 version: '3.1'
 
 services:
-
   db:
     image: postgres
     restart: always
@@ -41,9 +40,10 @@ services:
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       - KAFKA_LISTENERS=INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
       - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
     depends_on:
       - zookeeper
+
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -56,13 +56,14 @@ services:
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9093
       - KAFKA_CLUSTERS_0_ZOOKEEPER=localhost:2181
 
+
+
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
     restart: always
-    volumes:
-      - redis_data:/data
+
 
 volumes:
   zookeeper_data:
@@ -71,3 +72,4 @@ volumes:
     driver: local
   redis_data:
     driver: local
+
