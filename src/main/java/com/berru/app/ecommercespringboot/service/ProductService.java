@@ -40,7 +40,6 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     @CacheEvict(value = "products", allEntries = true)

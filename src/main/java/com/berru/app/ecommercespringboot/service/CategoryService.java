@@ -39,7 +39,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final KafkaProducerService kafkaProducerService;
+
 
     @Transactional
     public CategoryDTO create(NewCategoryRequestDTO newCategoryRequestDTO) {

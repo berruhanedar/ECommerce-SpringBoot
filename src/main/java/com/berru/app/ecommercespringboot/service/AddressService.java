@@ -26,7 +26,6 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
-    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     public AddressDTO createAddress(NewAddressRequestDTO newAddressRequestDTO) {

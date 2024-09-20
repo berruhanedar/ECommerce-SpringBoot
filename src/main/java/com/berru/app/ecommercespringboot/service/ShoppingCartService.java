@@ -32,7 +32,6 @@ public class ShoppingCartService {
     private final ShoppingCartMapper shoppingCartMapper;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
-    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     public ShoppingCartDTO addToCart(AddToCartRequestDTO addToCartRequestDTO) {
