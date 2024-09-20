@@ -53,8 +53,6 @@ public class ShoppingCartService {
 
         shoppingCart = shoppingCartRepository.save(shoppingCart);
 
-        kafkaProducerService.sendMessage("cart-item-added", "Cart updated for customer ID: " + customer.getId() + " | Cart ID: " + shoppingCart.getId());
-
         return shoppingCartMapper.toDTO(shoppingCart);
     }
 
@@ -71,7 +69,6 @@ public class ShoppingCartService {
         cart.removeItem(product);
         shoppingCartRepository.save(cart);
 
-        kafkaProducerService.sendMessage("cart-item-removed", "Product removed from cart ID: " + cartId + " | Product ID: " + productId);
     }
 
     @Transactional

@@ -58,10 +58,6 @@ public class CustomerService {
 
         Customer savedCustomer = customerRepository.save(customer);
 
-        kafkaProducerService.sendMessage("customer-created", "Customer created: " + savedCustomer.getId() +
-                " | Name: " + savedCustomer.getFirstName() + " " + savedCustomer.getLastName() +
-                " | Email: " + savedCustomer.getEmail());
-
         return customerMapper.toDTO(savedCustomer);
     }
 
@@ -72,9 +68,6 @@ public class CustomerService {
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
         customerMapper.updateCustomerFromDTO(updateCustomerRequestDTO, existingCustomer);
         Customer updatedCustomer = customerRepository.save(existingCustomer);
-
-        kafkaProducerService.sendMessage("customer-updated", "Customer updated: " + updatedCustomer.getId() +
-                " | Name: " + updatedCustomer.getFirstName() + " " + updatedCustomer.getLastName());
 
         return customerMapper.toDTO(updatedCustomer);
     }

@@ -51,8 +51,6 @@ public class ProductService {
         product.setCategory(category);
         Product savedProduct = productRepository.save(product);
 
-        kafkaProducerService.sendMessage("product-creation", "Product created: " + savedProduct.getId() + " | Name: " + savedProduct.getName());
-
         return productMapper.toDto(savedProduct);
     }
 
@@ -83,8 +81,6 @@ public class ProductService {
         productMapper.updateProductFromDto(updateProductRequestDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
 
-        kafkaProducerService.sendMessage("product-updates", "Product updated: " + updatedProduct.getId() + " | Name: " + updatedProduct.getName());
-
         return productMapper.toDto(updatedProduct);
     }
 
@@ -94,14 +90,9 @@ public class ProductService {
         Optional.of(id)
                 .filter(productRepository::existsById)
                 .ifPresentOrElse(
-                        productId -> {
-                            productRepository.deleteById(productId);
-
-                            kafkaProducerService.sendMessage("product-deletions", "Product deleted: " + productId);
-                        },
+                        productId -> productRepository.deleteById(productId),
                         () -> {
-                            throw new NotFoundException("Product not found");
-                        }
+                            throw new NotFoundException("Product not found"); }
                 );
     }
 
