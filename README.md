@@ -1,4 +1,4 @@
-# ECommerce-SpringBoot-Project
+# ECommerce-SpringBoot Project
 We have developed a robust and feature-rich REST API for an e-commerce platform, designed to handle all essential CRUD operations with high efficiency and security. The API integrates comprehensive user validation throughout the process, ensuring a smooth and reliable experience for managing products, users, and orders.
 
 In addition to standard functionality, the API leverages Redis caching to enhance performance, especially in handling frequent data access requests. We have implemented RSQL to enable advanced search and filtering capabilities, giving users more control over querying the data. Furthermore, the system is integrated with Kafka for event-driven communication, with a fully functional producer setup, ensuring reliable message delivery and high throughput.
@@ -20,7 +20,7 @@ In addition to standard functionality, the API leverages Redis caching to enhanc
 * Maven
 * Swagger
 * Redis
-* Kafka
+* Apache Kafka
   
 
 ## Modules
