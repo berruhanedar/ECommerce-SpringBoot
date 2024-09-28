@@ -1,9 +1,7 @@
 package com.berru.app.ecommercespringboot.controller;
 
-import com.berru.app.ecommercespringboot.dto.PaginationResponse;
-import com.berru.app.ecommercespringboot.dto.ProductDTO;
-import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
-import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.*;
+import com.berru.app.ecommercespringboot.repository.AttributeRepository;
 import com.berru.app.ecommercespringboot.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -30,6 +28,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final AttributeRepository attributeRepository;
 
     @PostMapping
     public ResponseEntity<ProductDTO> create(@RequestBody @Valid NewProductRequestDTO newProductRequestDTO) {
@@ -67,9 +66,4 @@ public class ProductController {
     public List<ProductDTO> searchProductsByRsql(@RequestParam String query) {
         return productService.searchProductsByRsql(query);
     }
-
-
-
-
-
 }
