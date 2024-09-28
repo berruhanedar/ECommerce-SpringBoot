@@ -1,10 +1,8 @@
 package com.berru.app.ecommercespringboot.dto;
 
 import com.berru.app.ecommercespringboot.enums.ProductStatus;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -23,5 +21,6 @@ public class ProductDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<CategoryDTO> categoryTree;
 
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ProductAttributeValueDTO> productAttributeValues;
 }
