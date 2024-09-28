@@ -1,10 +1,11 @@
 package com.berru.app.ecommercespringboot.mapper;
 
 import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
+import com.berru.app.ecommercespringboot.dto.ProductAttributeValueDTO;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
 import com.berru.app.ecommercespringboot.entity.Product;
-
+import com.berru.app.ecommercespringboot.entity.ProductAttributeValue;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -22,4 +23,6 @@ public interface ProductMapper {
     void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
 
     List<ProductDTO> toDtoList(List<Product> products);
+
+    List<ProductAttributeValueDTO> mapAttributes(List<ProductAttributeValue> attributes);
 }
