@@ -3,17 +3,11 @@ package com.berru.app.ecommercespringboot.entity;
 import com.berru.app.ecommercespringboot.enums.ProductStatus;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,7 +33,7 @@ public class Product {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    @JsonBackReference // Döngüyü kırmak için bu anotasyonu ekleyin
+    @JsonBackReference
     private Category category;
 
     @Enumerated(EnumType.STRING)
@@ -48,4 +42,7 @@ public class Product {
     public Product(Integer id) {
         this.id = id;
     }
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductAttributeValue> productAttributeValues = new ArrayList<>();
 }
