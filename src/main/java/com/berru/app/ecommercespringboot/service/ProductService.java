@@ -5,11 +5,14 @@ import com.berru.app.ecommercespringboot.dto.NewProductRequestDTO;
 import com.berru.app.ecommercespringboot.dto.PaginationResponse;
 import com.berru.app.ecommercespringboot.dto.ProductDTO;
 import com.berru.app.ecommercespringboot.dto.UpdateProductRequestDTO;
+import com.berru.app.ecommercespringboot.entity.Attribute;
 import com.berru.app.ecommercespringboot.entity.Category;
 import com.berru.app.ecommercespringboot.entity.Product;
+import com.berru.app.ecommercespringboot.entity.ProductAttributeValue;
 import com.berru.app.ecommercespringboot.exception.NotFoundException;
 import com.berru.app.ecommercespringboot.mapper.CategoryMapper;
 import com.berru.app.ecommercespringboot.mapper.ProductMapper;
+import com.berru.app.ecommercespringboot.repository.AttributeRepository;
 import com.berru.app.ecommercespringboot.repository.CategoryRepository;
 import com.berru.app.ecommercespringboot.repository.ProductRepository;
 
@@ -40,6 +43,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final AttributeRepository attributeRepository;
 
     @Transactional
     @CacheEvict(value = "products", allEntries = true)
@@ -48,9 +52,34 @@ public class ProductService {
         Category category = categoryRepository.findById(newProductRequestDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         product.setCategory(category);
+
+        if (newProductRequestDTO.getProductAttributeValues() != null) {
+            List<ProductAttributeValue> productAttributes = newProductRequestDTO.getProductAttributeValues().stream()
+                    .map(attr -> {
+                        Attribute attribute;
+
+                        if (attr.getAttribute().getId() != null) {
+                            attribute = attributeRepository.findById(attr.getAttribute().getId())
+                                    .orElseGet(() -> createNewAttribute(attr.getAttribute().getName()));
+                        } else {
+
+                            attribute = createNewAttribute(attr.getAttribute().getName());
+                        }
+                        return new ProductAttributeValue(attribute, product, attr.getValue());
+                    }).collect(Collectors.toList());
+            product.setProductAttributeValues(productAttributes);
+        }
+
+
         Product savedProduct = productRepository.save(product);
 
         return productMapper.toDto(savedProduct);
+    }
+
+    private Attribute createNewAttribute(String name) {
+        Attribute attribute = new Attribute();
+        attribute.setName(name);
+        return attributeRepository.save(attribute);
     }
 
     @Transactional(readOnly = true)
