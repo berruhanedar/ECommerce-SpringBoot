@@ -1,6 +1,7 @@
 package com.berru.app.ecommercespringboot.dto;
 
 import com.berru.app.ecommercespringboot.enums.ProductStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import jakarta.validation.constraints.DecimalMin;
 
 import lombok.Data;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class NewProductRequestDTO {
@@ -35,4 +37,9 @@ public class NewProductRequestDTO {
     private Integer categoryId;
 
     private ProductStatus status;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ProductAttributeValueDTO> productAttributeValues;
+
+
 }
