@@ -29,6 +29,9 @@ public class ProductAttributeValue {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    /*
+    String yerine Object olmalı ve typelar belirtilmeli
+     */
     @NotNull
     private String value;
 
