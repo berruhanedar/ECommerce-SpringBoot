@@ -62,15 +62,12 @@ public class ProductService {
                             attribute = attributeRepository.findById(attr.getAttribute().getId())
                                     .orElseGet(() -> createNewAttribute(attr.getAttribute().getName()));
                         } else {
-
                             attribute = createNewAttribute(attr.getAttribute().getName());
                         }
                         return new ProductAttributeValue(attribute, product, attr.getValue());
                     }).collect(Collectors.toList());
             product.setProductAttributeValues(productAttributes);
         }
-
-
         Product savedProduct = productRepository.save(product);
 
         return productMapper.toDto(savedProduct);
