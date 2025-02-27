@@ -32,7 +32,3 @@ In addition to standard functionality, the API leverages Redis caching to enhanc
 * Order Module
 * Product Module
 * Shopping Cart Module
-
-
-
- 
