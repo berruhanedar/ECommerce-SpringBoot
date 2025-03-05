@@ -32,3 +32,8 @@ In addition to standard functionality, the API leverages Redis caching to enhanc
 * Order Module
 * Product Module
 * Shopping Cart Module
+
+
+## Kafka
+![Kafka-Sayfa -1 drawio (1)](https://github.com/user-attachments/assets/4000344e-13fa-4bff-ae4f-db1bebf5f28c)
+
