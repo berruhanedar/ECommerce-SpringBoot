@@ -11,7 +11,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
@@ -25,4 +24,8 @@ public interface ProductMapper {
     List<ProductDTO> toDtoList(List<Product> products);
 
     List<ProductAttributeValueDTO> mapAttributes(List<ProductAttributeValue> attributes);
+
+    default String map(Object value) {
+        return value != null ? value.toString() : null;
+    }
 }
